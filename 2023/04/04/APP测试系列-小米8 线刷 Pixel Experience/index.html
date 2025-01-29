@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、前言前段时间有个需求要测试个Android APP，由于 APP 权限问题，自用手机无法进行正常打开，当时旁边有位同事刚好有台 Pixel ，玩了一下体验还不错，测试也能顺利的进行，当完成测试已经周五了，刚好手头上有台闲置的手机，于是乎利用周末时间从 0 到 1 了解了一下刷机知识，刷入了Pixel Experience，记录一下过程。 二、刷机知识线刷与卡刷线刷：刷了官方 ROM 的 re">
+<meta property="og:type" content="article">
+<meta property="og:title" content="APP测试系列-小米8 线刷 Pixel Experience">
+<meta property="og:url" content="http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、前言前段时间有个需求要测试个Android APP，由于 APP 权限问题，自用手机无法进行正常打开，当时旁边有位同事刚好有台 Pixel ，玩了一下体验还不错，测试也能顺利的进行，当完成测试已经周五了，刚好手头上有台闲置的手机，于是乎利用周末时间从 0 到 1 了解了一下刷机知识，刷入了Pixel Experience，记录一下过程。 二、刷机知识线刷与卡刷线刷：刷了官方 ROM 的 re">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/Pixel/title.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319182507946.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318124214979.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318122930624.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318123032825.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318130008889.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318130023826.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318130037610.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230404213706121.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230404213754974.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318130742747.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319182703137.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230404213840722.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230404214041979.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230404214105264.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230404214126997.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230404214146559.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318132210299.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319165801972.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319170319361.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318125409183.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318205740379.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318212413538.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318210409029.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318214541936.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319182815459.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319171214916.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319171228496.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319171338443.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318125409183.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319171826726.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319182902803.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319182957100.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318220949643.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319173327421.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319173358908.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319173443733.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319173517976.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319173534934.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319173551822.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319173644133.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318221129791.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319173748614.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319174211074.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319174232708.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319174303819.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319174354316.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319174631189.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319180829569.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319181732161.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319181807960.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319181848655.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319181941395.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319182044661.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319182159561.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319182229824.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319183957793.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319185019989.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319185038023.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319185115904.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319175143604.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319175243609.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230319175529067.png">
+<meta property="og:image" content="http://example.com/images/Pixel/image-20230318212413538.png">
+<meta property="article:published_time" content="2023-04-04T13:48:34.000Z">
+<meta property="article:modified_time" content="2023-04-04T15:32:32.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="刷机">
+<meta property="article:tag" content="Pixel Experience">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/Pixel/title.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>APP测试系列-小米8 线刷 Pixel Experience</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/03/07/Java%E4%BB%A3%E7%A0%81%E5%AE%A1(%E4%B8%83)-JNDI%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86%E5%8F%8A%E5%88%A9%E7%94%A8%E8%80%83%E7%A9%B6/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&text=APP测试系列-小米8 线刷 Pixel Experience"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&title=APP测试系列-小米8 线刷 Pixel Experience"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&is_video=false&description=APP测试系列-小米8 线刷 Pixel Experience"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=APP测试系列-小米8 线刷 Pixel Experience&body=Check out this article: http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&title=APP测试系列-小米8 线刷 Pixel Experience"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&title=APP测试系列-小米8 线刷 Pixel Experience"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&title=APP测试系列-小米8 线刷 Pixel Experience"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&title=APP测试系列-小米8 线刷 Pixel Experience"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&name=APP测试系列-小米8 线刷 Pixel Experience&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&t=APP测试系列-小米8 线刷 Pixel Experience"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%88%B7%E6%9C%BA%E7%9F%A5%E8%AF%86"><span class="toc-number">2.</span> <span class="toc-text">二、刷机知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E5%88%B7%E4%B8%8E%E5%8D%A1%E5%88%B7"><span class="toc-number">2.1.</span> <span class="toc-text">线刷与卡刷</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%95%E5%8C%85"><span class="toc-number">2.2.</span> <span class="toc-text">底包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Recovery"><span class="toc-number">2.3.</span> <span class="toc-text">Recovery</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%88%B7%E6%9C%BA%E8%BF%87%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">三、刷机过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%B1%B38-%E8%A7%A3%E9%94%81-BL"><span class="toc-number">3.1.</span> <span class="toc-text">小米8 解锁 BL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%B7%E5%85%A5%E5%BA%95%E5%8C%85"><span class="toc-number">3.2.</span> <span class="toc-text">刷入底包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%B7%E5%85%A5TWRP-Recovery"><span class="toc-number">3.3.</span> <span class="toc-text">刷入TWRP Recovery</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%B7%E5%85%A5-Pixel-Experience"><span class="toc-number">3.4.</span> <span class="toc-text">刷入 Pixel_Experience</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%B7%E5%85%A5-Magisk-%E5%AE%9E%E7%8E%B0-Root"><span class="toc-number">3.5.</span> <span class="toc-text">刷入 Magisk 实现 Root</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-number">4.</span> <span class="toc-text">四、注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#TWRP-Recovery"><span class="toc-number">4.1.</span> <span class="toc-text">TWRP Recovery</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A0%E6%B3%95%E8%BF%9B%E5%85%A5%E7%B3%BB%E7%BB%9F%EF%BC%8C%E5%8D%A1%E5%9C%A8%E5%BC%80%E6%9C%BA"><span class="toc-number">4.2.</span> <span class="toc-text">无法进入系统，卡在开机</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">5.</span> <span class="toc-text">五、参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        APP测试系列-小米8 线刷 Pixel Experience
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-04-04T13:48:34.000Z" itemprop="datePublished">2023-04-04</time>
+        
+        (Updated: <time datetime="2023-04-04T15:32:32.000Z" itemprop="dateModified">2023-04-04</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97/">APP测试系列</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Pixel-Experience/" rel="tag">Pixel Experience</a>, <a class="tag-link-link" href="/tags/%E5%88%B7%E6%9C%BA/" rel="tag">刷机</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p><a data-fancybox="gallery" data-src="/../images/Pixel/title.png" data-caption="Hello Android"><img src="/../images/Pixel/title.png" alt="Hello Android"></a></p>
+<h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>前段时间有个需求要测试个Android APP，由于 APP 权限问题，自用手机无法进行正常打开，当时旁边有位同事刚好有台 Pixel ，玩了一下体验还不错，测试也能顺利的进行，当完成测试已经周五了，刚好手头上有台闲置的手机，于是乎利用周末时间从 0 到 1 了解了一下刷机知识，刷入了Pixel Experience，记录一下过程。</p>
+<h2 id="二、刷机知识"><a href="#二、刷机知识" class="headerlink" title="二、刷机知识"></a>二、刷机知识</h2><h3 id="线刷与卡刷"><a href="#线刷与卡刷" class="headerlink" title="线刷与卡刷"></a>线刷与卡刷</h3><p><strong>线刷：</strong>刷了官方 ROM 的 recovery.img 刷机方式就是线刷,指使用USB线连接个人计算机，并在个人计算机上使用刷机软件进行刷机。</p>
+<p><strong>卡刷：</strong>刷了第三方中文 recovery.img 刷机方式就是卡刷，卡刷则是把固件或者升级包拷贝到手机SD卡中进行刷机升级操作。</p>
+<h3 id="底包"><a href="#底包" class="headerlink" title="底包"></a>底包</h3><p>指的是官方的线刷包，也就是官方的ROM，在刷入第三方原生系统的时候需要先刷入官方底包，因为这些原生系统中不带官方底层分区文件，需要底包作为一个衔接的作用。</p>
+<h3 id="Recovery"><a href="#Recovery" class="headerlink" title="Recovery"></a>Recovery</h3><p>Recovery 为 Android 手机备份功能，可以对安卓手机内部的数据或系统进行修改的模式，类似于 Windows 的 PE ，每个手机都自带 Recovery ，关机状态下，按住手机电源键和音量+键，直到亮屏，松开就可以进入本机 Recovery，每个厂商的 Recovery 界面或会不同，功能功能上也会有所区别，一般所以一般刷机会选择输入第三方的 Recovery ，功能上会多一点，这就是通常刷机文章上出现刷入 Recovery。</p>
+<h2 id="三、刷机过程"><a href="#三、刷机过程" class="headerlink" title="三、刷机过程"></a>三、刷机过程</h2><h3 id="小米8-解锁-BL"><a href="#小米8-解锁-BL" class="headerlink" title="小米8 解锁 BL"></a>小米8 解锁 BL</h3><p>BL（Bootloader） 启动加载程序。<strong>BL锁</strong> 是由手机厂商在手机出厂的时候就设置好的，防止用户对手机系统进行更改。</p>
+<p>首先需要在手机上绑定小米账号，系统设置中找到 <strong>MIUI版本</strong> 多次点击进入开发者模式，查看设备解锁状态 <code>设置-》更多设置-》开发者模式-》设备解锁状态</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319182507946.png" data-caption="image-20230319182507946"><img src="/../images/Pixel/image-20230319182507946.png" alt="image-20230319182507946"></a></p>
+<p>点击绑定账户和设备</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318124214979.png" data-caption="image-20230318124214979"><img src="/../images/Pixel/image-20230318124214979.png" alt="image-20230318124214979"></a></p>
+<p>小米官方提供 BL 解锁 <a target="_blank" rel="noopener" href="http://www.miui.com/unlock/index.html">http://www.miui.com/unlock/index.html</a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318122930624.png" data-caption="image-20230318122930624"><img src="/../images/Pixel/image-20230318122930624.png" alt="image-20230318122930624"></a></p>
+<p>下载解锁工具</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318123032825.png" data-caption="image-20230318123032825"><img src="/../images/Pixel/image-20230318123032825.png" alt="image-20230318123032825"></a></p>
+<p>双击打开 miflash_unlock.exe 软件</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318130008889.png" data-caption="image-20230318130008889"><img src="/../images/Pixel/image-20230318130008889.png" alt="image-20230318130008889"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318130023826.png" data-caption="image-20230318130023826"><img src="/../images/Pixel/image-20230318130023826.png" alt="image-20230318130023826"></a></p>
+<p>登录刚才登录手机的小米账号</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318130037610.png" data-caption="image-20230318130037610"><img src="/../images/Pixel/image-20230318130037610.png" alt="image-20230318130037610"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230404213706121.png" data-caption="image-20230404213706121"><img src="/../images/Pixel/image-20230404213706121.png" alt="image-20230404213706121"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230404213754974.png" data-caption="image-20230404213754974"><img src="/../images/Pixel/image-20230404213754974.png" alt="image-20230404213754974"></a></p>
+<p>在进入 BL 解锁前，需在开发者模式中将 USB 调试开启</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318130742747.png" data-caption="image-20230318130742747"><img src="/../images/Pixel/image-20230318130742747.png" alt="image-20230318130742747"></a></p>
+<p>接下来将手机关机 <code>长按电源键+音量减</code> 进入 <code>fastboot</code>  模式,然后使用具备数据传输的数据线连接手机</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319182703137.png" data-caption="image-20230319182703137"><img src="/../images/Pixel/image-20230319182703137.png" alt="image-20230319182703137"></a></p>
+<p>插入手机后，解锁功能还是无法点击，检测驱动是否正确安装</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230404213840722.png" data-caption="image-20230404213840722"><img src="/../images/Pixel/image-20230404213840722.png" alt="image-20230404213840722"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230404214041979.png" data-caption="image-20230404214041979"><img src="/../images/Pixel/image-20230404214041979.png" alt="image-20230404214041979"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230404214105264.png" data-caption="image-20230404214105264"><img src="/../images/Pixel/image-20230404214105264.png" alt="image-20230404214105264"></a></p>
+<p>点击确认解锁，注意解锁后相当于重装系统了，资料需提前备份</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230404214126997.png" data-caption="image-20230404214126997"><img src="/../images/Pixel/image-20230404214126997.png" alt="image-20230404214126997"></a></p>
+<p>BL 解锁部分就已经完成了</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230404214146559.png" data-caption="image-20230404214146559"><img src="/../images/Pixel/image-20230404214146559.png" alt="image-20230404214146559"></a></p>
+<p>重启手机后，开发者模式可查看设备解锁状态</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318132210299.png" data-caption="image-20230318132210299"><img src="/../images/Pixel/image-20230318132210299.png" alt="image-20230318132210299"></a></p>
+<h3 id="刷入底包"><a href="#刷入底包" class="headerlink" title="刷入底包"></a>刷入底包</h3><p>这一部分需要到官方下载一个底包，也就是对应自身手机 Miui 版本的<a target="_blank" rel="noopener" href="https://web.vip.miui.com/page/info/mio/mio/detail?postId=5817588&fromPathname=mioSingleBoard&app_version=dev.35000">线刷包</a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319165801972.png" data-caption="image-20230319165801972"><img src="/../images/Pixel/image-20230319165801972.png" alt="image-20230319165801972"></a></p>
+<p>我的是 MIUI 版本是 12.0.3.0，点击下载线刷包</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319170319361.png" data-caption="image-20230319170319361"><img src="/../images/Pixel/image-20230319170319361.png" alt="image-20230319170319361"></a></p>
+<p>1、手机关机进入 <code>FASTBOOT</code> 模式 <code>关机键+音量减键</code>，使用具备传输数据的 USB 线连接手机</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318125409183.png" data-caption="image-20230318125409183"><img src="/../images/Pixel/image-20230318125409183.png" alt="image-20230318125409183"></a></p>
+<p>2、使用官方的 MiFlash 工具刷入底包,双击 XiaoMiFlash.exe，软件下载地址 <a target="_blank" rel="noopener" href="https://miuiver.com/miflash/">https://miuiver.com/miflash/</a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318205740379.png" data-caption="image-20230318205740379"><img src="/../images/Pixel/image-20230318205740379.png" alt="image-20230318205740379"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318212413538.png" data-caption="image-20230318212413538"><img src="/../images/Pixel/image-20230318212413538.png" alt="image-20230318212413538"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318210409029.png" data-caption="image-20230318210409029"><img src="/../images/Pixel/image-20230318210409029.png" alt="image-20230318210409029"></a></p>
+<p>刷入底包完毕后出现报错 <strong>Not catch checkpoint</strong> ,新版 MiFlash 在刷机完成后会检测手机是否已上 BL 锁，如果选择“全部删除”或“保留用户数据”这两种刷机模式，因为没有锁定 BL 锁，就会触发这个错误显示，所以这个报错问题不大。继续下一步即可</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318214541936.png" data-caption="image-20230318214541936"><img src="/../images/Pixel/image-20230318214541936.png" alt="image-20230318214541936"></a></p>
+<p>手机已刷入底包，自动重启，数据已清除</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319182815459.png" data-caption="image-20230319182815459"><img src="/../images/Pixel/image-20230319182815459.png" alt="image-20230319182815459"></a></p>
+<h3 id="刷入TWRP-Recovery"><a href="#刷入TWRP-Recovery" class="headerlink" title="刷入TWRP Recovery"></a>刷入TWRP Recovery</h3><p>这一部分网上大多使用一键刷入脚本，本人就在这一步躺坑，因为版本的问题导致一直无法成功刷入 <code>Pixel Experience</code> 所以这一步还是建议自己手动刷一下，步骤也是非常简单的。</p>
+<p>1、下载 <code>fastboot.exe</code> 工具，下载连接如下：<br><a target="_blank" rel="noopener" href="https://developer.android.google.cn/studio/releases/platform-tools?hl=zh-cn">https://developer.android.google.cn/studio/releases/platform-tools?hl=zh-cn</a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319171214916.png" data-caption="image-20230319171214916"><img src="/../images/Pixel/image-20230319171214916.png" alt="image-20230319171214916"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319171228496.png" data-caption="image-20230319171228496"><img src="/../images/Pixel/image-20230319171228496.png" alt="image-20230319171228496"></a></p>
+<p>2、下载  TWRP，下载地址 <a target="_blank" rel="noopener" href="https://dl.twrp.me/dipper/">https://dl.twrp.me/dipper/</a> 我这边下载了最新的版本</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319171338443.png" data-caption="image-20230319171338443"><img src="/../images/Pixel/image-20230319171338443.png" alt="image-20230319171338443"></a></p>
+<p>3、利用  <code>fastboot.exe</code> 工具刷入<code> TWRP Recovery</code>，首先再次关机进入 <code>fastboot</code> 模式，连接数据线</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318125409183.png" data-caption="image-20230318125409183"><img src="/../images/Pixel/image-20230318125409183.png" alt="image-20230318125409183"></a></p>
+<p>再执行命令</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 注意该命令为 fastboot.exe 与 twrp-3.7.0_9-0-dipper.img 同目录下生效，若不同路径请自行修改</span><br><span class="line">fastboot.exe flash recovery twrp-3.7.0_9-0-dipper.img</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319171826726.png" data-caption="image-20230319171826726"><img src="/../images/Pixel/image-20230319171826726.png" alt="image-20230319171826726"></a></p>
+<p>成功刷入后，手机会自动进入 <code>Recovery</code> 初始化，设置一个进入 <code>Recovery</code> 的密码,注意这个密码是你的开机密码，若你开机密码改变了，下次进入 <code>Recovery</code> 的密码也要改为你开机密码才能进入</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319182902803.png" data-caption="image-20230319182902803"><img src="/../images/Pixel/image-20230319182902803.png" alt="image-20230319182902803"></a></p>
+<p>设置密码后出现以下界面，直接滑动即可（右下角 Select language 可选择中文）</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319182957100.png" data-caption="image-20230319182957100"><img src="/../images/Pixel/image-20230319182957100.png" alt="image-20230319182957100"></a></p>
+<p>现在已经成功刷入第三方的 <code>Recovery</code> 了</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318220949643.png" data-caption="image-20230318220949643"><img src="/../images/Pixel/image-20230318220949643.png" alt="image-20230318220949643"></a></p>
+<h3 id="刷入-Pixel-Experience"><a href="#刷入-Pixel-Experience" class="headerlink" title="刷入 Pixel_Experience"></a>刷入 Pixel_Experience</h3><p>Pixel_Experience 刷机包官方下载地址 <a target="_blank" rel="noopener" href="https://get.pixelexperience.org/dipper">https://get.pixelexperience.org/dipper</a> 由于我的版本不是最新的，本人版本 PixelExperience_dipper-11.0-20211013-1655-OFFICIAL，下载地址 <a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1iVNriq07_2Flqi1Zs6Jw3g">https://pan.baidu.com/s/1iVNriq07_2Flqi1Zs6Jw3g</a> 提取码 emvv</p>
+<p>1、手机进入 <code>Recovery </code>模式下，点击清除</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319173327421.png" data-caption="image-20230319173327421"><img src="/../images/Pixel/image-20230319173327421.png" alt="image-20230319173327421"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319173358908.png" data-caption="image-20230319173358908"><img src="/../images/Pixel/image-20230319173358908.png" alt="image-20230319173358908"></a></p>
+<p>选择这四项进行清除</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319173443733.png" data-caption="image-20230319173443733"><img src="/../images/Pixel/image-20230319173443733.png" alt="image-20230319173443733"></a></p>
+<p>清除完成了点击返回，继续清除 data</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319173517976.png" data-caption="image-20230319173517976"><img src="/../images/Pixel/image-20230319173517976.png" alt="image-20230319173517976"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319173534934.png" data-caption="image-20230319173534934"><img src="/../images/Pixel/image-20230319173534934.png" alt="image-20230319173534934"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319173551822.png" data-caption="image-20230319173551822"><img src="/../images/Pixel/image-20230319173551822.png" alt="image-20230319173551822"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319173644133.png" data-caption="image-20230319173644133"><img src="/../images/Pixel/image-20230319173644133.png" alt="image-20230319173644133"></a></p>
+<p>重新启动 <code>Recovery</code> 利用数据线连接电脑后将 <code>Pixel_Experience</code> 刷机包复制到手机内存上</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318221129791.png" data-caption="image-20230318221129791"><img src="/../images/Pixel/image-20230318221129791.png" alt="image-20230318221129791"></a></p>
+<p>在 <code>Recovery</code> 处找到 <code>Pixel_Experience</code> 刷机包后直接点击开始刷机</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319173748614.png" data-caption="image-20230319173748614"><img src="/../images/Pixel/image-20230319173748614.png" alt="image-20230319173748614"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319174211074.png" data-caption="image-20230319174211074"><img src="/../images/Pixel/image-20230319174211074.png" alt="image-20230319174211074"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319174232708.png" data-caption="image-20230319174232708"><img src="/../images/Pixel/image-20230319174232708.png" alt="image-20230319174232708"></a></p>
+<p>完成后先点击清除，再重启手机进入系统</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319174303819.png" data-caption="image-20230319174303819"><img src="/../images/Pixel/image-20230319174303819.png" alt="image-20230319174303819"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319174354316.png" data-caption="image-20230319174354316"><img src="/../images/Pixel/image-20230319174354316.png" alt="image-20230319174354316"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319174631189.png" data-caption="image-20230319174631189"><img src="/../images/Pixel/image-20230319174631189.png" alt="image-20230319174631189"></a></p>
+<h3 id="刷入-Magisk-实现-Root"><a href="#刷入-Magisk-实现-Root" class="headerlink" title="刷入 Magisk 实现 Root"></a>刷入 Magisk 实现 Root</h3><p>1、下载 Magisk.apk <a target="_blank" rel="noopener" href="https://github.com/topjohnwu/Magisk/releases">https://github.com/topjohnwu/Magisk/releases</a> 将其后缀名改为.zip,使用 <code>Recovery</code> 刷入，刷入后重启手机安装正常的 <code>magisk.apk</code> 即可正常恢复 <code>root</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319180829569.png" data-caption="image-20230319180829569"><img src="/../images/Pixel/image-20230319180829569.png" alt="image-20230319180829569"></a></p>
+<p>2、进入 <code>Recovery</code> 将 <code>Magisk-v25.2.zip</code> 刷入到手机</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319181732161.png" data-caption="image-20230319181732161"><img src="/../images/Pixel/image-20230319181732161.png" alt="image-20230319181732161"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319181807960.png" data-caption="image-20230319181807960"><img src="/../images/Pixel/image-20230319181807960.png" alt="image-20230319181807960"></a></p>
+<p>刷完后点击清除 ，再重启即可</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319181848655.png" data-caption="image-20230319181848655"><img src="/../images/Pixel/image-20230319181848655.png" alt="image-20230319181848655"></a></p>
+<p>因为我们刷入的是 .zip 包，所以 Magisk 是无法正常使用的</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319181941395.png" data-caption="image-20230319181941395"><img src="/../images/Pixel/image-20230319181941395.png" alt="image-20230319181941395"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319182044661.png" data-caption="image-20230319182044661"><img src="/../images/Pixel/image-20230319182044661.png" alt="image-20230319182044661"></a></p>
+<p>我们找到刚才我们上传的 <code>Magisk.apk</code> 进行安装即可完成 <code>ROOT</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319182159561.png" data-caption="image-20230319182159561"><img src="/../images/Pixel/image-20230319182159561.png" alt="image-20230319182159561"></a></p>
+<p>出现版本号证明成功 <code>ROOT</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319182229824.png" data-caption="image-20230319182229824"><img src="/../images/Pixel/image-20230319182229824.png" alt="image-20230319182229824"></a></p>
+<p>我们再上传两个模块，便于 <code>ROOT</code> 权限更好的使用，下载地址 <a target="_blank" rel="noopener" href="https://github.com/RikkaApps/Riru">https://github.com/RikkaApps/Riru</a> 、<a target="_blank" rel="noopener" href="https://github.com/LSPosed/LSPosed">https://github.com/LSPosed/LSPosed</a> 直接下载利用数据线拉到手机内存上</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319183957793.png" data-caption="image-20230319183957793"><img src="/../images/Pixel/image-20230319183957793.png" alt="image-20230319183957793"></a></p>
+<p>手机 Magisk App 上进行本地安装即可，注意是先安装 Riru 再安装 LSPosed</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319185019989.png" data-caption="image-20230319185019989"><img src="/../images/Pixel/image-20230319185019989.png" alt="image-20230319185019989"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319185038023.png" data-caption="image-20230319185038023"><img src="/../images/Pixel/image-20230319185038023.png" alt="image-20230319185038023"></a></p>
+<p>装完重启即可</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319185115904.png" data-caption="image-20230319185115904"><img src="/../images/Pixel/image-20230319185115904.png" alt="image-20230319185115904"></a></p>
+<h2 id="四、注意事项"><a href="#四、注意事项" class="headerlink" title="四、注意事项"></a>四、注意事项</h2><h3 id="TWRP-Recovery"><a href="#TWRP-Recovery" class="headerlink" title="TWRP Recovery"></a>TWRP Recovery</h3><p>本次刷机过程中，由于 Recovery 刷入有问题，导致不断重试安装了多次，所以在刷入第三方 Recovery 还是选择手动较为稳妥。错误的标志，下图一为错误的刷入 Recovery 导致无法刷入Pixel Experience，图二为成功刷入 Pixel Experience。</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319175143604.png" data-caption="image-20230319175143604"><img src="/../images/Pixel/image-20230319175143604.png" alt="image-20230319175143604"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319175243609.png" data-caption="image-20230319175243609"><img src="/../images/Pixel/image-20230319175243609.png" alt="image-20230319175243609"></a></p>
+<h3 id="无法进入系统，卡在开机"><a href="#无法进入系统，卡在开机" class="headerlink" title="无法进入系统，卡在开机"></a>无法进入系统，卡在开机</h3><p>在使用低版本的 <code>Recovery</code> 导致刷入 <code>Pixel Experience</code> 停留在开机处，无法进行正常的系统</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230319175529067.png" data-caption="image-20230319175529067"><img src="/../images/Pixel/image-20230319175529067.png" alt="image-20230319175529067"></a></p>
+<p>这时候，我们可以使用小米的工具进行线刷重新刷回 MIUI ，步骤与输入底包方法一致，成功后会自动进行 MIUI 系统</p>
+<p><a data-fancybox="gallery" data-src="/../images/Pixel/image-20230318212413538.png" data-caption="image-20230318212413538"><img src="/../images/Pixel/image-20230318212413538.png" alt="image-20230318212413538"></a></p>
+<h2 id="五、参考"><a href="#五、参考" class="headerlink" title="五、参考"></a>五、参考</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">https://www.xianshuabao.com/faq/xianshuawenti/98.html</span><br><span class="line">https://www.devgox.com/archives/1034.html</span><br><span class="line">https://zhuanlan.zhihu.com/p/311264528</span><br><span class="line">https://blog.csdn.net/jingxuan2583/article/details/106847033</span><br><span class="line">https://www.bilibili.com/video/BV1PJ411d7yi/?spm_id_from=333.788.videocard.9</span><br><span class="line">https://www.youtube.com/watch?v=ZCIQloQCwOk</span><br><span class="line">https://magiskcn.com/</span><br><span class="line">https://zhuanlan.zhihu.com/p/380610364</span><br></pre></td></tr></table></figure></div>
+
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%88%B7%E6%9C%BA%E7%9F%A5%E8%AF%86"><span class="toc-number">2.</span> <span class="toc-text">二、刷机知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E5%88%B7%E4%B8%8E%E5%8D%A1%E5%88%B7"><span class="toc-number">2.1.</span> <span class="toc-text">线刷与卡刷</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%95%E5%8C%85"><span class="toc-number">2.2.</span> <span class="toc-text">底包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Recovery"><span class="toc-number">2.3.</span> <span class="toc-text">Recovery</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%88%B7%E6%9C%BA%E8%BF%87%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">三、刷机过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%B1%B38-%E8%A7%A3%E9%94%81-BL"><span class="toc-number">3.1.</span> <span class="toc-text">小米8 解锁 BL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%B7%E5%85%A5%E5%BA%95%E5%8C%85"><span class="toc-number">3.2.</span> <span class="toc-text">刷入底包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%B7%E5%85%A5TWRP-Recovery"><span class="toc-number">3.3.</span> <span class="toc-text">刷入TWRP Recovery</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%B7%E5%85%A5-Pixel-Experience"><span class="toc-number">3.4.</span> <span class="toc-text">刷入 Pixel_Experience</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%B7%E5%85%A5-Magisk-%E5%AE%9E%E7%8E%B0-Root"><span class="toc-number">3.5.</span> <span class="toc-text">刷入 Magisk 实现 Root</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-number">4.</span> <span class="toc-text">四、注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#TWRP-Recovery"><span class="toc-number">4.1.</span> <span class="toc-text">TWRP Recovery</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A0%E6%B3%95%E8%BF%9B%E5%85%A5%E7%B3%BB%E7%BB%9F%EF%BC%8C%E5%8D%A1%E5%9C%A8%E5%BC%80%E6%9C%BA"><span class="toc-number">4.2.</span> <span class="toc-text">无法进入系统，卡在开机</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">5.</span> <span class="toc-text">五、参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&text=APP测试系列-小米8 线刷 Pixel Experience"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&title=APP测试系列-小米8 线刷 Pixel Experience"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&is_video=false&description=APP测试系列-小米8 线刷 Pixel Experience"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=APP测试系列-小米8 线刷 Pixel Experience&body=Check out this article: http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&title=APP测试系列-小米8 线刷 Pixel Experience"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&title=APP测试系列-小米8 线刷 Pixel Experience"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&title=APP测试系列-小米8 线刷 Pixel Experience"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&title=APP测试系列-小米8 线刷 Pixel Experience"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&name=APP测试系列-小米8 线刷 Pixel Experience&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/&t=APP测试系列-小米8 线刷 Pixel Experience"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

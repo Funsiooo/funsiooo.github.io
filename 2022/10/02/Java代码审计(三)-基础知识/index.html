@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、Java 三层架构Java 项目开发过程中把整个项目分为三层：表现层、数据访问层、业务逻辑层。  表现层：MVC（Model-ViewControler）模式，采用 JSP&#x2F;Servlet 技术进行页面效果显示，即用户操作界面，为用户提供交互操作。 数据访问层： 采用 DAO 模式, DAO 为提供访问关系型数据库系统所需操作的接口，将数据访问和业务逻辑分离对上层提供面向对象的数据访问接口,也">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAVA代码审计(三)-基础知识">
+<meta property="og:url" content="http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、Java 三层架构Java 项目开发过程中把整个项目分为三层：表现层、数据访问层、业务逻辑层。  表现层：MVC（Model-ViewControler）模式，采用 JSP&#x2F;Servlet 技术进行页面效果显示，即用户操作界面，为用户提供交互操作。 数据访问层： 采用 DAO 模式, DAO 为提供访问关系型数据库系统所需操作的接口，将数据访问和业务逻辑分离对上层提供面向对象的数据访问接口,也">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/Java/base/662E827A-FA32-4464-B0BD-40087F429E98.jpg">
+<meta property="og:image" content="http://example.com/images/Java/base/image-20221009145926209.png">
+<meta property="og:image" content="http://example.com/images/Java/base/image-20221009150647117.png">
+<meta property="article:published_time" content="2022-10-02T07:22:34.000Z">
+<meta property="article:modified_time" content="2022-10-21T00:31:42.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="Java代码审计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/Java/base/662E827A-FA32-4464-B0BD-40087F429E98.jpg">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>JAVA代码审计(三)-基础知识</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/10/04/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&text=JAVA代码审计(三)-基础知识"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=JAVA代码审计(三)-基础知识"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&is_video=false&description=JAVA代码审计(三)-基础知识"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JAVA代码审计(三)-基础知识&body=Check out this article: http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=JAVA代码审计(三)-基础知识"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=JAVA代码审计(三)-基础知识"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=JAVA代码审计(三)-基础知识"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=JAVA代码审计(三)-基础知识"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&name=JAVA代码审计(三)-基础知识&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&t=JAVA代码审计(三)-基础知识"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81Java-%E4%B8%89%E5%B1%82%E6%9E%B6%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">一、Java 三层架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81MVC%E6%A8%A1%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">二、MVC模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81Maven"><span class="toc-number">3.</span> <span class="toc-text">三、Maven</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81pom-xml"><span class="toc-number">4.</span> <span class="toc-text">四、pom.xml</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81Spring-Boot"><span class="toc-number">5.</span> <span class="toc-text">五、Spring Boot</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1%E3%80%81Spring-MVC"><span class="toc-number">5.1.</span> <span class="toc-text">1、Spring MVC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2%E3%80%81%E6%8E%A5%E5%8F%A3"><span class="toc-number">5.2.</span> <span class="toc-text">2、接口</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3%E3%80%81DispatcherServlet"><span class="toc-number">5.3.</span> <span class="toc-text">3、DispatcherServlet</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AD%E3%80%81Java-%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6"><span class="toc-number">6.</span> <span class="toc-text">六、Java 反射机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%83%E3%80%81Java-EE-%E6%A0%B8%E5%BF%83%E6%8A%80%E6%9C%AF"><span class="toc-number">7.</span> <span class="toc-text">七、Java EE 核心技术</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AB%E3%80%81Java-%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95"><span class="toc-number">8.</span> <span class="toc-text">八、Java 基础语法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">8.1.</span> <span class="toc-text">1、前言</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2%E3%80%81%E8%AF%AD%E6%B3%95%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="toc-number">8.2.</span> <span class="toc-text">2、语法注意点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3%E3%80%81%E7%AE%80%E5%8D%95%E5%AE%9E%E4%BE%8B"><span class="toc-number">8.3.</span> <span class="toc-text">3、简单实例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4%E3%80%81%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0"><span class="toc-number">8.4.</span> <span class="toc-text">4、构造函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5%E3%80%81%E7%B1%BB%E4%B8%8E%E5%AF%B9%E8%B1%A1"><span class="toc-number">8.5.</span> <span class="toc-text">5、类与对象</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6%E3%80%81%E5%8F%98%E9%87%8F%E4%B8%8E%E5%B8%B8%E9%87%8F"><span class="toc-number">8.6.</span> <span class="toc-text">6、变量与常量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7%E3%80%81%E8%AE%BF%E9%97%AE%E5%AE%9E%E4%BE%8B%E5%8F%98%E9%87%8F%E5%92%8C%E6%96%B9%E6%B3%95"><span class="toc-number">8.7.</span> <span class="toc-text">7、访问实例变量和方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8%E3%80%81%E6%8E%A5%E5%8F%A3"><span class="toc-number">8.8.</span> <span class="toc-text">8、接口</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">9.</span> <span class="toc-text">九、参考文章</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        JAVA代码审计(三)-基础知识
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-10-02T07:22:34.000Z" itemprop="datePublished">2022-10-02</time>
+        
+        (Updated: <time datetime="2022-10-21T00:31:42.000Z" itemprop="dateModified">2022-10-21</time>)
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag">Java代码审计</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h3 id="一、Java-三层架构"><a href="#一、Java-三层架构" class="headerlink" title="一、Java 三层架构"></a>一、Java 三层架构</h3><p>Java 项目开发过程中把整个项目分为三层：表现层、数据访问层、业务逻辑层。</p>
+<ul>
+<li>表现层：MVC（Model-ViewControler）模式，采用 <code>JSP/Servlet</code> 技术进行页面效果显示，即用户操作界面，为用户提供交互操作。</li>
+<li>数据访问层： 采用 <code>DAO</code> 模式, <code>DAO</code> 为提供访问关系型数据库系统所需操作的接口，将数据访问和业务逻辑分离对上层提供面向对象的数据访问接口,也就是哪个类对应哪个表，哪个属性对应哪个列，为业务逻辑层提供数据，根据传入的值来操作数据库，增、删、改、查。</li>
+<li>业务逻辑层：采用事务脚本模式，负责关键业务的处理和数据传递，复杂的逻辑判断和涉及到数据库的数据验证均需要在此进行处理，根据用户传入的值返回相关数据或处理相关逻辑。</li>
+</ul>
+<p>SSH 框架</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">业务层——Spring</span><br><span class="line">表现层——Struts</span><br><span class="line">持久层——Hibernate</span><br></pre></td></tr></table></figure></div>
+
+<p>SSM框架</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">业务层——Spring</span><br><span class="line">表现层——SpringMVC</span><br><span class="line">持久层——MyBatis</span><br></pre></td></tr></table></figure></div>
+
+<br/>
+
+<h3 id="二、MVC模式"><a href="#二、MVC模式" class="headerlink" title="二、MVC模式"></a>二、MVC模式</h3><p>MVC，全称是 <code>Model-View-Controller（模型-视图-控制器）</code>，是一种设计的规范，一种架构的模式。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Model 模型：提供数据和行为，即 Dao 和 Service</span><br><span class="line">View 视图： GUI组件，用于数据的展示，及jsp、html等</span><br><span class="line">Controller 控制器：用于流程的控制，接收用户请求，交给业务层处理，再把处理后的模型数据响应给视图，即servlet、controller</span><br></pre></td></tr></table></figure></div>
+
+<p>工作流程</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Controller层接收到用户的请求，并决定应该用哪个Model来进行处理，然后由 Model 使用逻辑处理用户的请求并返回数据；最后，返回的数据通过View层呈现给用户。</span><br></pre></td></tr></table></figure></div>
+
+<br/>
+
+<h3 id="三、Maven"><a href="#三、Maven" class="headerlink" title="三、Maven"></a>三、Maven</h3><p><code>Maven</code> 是一个项目管理工具，它包含了一个对象模型（Project Object Model），是一组标准集合，一个依赖管理系统，用来运行定义在生命周期阶段中插件目标和逻辑。核心功能为：通过 <code>pom.xml</code>文件的配置获取 jar 包不用手动去添加 jar 包。日常项目开发需要应用各种jar包，少则几十、多至上百，若每一个jar都使用人工导入则大大增加工作量。<code>Maven</code>使这一部分工作变得简单，开发者只需通过定义 <code>pom.xml</code>，<code>maven</code> 即可调用仓库的  jar 包直接导入。</p>
+<br/>
+
+<h3 id="四、pom-xml"><a href="#四、pom-xml" class="headerlink" title="四、pom.xml"></a>四、pom.xml</h3><p>POM 是项目对象模型 (Project Object Model) 的简称,它是 Maven 项目中的文件，使用XML表示，名称叫做pom.xml。该文件用于管理源代码、配置文件、开发者的信息和角色、问题追踪系统、组织信息、项目授权、项目的url、项目的依赖关系等。Maven 项目中必须包含 pom.xml 文件。例子如下：</p>
+<div class="highlight-wrap" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="comment">&lt;!--project 标签：根标签，表示对当前工程进行配置、管理--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--modelVersion 标签：从Maven2开始就固定是4.0.0--&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--代表当前pom.xml所采用的标签结构--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">&lt;!--坐标信息--&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--在本地仓库中安装后对应的路径：com\seer\maven\seer-heathy-demo\1.0-SNAPSHOT\seer-heathy-demo-1.0-SNAPSHOT.jar--&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--groupId 标签：坐标向量之一；代表公司或组织开发的某一个项目--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.seer.maven<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--artifactId 标签：坐标向量之一；代表项目下的某一个模块--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>seer-heathy-demo<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--version 标签：坐标向量之一；代表当前模块的版本--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">&lt;!--packaging 标签：打包方式--&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--取值jar：生成jar包，说明这是一个Java工程--&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--取值war:生成war包，说明这是一个Web工程--&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--取值pom：说明这个工程是用来管理其他工程的工程--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>seer-heathy-demo<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">url</span>&gt;</span>http://maven.apache.org<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">&lt;!--在Maven中定义属性值--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--在构建过程中读取源码时使用的字符集--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">&lt;!--dependencies标签：配置具体依赖信息，可以包含多个dependency子标签--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--dependency 标签：配置一个具体的依赖信息--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!--坐标信息：导入那个jar包，就配置它的坐标信息即可--&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.12<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!--scope标签：配置当前依赖的范围--&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<br/>
+
+<h3 id="五、Spring-Boot"><a href="#五、Spring-Boot" class="headerlink" title="五、Spring Boot"></a>五、Spring Boot</h3><p><code>SpringBoot</code> 是一款基于 <code>JAVA</code> 的开源框架。目的是为了简化 <code>Spring</code> 应用搭建和开发流程。现在绝大多数的新项目都基于 <code>Spring Boot</code> 的 <code>Spring MVC</code> 来实现。</p>
+<h4 id="1、Spring-MVC"><a href="#1、Spring-MVC" class="headerlink" title="1、Spring MVC"></a>1、Spring MVC</h4><p><code>Spring MVC</code> 是 <code>Spring</code> 提供的一个基于 <code>MVC</code> 设计模式的轻量级 <code>Web</code> 开发框架，本质上相当于 <code>Servlet</code>（Servlet 是运行在 <code>Web</code> 服务器或应用服务器上的程序，它是作为来自 <code>Web</code> 浏览器或其他 <code>HTTP</code> 客户端的请求和 <code>HTTP</code> 服务器上的数据库或应用程序之间的中间层。）</p>
+<h4 id="2、接口"><a href="#2、接口" class="headerlink" title="2、接口"></a>2、接口</h4><ul>
+<li><code>DispatcherServlet 接口</code>：前端控制器，所有请求都经过它来统一分发，DispatcherServlet将请求分发给Spring Controller之前，需要借助于Spring提供的HandlerMapping定位到具体的 Controller。</li>
+<li><code>HandlerMapping 接口</code>：完成客户请求到 Controller 的映射。</li>
+<li><code>Controller接口</code>：并发用户处理 DispatcherServlet、HandlerMapping 请求，因此实现Controller接口时，必须保证线程安全并且可重用。</li>
+</ul>
+<h4 id="3、DispatcherServlet"><a href="#3、DispatcherServlet" class="headerlink" title="3、DispatcherServlet"></a>3、DispatcherServlet</h4><p>是整个Spring MVC的核心。主要负责截获请求并将其分派给相应的处理器处理。其主要工作有以下三项：</p>
+<ul>
+<li>截获符合特定格式的URL请求</li>
+<li>初始化 DispatcherServlet 上下文对应 WebApplicationContext ，并将其与业务层、持久化层的 WebApplicationContext 建立关联。</li>
+<li>初始化 Spring MVC 的各个组成组件，并装配到 DispatcherServlet 中。</li>
+</ul>
+<br/>
+
+<h3 id="六、Java-反射机制"><a href="#六、Java-反射机制" class="headerlink" title="六、Java 反射机制"></a>六、Java 反射机制</h3><p>Java 反射机制可以无视类方法、变量去访问权限修饰符（如 protected、private等），并且可以调用任何类的任意方法、访问并修改成员变量值。即当我们在能控制反射的类名、方法名、参数的前提下，发现了一处 Java 反射调用的漏洞，我们就可以任意构造攻击。</p>
+<p>1、什么是反射<br>反射使 Java 代码能够发现有关已加载类的字段、方法和构造函数的信息，并在安全限制内使用反射的字段、方法和构造函数对底层对应的对象进行操作。即通过反射我们可以在运行时获得程序或程序集中每一个类型的成员和成员信息。在运行状态中通过反射机制，我们能判断一个对象所属的类，了解任意一个类的所有属性和方法，能够调用任意一个对象的任意方法和属性。</p>
+<p>2、不安全的反射机制<br>Java 的反射机制可以无视类方法、变量访问权限修饰符，可以调用任何类的任意方法、访问并修改成员变量值，那么这可能导致安全问题，如果一个攻击者能够通过应用程序创建意外的控制流路径，那么就有可能绕过安全检查发起相关攻击。假设有段代码如下：</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> request.getParameter(<span class="string">&quot;name&quot;</span>);</span><br><span class="line"><span class="type">Command</span> <span class="variable">command</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"> <span class="keyword">if</span> (name.equals(<span class="string">&quot;Delect&quot;</span>)) &#123;</span><br><span class="line">   command = <span class="keyword">new</span> <span class="title class_">DelectCommand</span>();</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (ctl.equals(<span class="string">&quot;Add&quot;</span>)) &#123;</span><br><span class="line">   command = <span class="keyword">new</span> <span class="title class_">AddCommand</span>();</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line"> ...</span><br><span class="line">&#125;</span><br><span class="line">command.doAction(request);</span><br></pre></td></tr></table></figure></div>
+<p>存在一个字段为 name，当获取用户请求的 name 字段后进行判断，如果请求的是 Delect 操作，则执行DelectCommand 函数，若执行的是 Add 操作，则执行 AddCommand 函数，如果不是这两种操作，则执行其他代码。<br>此时，假如有位开发者看到了这段代码，他觉得可以使用Java 的反射来重构此代码以减少代码行，如下所示：</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> request.getParameter(<span class="string">&quot;name&quot;</span>);</span><br><span class="line">  <span class="type">Class</span> <span class="variable">ComandClass</span> <span class="operator">=</span> Class.forName(name + <span class="string">&quot;Command&quot;</span>);</span><br><span class="line">  <span class="type">Command</span> <span class="variable">command</span> <span class="operator">=</span> (Command) CommandClass.newInstance();</span><br><span class="line">  command.doAction(request);</span><br></pre></td></tr></table></figure></div>
+<p>这样的重构看起来使得代码行减少，消除了 if&#x2F;else 块，而且可以在不修改命令分派器的情况下添加新的命令类型，但是如果没有对传入进来的 name 字段进行限制，那么我们就能实例化实现 Command 接口的任何对象，从而导致安全问题。实际上，攻击者甚至不局限于本例中的 Command 接口对象，而是使用任何其他对象来实现，如调用系统中任何对象的默认构造函数，再如调用 Runtime 对象去执行系统命令，这就可能导致远程命令执行漏洞，因此不安全的反射的危害性极大，也是我们审计过程中重点关注的内容。</p>
+<br/>
+
+<h3 id="七、Java-EE-核心技术"><a href="#七、Java-EE-核心技术" class="headerlink" title="七、Java EE 核心技术"></a>七、Java EE 核心技术</h3><ul>
+<li>JDBC：Java 数据库链接，提供了客户端访问数据库应用的程序接口以及查询和更新数据库中数据的方法。</li>
+<li>JNDI：Java 命名和目录接口，是 JAVA 的一个目录服务应用程序界面，提供了一个目录系统，并将服务名称与对象关联起来，使开发者在开发过程中可以用名称来访问对象。</li>
+<li>RMI：远程调用方法，为 Java 的一组拥护开发分布式应用程序的 API，增强了Java 开发分布式应用的能力。</li>
+<li>Servlet：Java Web 容器中运行的程序，通常用来处理较为复杂的服务端业务逻辑。使用 Java 编写而成的服务器程序，狭义的 Servlet 为 Java 语言实现的一个接口，广义的说就是任何实现该 Servlet 接口的类，主要功能在于交互式地浏览和修改数据，生成动态的 web 内容。</li>
+</ul>
+<br/>
+
+<h3 id="八、Java-基础语法"><a href="#八、Java-基础语法" class="headerlink" title="八、Java 基础语法"></a>八、Java 基础语法</h3><h4 id="1、前言"><a href="#1、前言" class="headerlink" title="1、前言"></a>1、前言</h4><p>Java 是一个解释型的语言，可跨平台执行。一个 Java 程序可以认为是一系列对象的集合，这些对象通过调用彼此的方法来协同工作，每个 Java 文件都是一个类，同一文件夹下可以互相调用其他文件下的类，不同文件夹下可以通过 import 命令进行导入。其中 Java 中的包其实就是文件夹，在同一个包中可以理解成同一文件夹下。</p>
+<h4 id="2、语法注意点"><a href="#2、语法注意点" class="headerlink" title="2、语法注意点"></a>2、语法注意点</h4><table>
+<thead>
+<tr>
+<th>注意点</th>
+<th>简述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>大小写敏感</td>
+<td>Java 是大小写敏感的，这就意味着标识符 Hello 与 hello 是不同的</td>
+</tr>
+<tr>
+<td>类名</td>
+<td>对于所有的类来说，类名的首字母应该大写。如果类名由若干单词组成，那么每个单词的首字母应该大写，例如 <strong>MyFirstJavaClass</strong></td>
+</tr>
+<tr>
+<td>方法名</td>
+<td>所有的方法名都应该以小写字母开头。如果方法名含有若干单词，则后面的每个单词首字母大写</td>
+</tr>
+<tr>
+<td>源文件名</td>
+<td>源文件名必须和类名相同。当保存文件的时候，你应该使用类名作为文件名保存（切记 Java 是大小写敏感的），文件名的后缀为 <strong>.java</strong>。（如果文件名和类名不相同则会导致编译错误）</td>
+</tr>
+<tr>
+<td>主方法入口</td>
+<td>所有的 Java 程序由 <strong>public static void main(String[] args)</strong> 方法开始执行</td>
+</tr>
+</tbody></table>
+<br/>
+
+<h4 id="3、简单实例"><a href="#3、简单实例" class="headerlink" title="3、简单实例"></a>3、简单实例</h4><div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HelloWorld</span> &#123;</span><br><span class="line">    <span class="comment">/* 第一个Java程序</span></span><br><span class="line"><span class="comment">     * 它将输出字符串 Hello World</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Hello World&quot;</span>); <span class="comment">// 输出 Hello World</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+<p><a data-fancybox="gallery" data-src="/../images/Java/base/662E827A-FA32-4464-B0BD-40087F429E98.jpg" data-caption="image-20220924211209757"><img src="/../images/Java/base/662E827A-FA32-4464-B0BD-40087F429E98.jpg" alt="image-20220924211209757"></a></p>
+<br/>
+
+<h4 id="4、构造函数"><a href="#4、构造函数" class="headerlink" title="4、构造函数"></a>4、构造函数</h4><p>一个类可以包含以下类型变量：</p>
+<ul>
+<li><strong>局部变量</strong>：在方法、构造方法或者语句块中定义的变量被称为局部变量。变量声明和初始化都是在方法中，方法结束后，变量就会自动销毁。</li>
+<li><strong>成员变量</strong>：成员变量是定义在类中，方法体之外的变量。这种变量在创建对象的时候实例化。成员变量可以被类中方法、构造方法和特定类的语句块访问。</li>
+<li><strong>类变量</strong>：类变量也声明在类中，方法体之外，但必须声明为 static 类型。</li>
+</ul>
+<p>一个类可以有多个构造函数，根据对象的创建情况触发不同的构造函数，若在创建对象的时候传入了参数，则会触发第二个构造函数，如果不传入参数则会触发第一个构造函数，例子如下：</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">test</span>&#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> <span class="string">&quot;cody&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">test</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Other class named test&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">demo1</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">demo1</span><span class="params">()</span></span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;The first Construct def.&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">demo1</span><span class="params">(String a)</span></span><br><span class="line">    &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;The second Construct def,string is &quot;</span>+a);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">demo1</span> <span class="variable">test</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">demo1</span>(<span class="string">&quot;SFL&quot;</span>);</span><br><span class="line">        <span class="type">demo1</span> <span class="variable">test2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">demo1</span>();</span><br><span class="line">        <span class="type">test</span> <span class="variable">te</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">test</span>();</span><br><span class="line">        System.out.println(te.name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>运行结果如下：</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/base/image-20221009145926209.png" data-caption="image-20221009145926209"><img src="/../images/Java/base/image-20221009145926209.png" alt="image-20221009145926209"></a></p>
+<br/>
+
+
+<h4 id="5、类与对象"><a href="#5、类与对象" class="headerlink" title="5、类与对象"></a>5、类与对象</h4><p>假设有一个类名为Test，创建对象abc，语法如下</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 类名称 对象名 = new 类名称();</span></span><br><span class="line"><span class="type">test</span> <span class="variable">abc</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">test</span>();</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>类：类是一个模板，它描述一类对象的行为和状态。例子如下：</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Dog</span> &#123;</span><br><span class="line">    String breed;</span><br><span class="line">    <span class="type">int</span> size;</span><br><span class="line">    String colour;</span><br><span class="line">    <span class="type">int</span> age;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">eat</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">sleep</span><span class="params">()</span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">name</span><span class="params">()</span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>对象：对象是类的一个实例。例子如下:</p>
+<ul>
+<li><strong>声明</strong>：声明一个对象，包括对象名称和对象类型。</li>
+<li><strong>实例化</strong>：使用关键字 new 来创建一个对象。</li>
+<li><strong>初始化</strong>：使用 new 创建对象时，会调用构造方法初始化对象。</li>
+</ul>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Puppy</span>&#123;</span><br><span class="line">   <span class="keyword">public</span> <span class="title function_">Puppy</span><span class="params">(String name)</span>&#123;</span><br><span class="line">      <span class="comment">//这个构造器仅有一个参数：name</span></span><br><span class="line">      System.out.println(<span class="string">&quot;小狗的名字是 : &quot;</span> + name ); </span><br><span class="line">   &#125;</span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span>&#123;</span><br><span class="line">      <span class="comment">// 下面的语句将创建一个Puppy对象</span></span><br><span class="line">      <span class="type">Puppy</span> <span class="variable">myPuppy</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Puppy</span>( <span class="string">&quot;tommy&quot;</span> );</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<br/>
+
+<h4 id="6、变量与常量"><a href="#6、变量与常量" class="headerlink" title="6、变量与常量"></a>6、变量与常量</h4><p>例子如下，a为变量，b在char前加了 final 为常量，常量无法被更改。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">char a = &#x27;a&#x27;;</span><br><span class="line">final char b = &#x27;b&#x27;;</span><br></pre></td></tr></table></figure></div>
+
+<br/>
+
+<h4 id="7、访问实例变量和方法"><a href="#7、访问实例变量和方法" class="headerlink" title="7、访问实例变量和方法"></a>7、访问实例变量和方法</h4><p>通过已创建的对象来访问成员变量和成员方法，如下所示：</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">实例化对象：Object referenceVariable = new Constructor();</span><br><span class="line">访问类中的变量：referenceVariable.variableName;</span><br><span class="line">访问类中的方法：referenceVariable.methodName();</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>实例,下面的例子展示如何访问实例变量和调用成员方法：</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Puppy</span>&#123;</span><br><span class="line">   <span class="type">int</span> puppyAge;</span><br><span class="line">   <span class="keyword">public</span> <span class="title function_">Puppy</span><span class="params">(String name)</span>&#123;</span><br><span class="line">      <span class="comment">// 这个构造器仅有一个参数：name</span></span><br><span class="line">      System.out.println(<span class="string">&quot;小狗的名字是 : &quot;</span> + name ); </span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAge</span><span class="params">( <span class="type">int</span> age )</span>&#123;</span><br><span class="line">       puppyAge = age;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getAge</span><span class="params">( )</span>&#123;</span><br><span class="line">       System.out.println(<span class="string">&quot;小狗的年龄为 : &quot;</span> + puppyAge ); </span><br><span class="line">       <span class="keyword">return</span> puppyAge;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span>&#123;</span><br><span class="line">      <span class="comment">/* 创建对象为myPuppy */</span></span><br><span class="line">      <span class="type">Puppy</span> <span class="variable">myPuppy</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Puppy</span>( <span class="string">&quot;tommy&quot;</span> );</span><br><span class="line">      <span class="comment">/* 利用创建的对象，通过方法来设定age */</span></span><br><span class="line">      myPuppy.setAge( <span class="number">2</span> );</span><br><span class="line">      <span class="comment">/* 调用另一个方法获取age */</span></span><br><span class="line">      myPuppy.getAge( );</span><br><span class="line">      <span class="comment">/*你也可以像下面这样访问成员变量 */</span></span><br><span class="line">      System.out.println(<span class="string">&quot;变量值 : &quot;</span> + myPuppy.puppyAge ); </span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>运行结果如下：</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/base/image-20221009150647117.png" data-caption="image-20221009150647117"><img src="/../images/Java/base/image-20221009150647117.png" alt="image-20221009150647117"></a></p>
+<br/>
+
+<h4 id="8、接口"><a href="#8、接口" class="headerlink" title="8、接口"></a>8、接口</h4><p>接口（英文：Interface），在JAVA编程语言中是一个抽象类型，是抽象方法的集合，接口通常以interface来声明。一个类通过继承接口的方式，从而来继承接口的抽象方法。</p>
+<p>接口的声明语法格式如下：</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[可见度] interface 接口名称 [extends 其他的接口名] &#123;</span><br><span class="line">        <span class="comment">// 声明变量</span></span><br><span class="line">        <span class="comment">// 抽象方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>Interface关键字用来声明一个接口。下面是接口声明的一个简单例子。</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 文件名 : NameOfInterface.java */</span></span><br><span class="line"><span class="keyword">import</span> java.lang.*;</span><br><span class="line"><span class="comment">//引入包</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">NameOfInterface</span></span><br><span class="line">&#123;</span><br><span class="line">   <span class="comment">//任何类型 final, static 字段</span></span><br><span class="line">   <span class="comment">//抽象方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>实例,Animal.java 文件代码：</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 文件名 : Animal.java */</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Animal</span> &#123;</span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">eat</span><span class="params">()</span>;</span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">travel</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>接口的实现,当类实现接口的时候，类要实现接口中所有的方法。否则，类必须声明为抽象的类。类使用implements关键字实现接口。在类声明中，Implements关键字放在class声明后面。实例</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 文件名 : MammalInt.java */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MammalInt</span> <span class="keyword">implements</span> <span class="title class_">Animal</span>&#123;</span><br><span class="line"> </span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">eat</span><span class="params">()</span>&#123;</span><br><span class="line">      System.out.println(<span class="string">&quot;Mammal eats&quot;</span>);</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">travel</span><span class="params">()</span>&#123;</span><br><span class="line">      System.out.println(<span class="string">&quot;Mammal travels&quot;</span>);</span><br><span class="line">   &#125; </span><br><span class="line"> </span><br><span class="line">   <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">noOfLegs</span><span class="params">()</span>&#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String args[])</span>&#123;</span><br><span class="line">      <span class="type">MammalInt</span> <span class="variable">m</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MammalInt</span>();</span><br><span class="line">      m.eat();</span><br><span class="line">      m.travel();</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>以上实例编译运行结果如下:</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Mammal eats</span><br><span class="line">Mammal travels</span><br></pre></td></tr></table></figure></div>
+
+
+
+<br/>
+
+<h3 id="九、参考文章"><a href="#九、参考文章" class="headerlink" title="九、参考文章"></a>九、参考文章</h3><p><code>https://blog.csdn.net/chehec2010/article/details/123997607</code><br><code>https://blog.csdn.net/jianyuerensheng/article/details/51258942</code><br><code>https://www.freebuf.com/vuls/344685.html</code><br><code>https://www.cnpanda.net/codeaudit/705.html</code><br><code>https://blog.csdn.net/qq_41874930/article/details/115614958</code></p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81Java-%E4%B8%89%E5%B1%82%E6%9E%B6%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text">一、Java 三层架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81MVC%E6%A8%A1%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">二、MVC模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81Maven"><span class="toc-number">3.</span> <span class="toc-text">三、Maven</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81pom-xml"><span class="toc-number">4.</span> <span class="toc-text">四、pom.xml</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81Spring-Boot"><span class="toc-number">5.</span> <span class="toc-text">五、Spring Boot</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1%E3%80%81Spring-MVC"><span class="toc-number">5.1.</span> <span class="toc-text">1、Spring MVC</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2%E3%80%81%E6%8E%A5%E5%8F%A3"><span class="toc-number">5.2.</span> <span class="toc-text">2、接口</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3%E3%80%81DispatcherServlet"><span class="toc-number">5.3.</span> <span class="toc-text">3、DispatcherServlet</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AD%E3%80%81Java-%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6"><span class="toc-number">6.</span> <span class="toc-text">六、Java 反射机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%83%E3%80%81Java-EE-%E6%A0%B8%E5%BF%83%E6%8A%80%E6%9C%AF"><span class="toc-number">7.</span> <span class="toc-text">七、Java EE 核心技术</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%AB%E3%80%81Java-%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95"><span class="toc-number">8.</span> <span class="toc-text">八、Java 基础语法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">8.1.</span> <span class="toc-text">1、前言</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2%E3%80%81%E8%AF%AD%E6%B3%95%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="toc-number">8.2.</span> <span class="toc-text">2、语法注意点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3%E3%80%81%E7%AE%80%E5%8D%95%E5%AE%9E%E4%BE%8B"><span class="toc-number">8.3.</span> <span class="toc-text">3、简单实例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4%E3%80%81%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0"><span class="toc-number">8.4.</span> <span class="toc-text">4、构造函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5%E3%80%81%E7%B1%BB%E4%B8%8E%E5%AF%B9%E8%B1%A1"><span class="toc-number">8.5.</span> <span class="toc-text">5、类与对象</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6%E3%80%81%E5%8F%98%E9%87%8F%E4%B8%8E%E5%B8%B8%E9%87%8F"><span class="toc-number">8.6.</span> <span class="toc-text">6、变量与常量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7%E3%80%81%E8%AE%BF%E9%97%AE%E5%AE%9E%E4%BE%8B%E5%8F%98%E9%87%8F%E5%92%8C%E6%96%B9%E6%B3%95"><span class="toc-number">8.7.</span> <span class="toc-text">7、访问实例变量和方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8%E3%80%81%E6%8E%A5%E5%8F%A3"><span class="toc-number">8.8.</span> <span class="toc-text">8、接口</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">9.</span> <span class="toc-text">九、参考文章</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&text=JAVA代码审计(三)-基础知识"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=JAVA代码审计(三)-基础知识"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&is_video=false&description=JAVA代码审计(三)-基础知识"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=JAVA代码审计(三)-基础知识&body=Check out this article: http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=JAVA代码审计(三)-基础知识"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=JAVA代码审计(三)-基础知识"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=JAVA代码审计(三)-基础知识"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&title=JAVA代码审计(三)-基础知识"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&name=JAVA代码审计(三)-基础知识&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/10/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/&t=JAVA代码审计(三)-基础知识"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

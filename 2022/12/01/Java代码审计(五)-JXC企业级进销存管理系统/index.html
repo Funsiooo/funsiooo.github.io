@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、前言JXC 企业级进销存管理系统，采用 SpringBoot+Shiro+MyBatis+EasyUI，项目采用 Maven 构建，数据库文件存放在 sql&#x2F;jxc.sql。项目地址：https:&#x2F;&#x2F;github.com&#x2F;wangjiangfei&#x2F;JXC 二、环境搭建1、利用 PHPstudy 中的 Mysql 作为数据库  这里使用 navicat 进行数据库操作，比较直观一点，创">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java代码审计(五)-JXC企业级进销存管理系统">
+<meta property="og:url" content="http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、前言JXC 企业级进销存管理系统，采用 SpringBoot+Shiro+MyBatis+EasyUI，项目采用 Maven 构建，数据库文件存放在 sql&#x2F;jxc.sql。项目地址：https:&#x2F;&#x2F;github.com&#x2F;wangjiangfei&#x2F;JXC 二、环境搭建1、利用 PHPstudy 中的 Mysql 作为数据库  这里使用 navicat 进行数据库操作，比较直观一点，创">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221126134752778.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221126135324816.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221126135554168.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221126151230703.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221126162720625.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221126163003323.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221126163415477.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221126163612166.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221126163955805.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221126203907217.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221126213111483.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221126211906103.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128103655415.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128103844420.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128105602081.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128110144473.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128111023068.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128111444927.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128111929222.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128111953407.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128112759128.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128114103675.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128114130277.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128114152465.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128114229865.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128125843474.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128130003820.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128130137222.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128130626302.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128130607082.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128131010064.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128130953106.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128131225694.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128131433784.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128131630406.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128131818693.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128132127301.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128132225563.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128132450975.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128132721752.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128132640798.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128132902071.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128141001324.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128141022057.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128141043009.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128133535652.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128141147400.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128133858249.png">
+<meta property="og:image" content="http://example.com/images/Java/jxc/image-20221128133752931.png">
+<meta property="article:published_time" content="2022-12-01T12:16:27.000Z">
+<meta property="article:modified_time" content="2022-12-02T01:25:36.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="Java代码审计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/Java/jxc/image-20221126134752778.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>Java代码审计(五)-JXC企业级进销存管理系统</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/12/11/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E7%AF%87(%E4%B8%80)-Mitmproxy%E4%B8%AD%E9%97%B4%E4%BA%BA%E4%BB%A3%E7%90%86/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/11/26/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-MSSQL%E6%8F%90%E6%9D%83%E4%B9%8Bxp_cmdshell/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&text=Java代码审计(五)-JXC企业级进销存管理系统"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&title=Java代码审计(五)-JXC企业级进销存管理系统"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&is_video=false&description=Java代码审计(五)-JXC企业级进销存管理系统"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java代码审计(五)-JXC企业级进销存管理系统&body=Check out this article: http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&title=Java代码审计(五)-JXC企业级进销存管理系统"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&title=Java代码审计(五)-JXC企业级进销存管理系统"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&title=Java代码审计(五)-JXC企业级进销存管理系统"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&title=Java代码审计(五)-JXC企业级进销存管理系统"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&name=Java代码审计(五)-JXC企业级进销存管理系统&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&t=Java代码审计(五)-JXC企业级进销存管理系统"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">二、环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.</span> <span class="toc-text">三、代码审计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81pom-xml-%E6%A1%86%E6%9E%B6%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.1.</span> <span class="toc-text">1、pom.xml 框架审计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.2.</span> <span class="toc-text">2、代码审计</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Shiro-%E6%9D%83%E9%99%90%E7%BB%95%E8%BF%87%EF%BC%88%E4%B8%8D%E5%AD%98%E5%9C%A8%EF%BC%89"><span class="toc-number">3.2.1.</span> <span class="toc-text">Shiro 权限绕过（不存在）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SQL%E6%B3%A8%E5%85%A5%EF%BC%88%E4%B8%8D%E5%AD%98%E5%9C%A8%EF%BC%89"><span class="toc-number">3.2.2.</span> <span class="toc-text">SQL注入（不存在）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%AA%8C%E8%AF%81%E7%A0%81%E7%BB%95%E8%BF%87%EF%BC%88%E5%AD%98%E5%9C%A8%EF%BC%89"><span class="toc-number">3.2.3.</span> <span class="toc-text">验证码绕过（存在）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E5%9E%8BXSS%EF%BC%88%E5%AD%98%E5%9C%A8%EF%BC%89"><span class="toc-number">3.2.4.</span> <span class="toc-text">存储型XSS（存在）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">四、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">5.</span> <span class="toc-text">五、参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Java代码审计(五)-JXC企业级进销存管理系统
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-12-01T12:16:27.000Z" itemprop="datePublished">2022-12-01</time>
+        
+        (Updated: <time datetime="2022-12-02T01:25:36.000Z" itemprop="dateModified">2022-12-02</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">代码审计</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag">Java代码审计</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>JXC 企业级进销存管理系统，采用 SpringBoot+Shiro+MyBatis+EasyUI，项目采用 Maven 构建，数据库文件存放在 sql&#x2F;jxc.sql。项目地址：<a target="_blank" rel="noopener" href="https://github.com/wangjiangfei/JXC">https://github.com/wangjiangfei/JXC</a></p>
+<h2 id="二、环境搭建"><a href="#二、环境搭建" class="headerlink" title="二、环境搭建"></a>二、环境搭建</h2><p>1、利用 PHPstudy 中的 Mysql 作为数据库</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221126134752778.png" data-caption="image-20221126134752778"><img src="/../images/Java/jxc/image-20221126134752778.png" alt="image-20221126134752778"></a></p>
+<p>这里使用 navicat 进行数据库操作，比较直观一点，创建名为 jxc 的数据库</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221126135324816.png" data-caption="image-20221126135324816"><img src="/../images/Java/jxc/image-20221126135324816.png" alt="image-20221126135324816"></a></p>
+<p>导入源码中的 &#x2F;sql&#x2F;jxc.sql 文件</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221126135554168.png" data-caption="image-20221126135554168"><img src="/../images/Java/jxc/image-20221126135554168.png" alt="image-20221126135554168"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221126151230703.png" data-caption="image-20221126151230703"><img src="/../images/Java/jxc/image-20221126151230703.png" alt="image-20221126151230703"></a></p>
+<p>2、IDEA 导入源码，注意导入的是源码是文件夹里面的 jxc 目录，否则双层目录项目会运行不起来</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221126162720625.png" data-caption="image-20221126162720625"><img src="/../images/Java/jxc/image-20221126162720625.png" alt="image-20221126162720625"></a></p>
+<p>导入项目后 Maven 会自动加载依赖，然后配置数据库账号密码</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221126163003323.png" data-caption="image-20221126163003323"><img src="/../images/Java/jxc/image-20221126163003323.png" alt="image-20221126163003323"></a></p>
+<p>运行即可启动项目</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221126163415477.png" data-caption="image-20221126163415477"><img src="/../images/Java/jxc/image-20221126163415477.png" alt="image-20221126163415477"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221126163612166.png" data-caption="image-20221126163612166"><img src="/../images/Java/jxc/image-20221126163612166.png" alt="image-20221126163612166"></a></p>
+<p>访问 8080 端口登录后台，账号密码为：admin&#x2F;admin123</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221126163955805.png" data-caption="image-20221126163955805"><img src="/../images/Java/jxc/image-20221126163955805.png" alt="image-20221126163955805"></a></p>
+<h2 id="三、代码审计"><a href="#三、代码审计" class="headerlink" title="三、代码审计"></a>三、代码审计</h2><h3 id="1、pom-xml-框架审计"><a href="#1、pom-xml-框架审计" class="headerlink" title="1、pom.xml 框架审计"></a>1、pom.xml 框架审计</h3><p>项目使用 Maven 添加依赖，审计 pom.xml 分析其项目框架，得知项目使用了如下框架</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">| 框架名称     | 版本号         |</span><br><span class="line">| ----------- | ------------- |</span><br><span class="line">| Spring-Boot | 2.1.0.RELEASE |</span><br><span class="line">| Mybatis     | 1.3.2         |</span><br><span class="line">| Mysql       | 5.1.40        |</span><br><span class="line">| Shiro       | 1.4.0         |</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221126203907217.png" data-caption="image-20221126203907217"><img src="/../images/Java/jxc/image-20221126203907217.png" alt="image-20221126203907217"></a></p>
+<p>项目使用了 Shiro 1.4.0 版本，我们知道 Shiro 框架是存在多个漏洞的，我们通过 Google serach 其历史漏洞，通过查找得知部分 Shiro 历史漏洞如下:</p>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>漏洞</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Shiro &lt; 1.2.5</td>
+<td>CVE-2016-4437（Apache Shiro 反序列化漏洞）</td>
+</tr>
+<tr>
+<td>Shiro &lt; 1.5.2</td>
+<td>CVE-2020-11989（Apache Shiro 权限绕过）</td>
+</tr>
+<tr>
+<td>Shiro &lt; 1.5.3</td>
+<td>CVE-2020-1957 （Apache Shiro 权限绕过漏洞）</td>
+</tr>
+<tr>
+<td>Apache Shiro 1.2.5, 1.2.6, 1.3.0, 1.3.1, 1.3.2, 1.4.0-RC2, 1.4.0, 1.4.1</td>
+<td>CVE-2016-4437（Shiro-721 Apache Shiro 反序列化漏洞）</td>
+</tr>
+</tbody></table>
+<br/>
+
+<h3 id="2、代码审计"><a href="#2、代码审计" class="headerlink" title="2、代码审计"></a>2、代码审计</h3><p>通过访问后台，我们发现这些功能点与平时实战遇到的项目大同小异，我们可以通过审计功能点代码进行挖掘漏洞</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221126213111483.png" data-caption="image-20221126213111483"><img src="/../images/Java/jxc/image-20221126213111483.png" alt="image-20221126213111483"></a></p>
+<p>审计初期，先初略通读一下代码，了解其代码结构及其功能点。通读过后，一般没开发经验的其实也是一脸懵，所以我们可以考虑定点审计，比如审计SQL注入，我们只需要搜索特定的关键字，然后再分析其代码是否存在漏洞比较快速。</p>
+<br/>
+
+<hr>
+<h4 id="Shiro-权限绕过（不存在）"><a href="#Shiro-权限绕过（不存在）" class="headerlink" title="Shiro 权限绕过（不存在）"></a>Shiro 权限绕过（不存在）</h4><p>我们知道 Shiro 框架本身是用来作身份认证和权限管理的一款框架，其通过拦截器功能来实现对用户访问权限的控制和拦截，Shiro 中常见的拦截器有 anon、authc 拦截器。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">anon 为匿名拦截器，不需要登录就能访问，一般用于静态资源,或者移动端接口；</span><br><span class="line">authc 为登录拦截器，需要登录认证才能访问的资源，需要在配置文件配置需要登录的 URL 路径；</span><br></pre></td></tr></table></figure></div>
+
+<p>authc 拦截器匹配规则如下：</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">| 通配符 | 说明                  |</span><br><span class="line">| ------ | ------------------- |</span><br><span class="line">| ？     | 匹配任意一个字符       |</span><br><span class="line">| *      | 匹配任意字符，包括0个   |</span><br><span class="line">| **     | 匹配任意层路径，包括0个 |</span><br></pre></td></tr></table></figure></div>
+
+
+<p>通过分析我们知道该 Shiro 版本可能存在权限绕过漏洞，那我们就转到 Shiro 配置文件审计其代码，文件名为 <code>ShiroConfig.java</code>，通过审计代码可知，系统对 <code>/static/**</code>,<code>/user/login</code>,<code>/drawImage</code> 使用了 anon 拦截器，即对这几个路径不会进行拦截，无需权限即可访问；对 <code>/**</code> 使用了 authc 拦截器，即对任意层路径进行拦截，需进行权限认证。综合得知，除了<code>/static/**</code>,<code>/user/login</code>,<code>/drawImage</code> 路径不需要认证，其他均需要权限认证。</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221126211906103.png" data-caption="image-20221126211906103"><img src="/../images/Java/jxc/image-20221126211906103.png" alt="image-20221126211906103"></a></p>
+<p>综上分析得知，开发者对 <code>/**</code> (任意层路径)使用了 authc 拦截器进行了拦截，所以该项目不存在 Shiro 权限绕过漏洞。</p>
+<hr>
+<h4 id="SQL注入（不存在）"><a href="#SQL注入（不存在）" class="headerlink" title="SQL注入（不存在）"></a>SQL注入（不存在）</h4><p>由上面的 pom.xml 审计中，我们发现系统使用 Mybatis 框架，通过以往的文章学习，我们知道 Mybatis 审计 SQL 注入关键点在与语句是否使用了 <code>$&#123;&#125;</code> 和 <code>#&#123;&#125;</code>,若使用了<code>#&#123;&#125;</code> 即采取了预编译，则是不存在注入了，若使用了 <code>$&#123;&#125;</code> 则为直接拼接，如果不存在过滤则可能存在SQL注入。</p>
+<p>在 Spring Boot 框架中，一般为 Controller 层接收前端请求然后调用 Service 层，然后 Service 层的业务逻辑去调用 Dao 访问数据库做增删改查操作，Dao 再调用 resources 中的对应的 .xml 文件做具体的 SQL 语句，SQL 语句都是在 .xml 文件中写的，而不是在 Java 代码中直接利用 Connection 连接数据库进行查询，这样层次更清晰，代码也更容易维护。因为具体的 SQL 语句都在 .xml 文件中，所以我们审计时可以直接搜索 .xml 文件中是否存在的 ${ 符号，以快速寻找是否存在 SQL 注入漏洞。</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128103655415.png" data-caption="image-20221128103655415"><img src="/../images/Java/jxc/image-20221128103655415.png" alt="image-20221128103655415"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128103844420.png" data-caption="image-20221128103844420"><img src="/../images/Java/jxc/image-20221128103844420.png" alt="image-20221128103844420"></a></p>
+<br/>
+
+<hr>
+<h4 id="验证码绕过（存在）"><a href="#验证码绕过（存在）" class="headerlink" title="验证码绕过（存在）"></a>验证码绕过（存在）</h4><p>审计验证码是否可绕过，我们先定位其路由，然后根据其位置一步步分析其代码是否存在验证码绕过的可能。我们通过抓包定位其路由为 <code>/user/login</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128105602081.png" data-caption="image-20221128105602081"><img src="/../images/Java/jxc/image-20221128105602081.png" alt="image-20221128105602081"></a></p>
+<p>所以 IDEA 中搜索 <code>/user</code> 或者<code>/login</code> 定位到该位置</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128110144473.png" data-caption="image-20221128110144473"><img src="/../images/Java/jxc/image-20221128110144473.png" alt="image-20221128110144473"></a></p>
+<p>通过审计定位到代码为 Controller 层的 <code>UserController.java</code>，有两个参数，通过上面注释可知道，session 用于取出系统生成的验证码。两个参数使用 <code>login</code> 方法去调用，我们跟进 <code>login</code> 方法进一步审计</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128111023068.png" data-caption="image-20221128111023068"><img src="/../images/Java/jxc/image-20221128111023068.png" alt="image-20221128111023068"></a></p>
+<p><code>Ctrl + 鼠标左键</code> 跟进方法，我们来到了 <code>Service</code> 接口层，也就是 <code>Dao</code> 层的 UserService.java，因为 Service 接口调用的是 Dao 层的接口，接下来我们就应该找接口的具体实现代码进行审计</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128111444927.png" data-caption="image-20221128111444927"><img src="/../images/Java/jxc/image-20221128111444927.png" alt="image-20221128111444927"></a></p>
+<p><code>Ctrl + 鼠标左键</code> UserService 接口，找到具体的实现代码</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128111929222.png" data-caption="image-20221128111929222"><img src="/../images/Java/jxc/image-20221128111929222.png" alt="image-20221128111929222"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128111953407.png" data-caption="image-20221128111953407"><img src="/../images/Java/jxc/image-20221128111953407.png" alt="image-20221128111953407"></a></p>
+<p>接下来的工作就是审计该代码即可，通过审计我们得知 <code>if(!userLogin)</code> 如果、非，即如果输出的验证码非系统验证码则返回 ServiceVO 里面的错误，正确则跳进下一步进行登录校验。这里的代码没有定义刷新验证码机制，使我们只需要输入一次正确的验证码即可继续使用该验证码。</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 校验图片验证码是否正确</span></span><br><span class="line"><span class="keyword">if</span>(!userLogin.getImageCode().toUpperCase().equals(session.getAttribute(<span class="string">&quot;checkcode&quot;</span>)))&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ServiceVO</span>(ErrorCode.VERIFY_CODE_ERROR_CODE, ErrorCode.VERIFY_CODE_ERROR_MESS);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128112759128.png" data-caption="image-20221128112759128"><img src="/../images/Java/jxc/image-20221128112759128.png" alt="image-20221128112759128"></a></p>
+<p>漏洞复现，我们输入正确的验证码，抓包进行爆破</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128114103675.png" data-caption="image-20221128114103675"><img src="/../images/Java/jxc/image-20221128114103675.png" alt="image-20221128114103675"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128114130277.png" data-caption="image-20221128114130277"><img src="/../images/Java/jxc/image-20221128114130277.png" alt="image-20221128114130277"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128114152465.png" data-caption="image-20221128114152465"><img src="/../images/Java/jxc/image-20221128114152465.png" alt="image-20221128114152465"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128114229865.png" data-caption="image-20221128114229865"><img src="/../images/Java/jxc/image-20221128114229865.png" alt="image-20221128114229865"></a></p>
+<br/>
+
+<hr>
+<h4 id="存储型XSS（存在）"><a href="#存储型XSS（存在）" class="headerlink" title="存储型XSS（存在）"></a>存储型XSS（存在）</h4><p>我们知道只要存在输入点，就有可能存在 XSS 漏洞，所以审计时我们首先审计是否存在XSS全局过滤器。一般搜索 filter 进行分析，这里我们知道使用的是 Spring boot 框架并使用了 Shiro，所以我们直接转到 Shiro 中的 filter 过滤器查看是否对 XSS 进行了过滤。</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128125843474.png" data-caption="image-20221128125843474"><img src="/../images/Java/jxc/image-20221128125843474.png" alt="image-20221128125843474"></a></p>
+<p>通过分析，发现系统只对部分的路径进行了过滤，并没有对XSS进行过滤</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128130003820.png" data-caption="image-20221128130003820"><img src="/../images/Java/jxc/image-20221128130003820.png" alt="image-20221128130003820"></a></p>
+<p>这时，我们就可以尝试在功能点处输入 XSS 语句进行尝试，查看是否能触发漏洞。首先我们在页面搜索功能点并不能触发漏洞</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128130137222.png" data-caption="image-20221128130137222"><img src="/../images/Java/jxc/image-20221128130137222.png" alt="image-20221128130137222"></a></p>
+<p>经过测试，我们发现在系统的搜索功能并不能触发 XSS，在修改功能，可以将数据插入数据库的功能可触发漏洞</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128130626302.png" data-caption="image-20221128130626302"><img src="/../images/Java/jxc/image-20221128130626302.png" alt="image-20221128130626302"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128130607082.png" data-caption="image-20221128130607082"><img src="/../images/Java/jxc/image-20221128130607082.png" alt="image-20221128130607082"></a></p>
+<p>进一步测试发现，只要是插入数据库的功能点都能触发漏洞</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128131010064.png" data-caption="image-20221128131010064"><img src="/../images/Java/jxc/image-20221128131010064.png" alt="image-20221128131010064"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128130953106.png" data-caption="image-20221128130953106"><img src="/../images/Java/jxc/image-20221128130953106.png" alt="image-20221128130953106"></a></p>
+<p>当我们使用其他账号登录，发现也能触发 XSS，证明该 XSS 为存储型 XSS</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128131225694.png" data-caption="image-20221128131225694"><img src="/../images/Java/jxc/image-20221128131225694.png" alt="image-20221128131225694"></a></p>
+<p>通过抓包找到该路由为 &#x2F;supplier&#x2F;list</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128131433784.png" data-caption="image-20221128131433784"><img src="/../images/Java/jxc/image-20221128131433784.png" alt="image-20221128131433784"></a></p>
+<p>IDEA 全局搜索定位到 Controller 层 <code>SupplierController.java</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128131630406.png" data-caption="image-20221128131630406"><img src="/../images/Java/jxc/image-20221128131630406.png" alt="image-20221128131630406"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128131818693.png" data-caption="image-20221128131818693"><img src="/../images/Java/jxc/image-20221128131818693.png" alt="image-20221128131818693"></a></p>
+<p>通过对比，参数 page、rows 对应 Burp 抓到到参数基本一致，确定为该路径</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128132127301.png" data-caption="image-20221128132127301"><img src="/../images/Java/jxc/image-20221128132127301.png" alt="image-20221128132127301"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128132225563.png" data-caption="image-20221128132225563"><img src="/../images/Java/jxc/image-20221128132225563.png" alt="image-20221128132225563"></a></p>
+<p><code>Ctrl + 鼠标左键</code> 跟进 list 方法，我们来到了 Service 层的 <code>SupplierService.java</code>,定位到 <code>SupplierService</code> 接口</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128132450975.png" data-caption="image-20221128132450975"><img src="/../images/Java/jxc/image-20221128132450975.png" alt="image-20221128132450975"></a></p>
+<p><code>Ctrl + 鼠标左键</code> 进行跟进该接口，找到具体实现代码位置为 <code>SupplierServiceImpl.java</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128132721752.png" data-caption="image-20221128132721752"><img src="/../images/Java/jxc/image-20221128132721752.png" alt="image-20221128132721752"></a></p>
+<p>代码逻辑清晰，没有对输入进行过滤</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128132640798.png" data-caption="image-20221128132640798"><img src="/../images/Java/jxc/image-20221128132640798.png" alt="image-20221128132640798"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128132902071.png" data-caption="image-20221128132902071"><img src="/../images/Java/jxc/image-20221128132902071.png" alt="image-20221128132902071"></a></p>
+<p>XSS实战中的使用,使用 XSS 平台，创建一个项目</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128141001324.png" data-caption="image-20221128141001324"><img src="/../images/Java/jxc/image-20221128141001324.png" alt="image-20221128141001324"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128141022057.png" data-caption="image-20221128141022057"><img src="/../images/Java/jxc/image-20221128141022057.png" alt="image-20221128141022057"></a></p>
+<p>这里选择默认模块</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128141043009.png" data-caption="image-20221128141043009"><img src="/../images/Java/jxc/image-20221128141043009.png" alt="image-20221128141043009"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128133535652.png" data-caption="image-20221128133535652"><img src="/../images/Java/jxc/image-20221128133535652.png" alt="image-20221128133535652"></a></p>
+<p>随便选择一个代码插入到存在漏洞的框框中</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128141147400.png" data-caption="image-20221128141147400"><img src="/../images/Java/jxc/image-20221128141147400.png" alt="image-20221128141147400"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128133858249.png" data-caption="image-20221128133858249"><img src="/../images/Java/jxc/image-20221128133858249.png" alt="image-20221128133858249"></a></p>
+<p>返回 XSS 平台这里已经返回部分信息</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/jxc/image-20221128133752931.png" data-caption="image-20221128133752931"><img src="/../images/Java/jxc/image-20221128133752931.png" alt="image-20221128133752931"></a></p>
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>这次项目审计进一步了解 Shiro 登录认证机制，再通过审计功能点进一步了解审计基础，审计的漏洞数量虽然不多，但加深了审计的技巧。</p>
+<h2 id="五、参考"><a href="#五、参考" class="headerlink" title="五、参考"></a>五、参考</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">https://www.freebuf.com/vuls/283810.html</span><br><span class="line">https://mp.weixin.qq.com/s/Y90mGgCqzjj0T1NX9E5wDw</span><br><span class="line">https://www.bilibili.com/video/BV1R24y1f7PY/?spm_id_from=333.999.0.0&amp;vd_source=193491f7ce412a6c60a101325cdd0aa0</span><br></pre></td></tr></table></figure></div>
+
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">二、环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.</span> <span class="toc-text">三、代码审计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81pom-xml-%E6%A1%86%E6%9E%B6%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.1.</span> <span class="toc-text">1、pom.xml 框架审计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.2.</span> <span class="toc-text">2、代码审计</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Shiro-%E6%9D%83%E9%99%90%E7%BB%95%E8%BF%87%EF%BC%88%E4%B8%8D%E5%AD%98%E5%9C%A8%EF%BC%89"><span class="toc-number">3.2.1.</span> <span class="toc-text">Shiro 权限绕过（不存在）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SQL%E6%B3%A8%E5%85%A5%EF%BC%88%E4%B8%8D%E5%AD%98%E5%9C%A8%EF%BC%89"><span class="toc-number">3.2.2.</span> <span class="toc-text">SQL注入（不存在）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%AA%8C%E8%AF%81%E7%A0%81%E7%BB%95%E8%BF%87%EF%BC%88%E5%AD%98%E5%9C%A8%EF%BC%89"><span class="toc-number">3.2.3.</span> <span class="toc-text">验证码绕过（存在）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E5%9E%8BXSS%EF%BC%88%E5%AD%98%E5%9C%A8%EF%BC%89"><span class="toc-number">3.2.4.</span> <span class="toc-text">存储型XSS（存在）</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">四、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">5.</span> <span class="toc-text">五、参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&text=Java代码审计(五)-JXC企业级进销存管理系统"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&title=Java代码审计(五)-JXC企业级进销存管理系统"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&is_video=false&description=Java代码审计(五)-JXC企业级进销存管理系统"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java代码审计(五)-JXC企业级进销存管理系统&body=Check out this article: http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&title=Java代码审计(五)-JXC企业级进销存管理系统"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&title=Java代码审计(五)-JXC企业级进销存管理系统"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&title=Java代码审计(五)-JXC企业级进销存管理系统"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&title=Java代码审计(五)-JXC企业级进销存管理系统"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&name=Java代码审计(五)-JXC企业级进销存管理系统&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/12/01/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%94)-JXC%E4%BC%81%E4%B8%9A%E7%BA%A7%E8%BF%9B%E9%94%80%E5%AD%98%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/&t=Java代码审计(五)-JXC企业级进销存管理系统"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

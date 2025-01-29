@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、前言众所周知，Android 从 7.0 开始，系统不再信任用户 CA 证书（应用 targetSdkVersion &gt;&#x3D; 24 时生效，如果 targetSdkVersion &lt; 24 即使系统是 7.0 + 依然会信任）。也就是说即使安装了用户 CA 证书，在 Android 7.0 + 的机器上，targetSdkVersion&gt;&#x3D; 24 的应用的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="APP测试系列-Android客户端流量抓包">
+<meta property="og:url" content="http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、前言众所周知，Android 从 7.0 开始，系统不再信任用户 CA 证书（应用 targetSdkVersion &gt;&#x3D; 24 时生效，如果 targetSdkVersion &lt; 24 即使系统是 7.0 + 依然会信任）。也就是说即使安装了用户 CA 证书，在 Android 7.0 + 的机器上，targetSdkVersion&gt;&#x3D; 24 的应用的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112145644738.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112150053906.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112150945417.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112151153064.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112151340657.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221113164208412.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112151943004.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112152233341.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112152423683.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112152437313.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112152450976.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112152511065.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112152907673.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112152944897.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112153028958.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112153433552.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112171452091.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112171645895.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112171755530.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112171819591.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112172012733.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112172044274.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112172119508.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112172210871.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112211747086.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112211915851.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112212110415.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112212121623.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112212429801.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112213636603.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112213435342.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221121200703789.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112220055883.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221112220244632.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221121200547725.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221121203818209.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221121203750042.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221121203941186.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221121204027908.png">
+<meta property="og:image" content="http://example.com/images/app/Packet_capture/image-20221121204554671.png">
+<meta property="article:published_time" content="2022-11-21T12:49:33.000Z">
+<meta property="article:modified_time" content="2022-12-30T13:13:04.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="APP测试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/app/Packet_capture/image-20221112145644738.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>APP测试系列-Android客户端流量抓包</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/11/26/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-MSSQL%E6%8F%90%E6%9D%83%E4%B9%8Bxp_cmdshell/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/11/01/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-XXE/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&text=APP测试系列-Android客户端流量抓包"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&title=APP测试系列-Android客户端流量抓包"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&is_video=false&description=APP测试系列-Android客户端流量抓包"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=APP测试系列-Android客户端流量抓包&body=Check out this article: http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&title=APP测试系列-Android客户端流量抓包"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&title=APP测试系列-Android客户端流量抓包"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&title=APP测试系列-Android客户端流量抓包"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&title=APP测试系列-Android客户端流量抓包"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&name=APP测试系列-Android客户端流量抓包&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&t=APP测试系列-Android客户端流量抓包"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%AE%89%E5%8D%93%E6%A8%A1%E6%8B%9F%E5%99%A8%E6%8A%93%E5%8C%85"><span class="toc-number">2.</span> <span class="toc-text">二、安卓模拟器抓包</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%AE%89%E8%A3%85%E6%A8%A1%E6%8B%9F%E5%99%A8"><span class="toc-number">2.1.</span> <span class="toc-text">1、安装模拟器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E9%85%8D%E7%BD%AE%E8%AF%81%E4%B9%A6"><span class="toc-number">2.2.</span> <span class="toc-text">2、配置证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E9%85%8D%E7%BD%AE%E4%BB%A3%E7%90%86"><span class="toc-number">2.3.</span> <span class="toc-text">3、配置代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E5%B0%8F%E7%BB%93"><span class="toc-number">2.4.</span> <span class="toc-text">4、小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%AE%89%E5%8D%93%E7%9C%9F%E6%9C%BA%E6%8A%93%E5%8C%85"><span class="toc-number">3.</span> <span class="toc-text">三、安卓真机抓包</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E6%89%8B%E6%9C%BA-ROOT%EF%BC%88%E5%B0%8F%E7%B1%B3%EF%BC%89"><span class="toc-number">3.1.</span> <span class="toc-text">1、手机 ROOT（小米）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81Fiddle-%E6%8A%93%E5%8C%85"><span class="toc-number">3.2.</span> <span class="toc-text">2、Fiddle 抓包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81Fiddler-Burp-%E6%8A%93%E5%8C%85"><span class="toc-number">3.3.</span> <span class="toc-text">3、Fiddler + Burp 抓包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E5%B0%8F%E7%BB%93-1"><span class="toc-number">3.4.</span> <span class="toc-text">4、小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%89%A9%E5%B1%95"><span class="toc-number">4.</span> <span class="toc-text">四、扩展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E6%8A%93%E5%8C%85%E5%B7%A5%E5%85%B7%E6%97%A0%E6%B3%95%E6%8A%93%E5%8F%96%E5%88%B0%E6%B5%81%E9%87%8F%EF%BC%8CAPP-%E5%8F%AF%E6%AD%A3%E5%B8%B8%E8%81%94%E7%BD%91%E4%BD%BF%E7%94%A8"><span class="toc-number">4.1.</span> <span class="toc-text">1、抓包工具无法抓取到流量，APP 可正常联网使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E6%8A%93%E5%8C%85%E5%B7%A5%E5%85%B7%E6%97%A0%E6%B3%95%E6%8A%93%E5%8F%96%E5%88%B0%E6%B5%81%E9%87%8F%EF%BC%8CAPP-%E6%97%A0%E6%B3%95%E6%AD%A3%E5%B8%B8%E8%81%94%E7%BD%91%E4%BD%BF%E7%94%A8"><span class="toc-number">4.2.</span> <span class="toc-text">2、抓包工具无法抓取到流量，APP 无法正常联网使用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">五、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">6.</span> <span class="toc-text">六、参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        APP测试系列-Android客户端流量抓包
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-11-21T12:49:33.000Z" itemprop="datePublished">2022-11-21</time>
+        
+        (Updated: <time datetime="2022-12-30T13:13:04.000Z" itemprop="dateModified">2022-12-30</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97/">APP测试系列</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/APP%E6%B5%8B%E8%AF%95/" rel="tag">APP测试</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>众所周知，Android 从 7.0 开始，系统不再信任用户 CA 证书（应用 targetSdkVersion &gt;&#x3D; 24 时生效，如果 targetSdkVersion &lt; 24 即使系统是 7.0 + 依然会信任）。也就是说即使安装了用户 CA 证书，在 Android 7.0 + 的机器上，targetSdkVersion&gt;&#x3D; 24 的应用的 HTTPS 包就抓不到了。文章主要分为三大部分（注：请通读全文再选择合适自己的方法！）</p>
+<h2 id="二、安卓模拟器抓包"><a href="#二、安卓模拟器抓包" class="headerlink" title="二、安卓模拟器抓包"></a>二、安卓模拟器抓包</h2><p>模拟器抓包的优点就是不需要真实的手机设备，电脑上下载个软件，设置相关配置就可以抓取 APP 流量。但缺点也很明显，模拟器的版本一般选择 Android 7.0 以下，若 APP 应用版本不支持在 Android 7.0 版本以下的手机安装则无法进行抓包，安装了 APP 打开了也只是闪退无法进入界面。模拟器具体抓包操作如下。</p>
+<h3 id="1、安装模拟器"><a href="#1、安装模拟器" class="headerlink" title="1、安装模拟器"></a>1、安装模拟器</h3><p>电脑上安装安卓模拟器。个人平时测试喜欢使用 MuMu 模拟器，下载地址：<a target="_blank" rel="noopener" href="https://adl.netease.com/d/g/a11/c/gw">https://adl.netease.com/d/g/a11/c/gw</a>  安装后界面如下，下图部分软件为本人自己安装的。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112145644738.png" data-caption="image-20221112145644738"><img src="/../images/app/Packet_capture/image-20221112145644738.png" alt="image-20221112145644738"></a></p>
+<h3 id="2、配置证书"><a href="#2、配置证书" class="headerlink" title="2、配置证书"></a>2、配置证书</h3><p>想要成功抓包，安装信任证书必不可少。Burp 开启监听，监听地址为连接 WIFI 后的本机 IP，非 127.0.0.1</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112150053906.png" data-caption="image-20221112150053906"><img src="/../images/app/Packet_capture/image-20221112150053906.png" alt="image-20221112150053906"></a></p>
+<p>Burp 中设置监听代理为本机 IP </p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112150945417.png" data-caption="image-20221112150945417"><img src="/../images/app/Packet_capture/image-20221112150945417.png" alt="image-20221112150945417"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112151153064.png" data-caption="image-20221112151153064"><img src="/../images/app/Packet_capture/image-20221112151153064.png" alt="image-20221112151153064"></a></p>
+<p>将 Burp 证书 安装到安卓模拟器中去，这里下载证书依然使用电脑浏览器下载，使用模拟器直接下载个人感觉不太好操作。浏览器设置 192.168.1.102:9000 代理。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112151340657.png" data-caption="image-20221112151340657"><img src="/../images/app/Packet_capture/image-20221112151340657.png" alt="image-20221112151340657"></a></p>
+<p>访问 <a target="_blank" rel="noopener" href="http://192.168.1.102:9000/">http://192.168.1.102:9000</a>  ，下载CA 证书，下载后证书名为 cacert.der，我们需要将其证书名后缀改为 .cer 然后安装到安卓模拟器中，即 cacert.cer</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221113164208412.png" data-caption="image-20221113164208412"><img src="/../images/app/Packet_capture/image-20221113164208412.png" alt="image-20221113164208412"></a></p>
+<p>安装详细步骤如下：</p>
+<p>打开模拟器文件共享文件夹，把 CA 证书拉取进去</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112151943004.png" data-caption="image-20221112151943004"><img src="/../images/app/Packet_capture/image-20221112151943004.png" alt="image-20221112151943004"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112152233341.png" data-caption="image-20221112152233341"><img src="/../images/app/Packet_capture/image-20221112152233341.png" alt="image-20221112152233341"></a></p>
+<p>打开文件管理器，进入 $MuMu共享文件夹找到该证书点击进行安装</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112152423683.png" data-caption="image-20221112152423683"><img src="/../images/app/Packet_capture/image-20221112152423683.png" alt="image-20221112152423683"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112152437313.png" data-caption="image-20221112152437313"><img src="/../images/app/Packet_capture/image-20221112152437313.png" alt="image-20221112152437313"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112152450976.png" data-caption="image-20221112152450976"><img src="/../images/app/Packet_capture/image-20221112152450976.png" alt="image-20221112152450976"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112152511065.png" data-caption="image-20221112152511065"><img src="/../images/app/Packet_capture/image-20221112152511065.png" alt="image-20221112152511065"></a></p>
+<h3 id="3、配置代理"><a href="#3、配置代理" class="headerlink" title="3、配置代理"></a>3、配置代理</h3><p>⚠️ 注意，APP抓包无论是模拟器还是真机，连接的网络必须是同一WIFI，所以 Burp 监听才会设置为本机 IP，而非 127.0.0.1。上面已经配置好 Burp 抓包所需配置，下面我们只需要配置模拟器代理即可进行抓包。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112152907673.png" data-caption="image-20221112152907673"><img src="/../images/app/Packet_capture/image-20221112152907673.png" alt="image-20221112152907673"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112152944897.png" data-caption="image-20221112152944897"><img src="/../images/app/Packet_capture/image-20221112152944897.png" alt="image-20221112152944897"></a></p>
+<p>配置网络与 Burp 代理一致</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112153028958.png" data-caption="image-20221112153028958"><img src="/../images/app/Packet_capture/image-20221112153028958.png" alt="image-20221112153028958"></a></p>
+<p>这里随便打开一个软件，成功抓取到 https 流量</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112153433552.png" data-caption="image-20221112153433552"><img src="/../images/app/Packet_capture/image-20221112153433552.png" alt="image-20221112153433552"></a></p>
+<p>对了，模拟器如何安装 app 也简单说一下，可以通过模拟器应用商店直接下载，也可以电脑上获取 apk 包后直接拉进去模拟器进行安装,模拟器底部也有个 APK 安装的选项。</p>
+<p>至此，模拟器抓取 APP 流量已经完成。</p>
+<h3 id="4、小结"><a href="#4、小结" class="headerlink" title="4、小结"></a>4、小结</h3><p>模拟器进行 APP 流量抓取是最为简单有效的方法，本人工作中也是首选这一种，不行才转向真机测试。</p>
+<h2 id="三、安卓真机抓包"><a href="#三、安卓真机抓包" class="headerlink" title="三、安卓真机抓包"></a>三、安卓真机抓包</h2><h3 id="1、手机-ROOT（小米）"><a href="#1、手机-ROOT（小米）" class="headerlink" title="1、手机 ROOT（小米）"></a>1、手机 ROOT（小米）</h3><p>手机需要 ROOT（经实测有些 APP 无需 ROOT 也可以抓取到，安装 CA 证书即可，自己按实际情况去测试是否可行），本人使用的是小米 MIX 2s 作为日常的测试机，通过官方解锁。参考视频：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1er4y1C7wU/?spm_id_from=333.337.search-card.all.click">https://www.bilibili.com/video/BV1er4y1C7wU/?spm_id_from=333.337.search-card.all.click</a> ，刷入面具（ROOT）教程：<a target="_blank" rel="noopener" href="https://magiskcn.com/">https://magiskcn.com/</a></p>
+<p>具体的刷 ROOT 这里就不展示了，参考视频已经非常详细了，其他机型自行探索。这里简单说一下刷入面具时遇到的一些小问题。在刷入面具时，手机进入 fastboot 后插入 USB 电脑无法识别设备是否插入，导致输入面具时告警：<code>&lt; waiting for any device &gt;</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112171452091.png" data-caption="image-20221112171452091"><img src="/../images/app/Packet_capture/image-20221112171452091.png" alt="image-20221112171452091"></a></p>
+<p>解决方案如下，手机进入 fastboot 模式，电脑插入连接手机的 USB 后，打开电脑设备管理器</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112171645895.png" data-caption="image-20221112171645895"><img src="/../images/app/Packet_capture/image-20221112171645895.png" alt="image-20221112171645895"></a></p>
+<p>选择其他设备-》鼠标右键更新驱动-》浏览我的电脑以查找驱动程序</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112171755530.png" data-caption="image-20221112171755530"><img src="/../images/app/Packet_capture/image-20221112171755530.png" alt="image-20221112171755530"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112171819591.png" data-caption="image-20221112171819591"><img src="/../images/app/Packet_capture/image-20221112171819591.png" alt="image-20221112171819591"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112172012733.png" data-caption="image-20221112172012733"><img src="/../images/app/Packet_capture/image-20221112172012733.png" alt="image-20221112172012733"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112172044274.png" data-caption="image-20221112172044274"><img src="/../images/app/Packet_capture/image-20221112172044274.png" alt="image-20221112172044274"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112172119508.png" data-caption="image-20221112172119508"><img src="/../images/app/Packet_capture/image-20221112172119508.png" alt="image-20221112172119508"></a></p>
+<p>重新执行命令，成功刷入面具，即成功 ROOT，然后重启手机即可。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112172210871.png" data-caption="image-20221112172210871"><img src="/../images/app/Packet_capture/image-20221112172210871.png" alt="image-20221112172210871"></a></p>
+<h3 id="2、Fiddle-抓包"><a href="#2、Fiddle-抓包" class="headerlink" title="2、Fiddle 抓包"></a>2、Fiddle 抓包</h3><p>Fiddler 下载链接：<a target="_blank" rel="noopener" href="https://telerik-fiddler.s3.amazonaws.com/fiddler/FiddlerSetup.exe">https://telerik-fiddler.s3.amazonaws.com/fiddler/FiddlerSetup.exe</a></p>
+<p>配置抓取 HTTPS 流量，Tools-》Options-》HTTPS</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112211747086.png" data-caption="image-20221112211747086"><img src="/../images/app/Packet_capture/image-20221112211747086.png" alt="image-20221112211747086"></a></p>
+<p>勾选 HTTPS</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112211915851.png" data-caption="image-20221112211915851"><img src="/../images/app/Packet_capture/image-20221112211915851.png" alt="image-20221112211915851"></a></p>
+<p>勾选后会弹出安装证书的提示，根据提示一直点击 是 安装即可。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112212110415.png" data-caption="image-20221112212110415"><img src="/../images/app/Packet_capture/image-20221112212110415.png" alt="image-20221112212110415"></a></p>
+<p>配置代理端口 <code>Tools — Options — Connections</code>，端口选择 <code>9000</code>（可随意更改），勾选 <code>Allow remote computers to connect</code> ，点击 OK，重启 Fiddle 使配置生效</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112212121623.png" data-caption="image-20221112212121623"><img src="/../images/app/Packet_capture/image-20221112212121623.png" alt="image-20221112212121623"></a></p>
+<p>配置手机端代理与 Fiddler 设置的端口一致，让 APP 流量走 Fiddler。这里手机也是同一 WIFI 下的本机 IP。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112212429801.png" data-caption="image-20221112212429801"><img src="/../images/app/Packet_capture/image-20221112212429801.png" alt="image-20221112212429801"></a></p>
+<p>配置后，在手机浏览器访问上面设置的 IP 地址和端口号，我这里是 <code>192.168.1.102:9000</code>（这里要根据实际情况），然后 <code>FiddlerRoot certificate</code> 进行下载证书，并自行安装配置</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112213636603.png" data-caption="image-20221112213636603"><img src="/../images/app/Packet_capture/image-20221112213636603.png" alt="image-20221112213636603"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112213435342.png" data-caption="image-20221112213435342"><img src="/../images/app/Packet_capture/image-20221112213435342.png" alt="image-20221112213435342"></a></p>
+<p>随便打开一个 APP 抓包成功</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221121200703789.png" data-caption="image-20221121200703789"><img src="/../images/app/Packet_capture/image-20221121200703789.png" alt="image-20221121200703789"></a></p>
+<h3 id="3、Fiddler-Burp-抓包"><a href="#3、Fiddler-Burp-抓包" class="headerlink" title="3、Fiddler + Burp 抓包"></a>3、Fiddler + Burp 抓包</h3><p>由于常年使用 Burp ，突然转到 Fiddler 会不习惯，所以我们再将 Fiddler 流量转发到 Burp 去，我们只需要在 Fiddler 抓包原有的基础上添加流量转发到 Burp 的配置即可。</p>
+<p>Burp开启监听</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112220055883.png" data-caption="image-20221112220055883"><img src="/../images/app/Packet_capture/image-20221112220055883.png" alt="image-20221112220055883"></a></p>
+<p>Fiddler 配置，<code>Tools-》Options-》Gateway-》Manual Proxy Configuration</code> 填写 127.0.0.1:8080 使与 Burp 的监听地址一致。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221112220244632.png" data-caption="image-20221112220244632"><img src="/../images/app/Packet_capture/image-20221112220244632.png" alt="image-20221112220244632"></a></p>
+<p>APP 上点击功能点，流量从 Fiddler 转发到了 Burp，这样就比较直观了，回到熟悉的界面，也比较好操作。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221121200547725.png" data-caption="image-20221121200547725"><img src="/../images/app/Packet_capture/image-20221121200547725.png" alt="image-20221121200547725"></a></p>
+<p>Fiddler 真机抓包同样也可以应用在模拟器上，步骤相同。</p>
+<h3 id="4、小结-1"><a href="#4、小结-1" class="headerlink" title="4、小结"></a>4、小结</h3><p>其实我们真机可以直接使用 Burp 抓取 App 的流量，只不过有时候由于使用 Burp 抓取的流量从 APP 回流到 Burp 的时间过长，导致 APP 显示无响应，所以我们使用 Fiddler 抓包，相对来说 Fiddler 对于 APP 和小程序的流量抓取会快一点，但由于 Fiddler 与 Burp 相比，功能上和操作上 Burp 又更胜一筹，所以我们就选择使用 Fiddler 抓取流量，然后把 Fiddler 的流量转发到 Burp 上，以达到更优的测试环境。<code>（Fiddler + Burpsuite 串联时 Fiddler 的流量走 Burpsuite 使 Burpsuite 没有了流量解析的过程，只是单纯将 Fiddler 流量转发到 Burpsuite，所以会比较快一点）</code></p>
+<h2 id="四、扩展"><a href="#四、扩展" class="headerlink" title="四、扩展"></a>四、扩展</h2><h3 id="1、抓包工具无法抓取到流量，APP-可正常联网使用"><a href="#1、抓包工具无法抓取到流量，APP-可正常联网使用" class="headerlink" title="1、抓包工具无法抓取到流量，APP 可正常联网使用"></a>1、抓包工具无法抓取到流量，APP 可正常联网使用</h3><ul>
+<li><p>APP 使用非 HTTP 协议，如 TCP、UDP 或者私有协议进行数据传输，所以无法通过常规手段进行抓包，需要进行逆向提取其算法进行分析研究。</p>
+</li>
+<li><p>APP 设置了不走系统代理的配置，导致无法通过系统代理将流量转发到抓包工具上，可通过第三方代理 APP， HttpCanary 进行流量抓取。</p>
+</li>
+</ul>
+<p>根据网上资源收集了几个版本的 HTTPCannary ，<a target="_blank" rel="noopener" href="https://l13144.lanzoul.com/b00peu2kh">请自行选取可用版本</a>。本人自己在没 ROOT 手机上选择了过检版成功抓取到应用流量。</p>
+<p>安装步骤：</p>
+<ul>
+<li><p>手机上安装 HttpCanary 软件</p>
+</li>
+<li><p>安装证书</p>
+</li>
+</ul>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221121203818209.png" data-caption="image-20221121203818209"><img src="/../images/app/Packet_capture/image-20221121203818209.png" alt="image-20221121203818209"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221121203750042.png" data-caption="image-20221121203750042"><img src="/../images/app/Packet_capture/image-20221121203750042.png" alt="image-20221121203750042"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221121203941186.png" data-caption="image-20221121203941186"><img src="/../images/app/Packet_capture/image-20221121203941186.png" alt="image-20221121203941186"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221121204027908.png" data-caption="image-20221121204027908"><img src="/../images/app/Packet_capture/image-20221121204027908.png" alt="image-20221121204027908"></a></p>
+<p>按照上面安装完成后，无需理会<code>安装根证书抓取SSL数据包</code>提示，点击右下角的小飞机变为绿色即开启抓包，打开APP即可抓取到数据包，根据自己需要进行测试，也可以将  HttpCanary 抓取到的流量包复制到Burp进行重放，就是有点麻烦，根据自身需求选择。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/Packet_capture/image-20221121204554671.png" data-caption="image-20221121204554671"><img src="/../images/app/Packet_capture/image-20221121204554671.png" alt="image-20221121204554671"></a></p>
+<h3 id="2、抓包工具无法抓取到流量，APP-无法正常联网使用"><a href="#2、抓包工具无法抓取到流量，APP-无法正常联网使用" class="headerlink" title="2、抓包工具无法抓取到流量，APP 无法正常联网使用"></a>2、抓包工具无法抓取到流量，APP 无法正常联网使用</h3><ul>
+<li><p>当使用 Burp 或者 Fiddler 抓包时，无法抓取到流量包，手机上 APP 也无法正常使用。则考虑为证书信任问题，由于需要分析 HTTPS 流量，我们必定需要安装相应的抓包工具证书，而系统又对该证书无法信任，导致了无法抓取到流量，APP 也无法正常使用。</p>
+</li>
+<li><p>解决方案：</p>
+<p>将用户证书安装到系统证书列表，我们安装证书一般在用户证书列表，我们将其移动到系统证书列表（此步骤需要 ROOT ，ROOT 后用户才能访问系统证书访问的目录），安装步骤如下：</p>
+<p>1）转换证书格式</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 安装 openssl 转换证书的格式</span><br><span class="line">$ openssl x509 -in cacert.der -inform DER -out cacert.pem -outform PEM</span><br><span class="line">// 提取证书的hash</span><br><span class="line">$ openssl x509 -inform PEM -subject_hash -in cacert.pem</span><br><span class="line">// Linux 将证书转换格式,注意后缀为.0</span><br><span class="line">$ mv cacert.pem xxx.0</span><br></pre></td></tr></table></figure></div>
+
+<p>使用adb将证书移入&#x2F;system&#x2F;etc&#x2F;security&#x2F;cacerts&#x2F;目录下</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 将证书导入 /data/local/tmp 目录</span><br><span class="line">$ adb push 7bf17d07.0 /data/local/tmp</span><br><span class="line">$ adb shell </span><br><span class="line">android:/ $ su</span><br><span class="line">android:/ # mount -o rw,remount / # 挂载/system目录</span><br><span class="line">android:/ # mv /data/local/tmp/xxx.0 /system/etc/security/cacerts/xxx.0 # 移动证书</span><br><span class="line">android:/ # chmod 644 /system/etc/security/cacerts/xxx.0 # 修改权限</span><br></pre></td></tr></table></figure></div>
+
+
+<p>2）使用 Android 7.0 以下的手机，无需 ROOT ，即可尝试使用模拟器进行测试</p>
+</li>
+</ul>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>经过测试，有些 APP 流量，使用非 ROOT 手机也能通过 Burp 抓取到 HTTPS 流量，只需要安装 CA 证书即可。具体是否能成功得看 APP 证书验证即机制是否严格。抓包方式不局限与文章列举的方法，选择适合自己的方法才是最好的方法。</p>
+<h2 id="六、参考"><a href="#六、参考" class="headerlink" title="六、参考"></a>六、参考</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">https://mp.weixin.qq.com/s/MKwYYjcHiiHNzT4RzRuBZg</span><br><span class="line">https://www.bilibili.com/video/BV1er4y1C7wU/?spm_id_from=333.337.search-card.all.click</span><br><span class="line">https://magiskcn.com/</span><br><span class="line">https://mp.weixin.qq.com/s/2PF9lbIcqPHDBUmiFxX7yw</span><br><span class="line">https://mp.weixin.qq.com/s/f8Lcwz-yjZXCsXiA64gNMg</span><br><span class="line">https://www.52pojie.cn/thread-1593662-1-1.html</span><br><span class="line">https://mp.weixin.qq.com/s/iVsjdjkO5xfqQVHfNEyeUQ</span><br></pre></td></tr></table></figure></div>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%AE%89%E5%8D%93%E6%A8%A1%E6%8B%9F%E5%99%A8%E6%8A%93%E5%8C%85"><span class="toc-number">2.</span> <span class="toc-text">二、安卓模拟器抓包</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%AE%89%E8%A3%85%E6%A8%A1%E6%8B%9F%E5%99%A8"><span class="toc-number">2.1.</span> <span class="toc-text">1、安装模拟器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E9%85%8D%E7%BD%AE%E8%AF%81%E4%B9%A6"><span class="toc-number">2.2.</span> <span class="toc-text">2、配置证书</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E9%85%8D%E7%BD%AE%E4%BB%A3%E7%90%86"><span class="toc-number">2.3.</span> <span class="toc-text">3、配置代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E5%B0%8F%E7%BB%93"><span class="toc-number">2.4.</span> <span class="toc-text">4、小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%AE%89%E5%8D%93%E7%9C%9F%E6%9C%BA%E6%8A%93%E5%8C%85"><span class="toc-number">3.</span> <span class="toc-text">三、安卓真机抓包</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E6%89%8B%E6%9C%BA-ROOT%EF%BC%88%E5%B0%8F%E7%B1%B3%EF%BC%89"><span class="toc-number">3.1.</span> <span class="toc-text">1、手机 ROOT（小米）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81Fiddle-%E6%8A%93%E5%8C%85"><span class="toc-number">3.2.</span> <span class="toc-text">2、Fiddle 抓包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81Fiddler-Burp-%E6%8A%93%E5%8C%85"><span class="toc-number">3.3.</span> <span class="toc-text">3、Fiddler + Burp 抓包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E5%B0%8F%E7%BB%93-1"><span class="toc-number">3.4.</span> <span class="toc-text">4、小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%89%A9%E5%B1%95"><span class="toc-number">4.</span> <span class="toc-text">四、扩展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E6%8A%93%E5%8C%85%E5%B7%A5%E5%85%B7%E6%97%A0%E6%B3%95%E6%8A%93%E5%8F%96%E5%88%B0%E6%B5%81%E9%87%8F%EF%BC%8CAPP-%E5%8F%AF%E6%AD%A3%E5%B8%B8%E8%81%94%E7%BD%91%E4%BD%BF%E7%94%A8"><span class="toc-number">4.1.</span> <span class="toc-text">1、抓包工具无法抓取到流量，APP 可正常联网使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E6%8A%93%E5%8C%85%E5%B7%A5%E5%85%B7%E6%97%A0%E6%B3%95%E6%8A%93%E5%8F%96%E5%88%B0%E6%B5%81%E9%87%8F%EF%BC%8CAPP-%E6%97%A0%E6%B3%95%E6%AD%A3%E5%B8%B8%E8%81%94%E7%BD%91%E4%BD%BF%E7%94%A8"><span class="toc-number">4.2.</span> <span class="toc-text">2、抓包工具无法抓取到流量，APP 无法正常联网使用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">五、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">6.</span> <span class="toc-text">六、参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&text=APP测试系列-Android客户端流量抓包"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&title=APP测试系列-Android客户端流量抓包"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&is_video=false&description=APP测试系列-Android客户端流量抓包"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=APP测试系列-Android客户端流量抓包&body=Check out this article: http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&title=APP测试系列-Android客户端流量抓包"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&title=APP测试系列-Android客户端流量抓包"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&title=APP测试系列-Android客户端流量抓包"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&title=APP测试系列-Android客户端流量抓包"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&name=APP测试系列-Android客户端流量抓包&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/&t=APP测试系列-Android客户端流量抓包"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

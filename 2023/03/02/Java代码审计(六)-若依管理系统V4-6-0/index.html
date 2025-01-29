@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、前言若依管理系统是基于 SpringBoot 开发的轻量级 JAVA 开发框架，，本篇文章基于 V4.6.0 版本的基础上对部分历史漏洞进行审计分析。项目地址：https:&#x2F;&#x2F;gitee.com&#x2F;y_project&#x2F;RuoYi&#x2F;tree&#x2F;v4.6.0 二、环境搭建这里依然使用 Phpstudy 作为数据库源，利用 navicat 导入数据表  创建数据库  导入数据表   IDEA导入项目源码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java代码审计(六)-若依管理系统V4.6.0">
+<meta property="og:url" content="http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、前言若依管理系统是基于 SpringBoot 开发的轻量级 JAVA 开发框架，，本篇文章基于 V4.6.0 版本的基础上对部分历史漏洞进行审计分析。项目地址：https:&#x2F;&#x2F;gitee.com&#x2F;y_project&#x2F;RuoYi&#x2F;tree&#x2F;v4.6.0 二、环境搭建这里依然使用 Phpstudy 作为数据库源，利用 navicat 导入数据表  创建数据库  导入数据表   IDEA导入项目源码">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221128193032129.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221128193140018.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221128193247668.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221128193314048.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221128194601780.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221128202414458.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221128201751385.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221128202005935.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221128202131048.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221128202451155.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221128212237103.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129125159545.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129125130419.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129131526187.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129132412165.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129132823022.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129133452563.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129133753389.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129142906434.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129135057213.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129144458616.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129142133925.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129141948518.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129150602128.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129181626999.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129182031431.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129181939916.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129182436018.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129182906151.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230220220920253.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230216125250617.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230216125414063.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230216130127701.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230216130102638.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129200200219.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129200510839.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129200614230.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129200636926.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129210227296.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129210304172.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129212610780.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221129212641545.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20221130134353409.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230206215406546.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230206215514857.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230206215622205.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230206215726171.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230207211853841.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230207214447968.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230207221539853.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230207214512267.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230207214258149.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230207214603424.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230207215525136.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230207220732139.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230207221912564.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230207222514373.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230207222626156.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230207222906262.png">
+<meta property="og:image" content="http://example.com/images/Java/ruoyi/image-20230207223141156.png">
+<meta property="article:published_time" content="2023-03-02T12:51:34.000Z">
+<meta property="article:modified_time" content="2023-03-07T09:09:52.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="SQL注入">
+<meta property="article:tag" content="Java代码审计">
+<meta property="article:tag" content="Shiro反序列化">
+<meta property="article:tag" content="任意文件读取">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/Java/ruoyi/image-20221128193032129.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>Java代码审计(六)-若依管理系统V4.6.0</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/03/07/Java%E4%BB%A3%E7%A0%81%E5%AE%A1(%E4%B8%83)-JNDI%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86%E5%8F%8A%E5%88%A9%E7%94%A8%E8%80%83%E7%A9%B6/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/01/26/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%A7%94%E6%B4%BE%E6%94%BB%E5%87%BB/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&text=Java代码审计(六)-若依管理系统V4.6.0"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&title=Java代码审计(六)-若依管理系统V4.6.0"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&is_video=false&description=Java代码审计(六)-若依管理系统V4.6.0"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java代码审计(六)-若依管理系统V4.6.0&body=Check out this article: http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&title=Java代码审计(六)-若依管理系统V4.6.0"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&title=Java代码审计(六)-若依管理系统V4.6.0"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&title=Java代码审计(六)-若依管理系统V4.6.0"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&title=Java代码审计(六)-若依管理系统V4.6.0"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&name=Java代码审计(六)-若依管理系统V4.6.0&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&t=Java代码审计(六)-若依管理系统V4.6.0"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">二、环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.</span> <span class="toc-text">三、代码审计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81pom-xml-%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.1.</span> <span class="toc-text">1、pom.xml 审计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.2.</span> <span class="toc-text">2、漏洞审计</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SQL%E6%B3%A8%E5%85%A5"><span class="toc-number">3.2.1.</span> <span class="toc-text">SQL注入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Shiro%E7%BB%84%E4%BB%B6%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.2.2.</span> <span class="toc-text">Shiro组件漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96"><span class="toc-number">3.2.3.</span> <span class="toc-text">任意文件读取</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">4.</span> <span class="toc-text">四、参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Java代码审计(六)-若依管理系统V4.6.0
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-03-02T12:51:34.000Z" itemprop="datePublished">2023-03-02</time>
+        
+        (Updated: <time datetime="2023-03-07T09:09:52.000Z" itemprop="dateModified">2023-03-07</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">代码审计</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag">Java代码审计</a>, <a class="tag-link-link" href="/tags/SQL%E6%B3%A8%E5%85%A5/" rel="tag">SQL注入</a>, <a class="tag-link-link" href="/tags/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">Shiro反序列化</a>, <a class="tag-link-link" href="/tags/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96/" rel="tag">任意文件读取</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>若依管理系统是基于 SpringBoot 开发的轻量级 JAVA 开发框架，，本篇文章基于 V4.6.0 版本的基础上对部分历史漏洞进行审计分析。项目地址：<a target="_blank" rel="noopener" href="https://gitee.com/y_project/RuoYi/tree/v4.6.0">https://gitee.com/y_project/RuoYi/tree/v4.6.0</a></p>
+<h2 id="二、环境搭建"><a href="#二、环境搭建" class="headerlink" title="二、环境搭建"></a>二、环境搭建</h2><p>这里依然使用 Phpstudy 作为数据库源，利用 navicat 导入数据表</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221128193032129.png" data-caption="image-20221128193032129"><img src="/../images/Java/ruoyi/image-20221128193032129.png" alt="image-20221128193032129"></a></p>
+<p>创建数据库</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221128193140018.png" data-caption="image-20221128193140018"><img src="/../images/Java/ruoyi/image-20221128193140018.png" alt="image-20221128193140018"></a></p>
+<p>导入数据表</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221128193247668.png" data-caption="image-20221128193247668"><img src="/../images/Java/ruoyi/image-20221128193247668.png" alt="image-20221128193247668"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221128193314048.png" data-caption="image-20221128193314048"><img src="/../images/Java/ruoyi/image-20221128193314048.png" alt="image-20221128193314048"></a></p>
+<p>IDEA导入项目源码，注意源码路径不要有中文，等待 Maven 下载项目依赖</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221128194601780.png" data-caption="image-20221128194601780"><img src="/../images/Java/ruoyi/image-20221128194601780.png" alt="image-20221128194601780"></a></p>
+<p>我这边修改了几处，一为数据库账号密码及数据库名称（<strong>注意：修改为自己的本地数据库账号密码</strong>），二是将项目端口 80 改为 8888 ，路径改为了本机能访问的路径，因为本人环境是虚拟机，没有设置D盘</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221128202414458.png" data-caption="image-20221128202414458"><img src="/../images/Java/ruoyi/image-20221128202414458.png" alt="image-20221128202414458"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221128201751385.png" data-caption="image-20221128201751385"><img src="/../images/Java/ruoyi/image-20221128201751385.png" alt="image-20221128201751385"></a></p>
+<p>修改如下</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221128202005935.png" data-caption="image-20221128202005935"><img src="/../images/Java/ruoyi/image-20221128202005935.png" alt="image-20221128202005935"></a></p>
+<p>点击运行项目，访问 <a target="_blank" rel="noopener" href="http://localhost:8888/login">http://localhost:8888/login</a> 成功搭建，默认账号为 <code>admin/admin123</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221128202131048.png" data-caption="image-20221128202131048"><img src="/../images/Java/ruoyi/image-20221128202131048.png" alt="image-20221128202131048"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221128202451155.png" data-caption="image-20221128202451155"><img src="/../images/Java/ruoyi/image-20221128202451155.png" alt="image-20221128202451155"></a></p>
+<h2 id="三、代码审计"><a href="#三、代码审计" class="headerlink" title="三、代码审计"></a>三、代码审计</h2><h3 id="1、pom-xml-审计"><a href="#1、pom-xml-审计" class="headerlink" title="1、pom.xml 审计"></a>1、pom.xml 审计</h3><p>老套路，存在 pom.xml，先审计其使用了哪些框架，框架组件是否存在历史漏洞。这个与以往的项目不一样的是，系统存在多个 pom.xml，我们只需要审计最外层的 pom.xml 即可</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221128212237103.png" data-caption="image-20221128212237103"><img src="/../images/Java/ruoyi/image-20221128212237103.png" alt="image-20221128212237103"></a></p>
+<p>第三方组件如下，这一篇笔者不打算展开组件漏洞的审计，可自行根据版本网上 search 复现</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">| 组件名称           | 组件版本 |</span><br><span class="line">| ------------------ | -------- |</span><br><span class="line">| shiro              | 1.7.0    |</span><br><span class="line">| thymeleaf          | 2.0.0    |</span><br><span class="line">| druid              | 1.2.2    |</span><br><span class="line">| bitwalker          | 1.21     |</span><br><span class="line">| kaptcha            | 2.3.2    |</span><br><span class="line">| swagger            | 2.9.2    |</span><br><span class="line">| pagehelper         | 1.3.0    |</span><br><span class="line">| fastjson           | 1.2.74   |</span><br><span class="line">| oshi               | 5.3.6    |</span><br><span class="line">| jna                | 5.6.0    |</span><br><span class="line">| commons.io         | 2.5      |</span><br><span class="line">| commons.fileupload | 1.3.3    |</span><br><span class="line">| poi                | 4.1.2    |</span><br><span class="line">| velocity           | 1.7      |</span><br></pre></td></tr></table></figure></div>
+
+<br/>
+
+<h3 id="2、漏洞审计"><a href="#2、漏洞审计" class="headerlink" title="2、漏洞审计"></a>2、漏洞审计</h3><h4 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a><strong>SQL注入</strong></h4><p>SpringBoot中 使用了 Mybatis 的 SQL 注入一般都是因为使用了 $ ，所以全局搜索 .xml 的 <code>$&#123;</code>。（注：搜索.xml文件的原因是该系统使用了 Mybatis 中的<code>配置文件开发-》编写 xml 配置文件来映射相应的代码</code>）</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129125159545.png" data-caption="image-20221129125159545"><img src="/../images/Java/ruoyi/image-20221129125159545.png" alt="image-20221129125159545"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129125130419.png" data-caption="image-20221129125130419"><img src="/../images/Java/ruoyi/image-20221129125130419.png" alt="image-20221129125130419"></a></p>
+<p>这边先对第一个可疑点进行审计 <code>$&#123;params.dataScope&#125;</code></p>
+<p>因为该项目使用了 <code>mybatis</code> 并且利用了配置文件开发，所以会在 <code>resource</code> 目录下出现映射的 <code>.xml</code> 配置文件。我们在 <code>SysRoleMapper.xml</code> 文件中找到了可疑参数 <code>$&#123;params.dataScope&#125;</code>，并定位到映射语句 <code>id=selectRolelist</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129131526187.png" data-caption="image-20221129131526187"><img src="/../images/Java/ruoyi/image-20221129131526187.png" alt="image-20221129131526187"></a></p>
+<p>通过上面我们定位到文件 <code>resources</code> 目录下的 <code>SysRoleMapper.xml</code> 配置文件中的映射语句 <code>id=selectRolelist</code>，根据以往文章的学习已知 <code>resources</code> 层对应 <code>dao</code> 层的接口，文件名也一致，所以我们定位到 <code>dao</code> 层的 <code>SysRoleMapper.java</code> ，找到 <code>selectRolelist</code> 接口</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129132412165.png" data-caption="image-20221129132412165"><img src="/../images/Java/ruoyi/image-20221129132412165.png" alt="image-20221129132412165"></a></p>
+<p>然后 <code>Ctrl + 鼠标左键</code> 跟进 <code>selectRolelist</code> 接口，看是谁调用这个接口。我们来到了 <code>service</code> 层的实体类 <code>SysRoleServiceImpl.java</code> 文件</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129132823022.png" data-caption="image-20221129132823022"><img src="/../images/Java/ruoyi/image-20221129132823022.png" alt="image-20221129132823022"></a></p>
+<p>然后我们将光标放到 <code>selectRoleList</code> 方法处，快捷键 <code>Ctrl + u</code> 进入该方法父类&#x2F;接口定义的位置 Service 层的接口 <code>ISysRoleService.java</code> <strong>（这里也可以直接鼠标右键方法名找到其调用链直接定位到 controller 层接口）</strong></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129133452563.png" data-caption="image-20221129133452563"><img src="/../images/Java/ruoyi/image-20221129133452563.png" alt="image-20221129133452563"></a></p>
+<p>最后 <code>Ctrl + 鼠标左键</code> ，定位到具体的实现代码,由下图可知，59行、69行均有调用该函数</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129133753389.png" data-caption="image-20221129133753389"><img src="/../images/Java/ruoyi/image-20221129133753389.png" alt="image-20221129133753389"></a></p>
+<p>通过代码定位到 <code>Controller</code> 层的 <code>SysRoleController.java</code> 第59行 ,这个就是我们最终需要审计的代码，&#x2F;list 有两个参数，SysRole 和 role ，最终 return 为 list ，而 <code>List&lt;SysRole&gt; list = roleService.selectRoleList(role);</code>,所以参数值为 <code>SysRole</code> 参数定义的实体类</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129142906434.png" data-caption="image-20221129142906434"><img src="/../images/Java/ruoyi/image-20221129142906434.png" alt="image-20221129142906434"></a></p>
+<p><code>Ctrl + 鼠标左键</code> 跟进 <code>SysRole</code> 参数，具体实体类如下，具体参数值为：<code>roleId=&amp;roleName=&amp;roleKey=&amp;roleSort=&amp;dataScope=&amp;status=&amp;delFlag=&amp;flag=&amp;menuIds=&amp;deptIds=</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129135057213.png" data-caption="image-20221129135057213"><img src="/../images/Java/ruoyi/image-20221129135057213.png" alt="image-20221129135057213"></a></p>
+<p><code>dataScope</code> 参数没有过滤直接返回</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129144458616.png" data-caption="image-20221129144458616"><img src="/../images/Java/ruoyi/image-20221129144458616.png" alt="image-20221129144458616"></a>    </p>
+<p>尝试漏洞复现，定位路由从上到下 <code>/system/role/list</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129142133925.png" data-caption="image-20221129142133925"><img src="/../images/Java/ruoyi/image-20221129142133925.png" alt="image-20221129142133925"></a></p>
+<p>且通过注解可知道 &#x2F;list 为 POST 请求方式</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129141948518.png" data-caption="image-20221129141948518"><img src="/../images/Java/ruoyi/image-20221129141948518.png" alt="image-20221129141948518"></a></p>
+<p>直接后台浏览，找到 <code>/system/role/list</code> 路径</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129150602128.png" data-caption="image-20221129150602128"><img src="/../images/Java/ruoyi/image-20221129150602128.png" alt="image-20221129150602128"></a></p>
+<p>我们看到这里是没有 <code>dataScope</code> 参数的，我们自己加上即可</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129181626999.png" data-caption="image-20221129181626999"><img src="/../images/Java/ruoyi/image-20221129181626999.png" alt="image-20221129181626999"></a></p>
+<p>漏洞 payload: <code>pageSize=&amp;pageNum=&amp;orderByColumn=&amp;isAsc=&amp;roleName=&amp;roleKey=&amp;status=&amp;params[beginTime]=&amp;params[endTime]=&amp;params[dataScope]=and+updatexml(1,concat(0x7e,(SELECT+version()),0x7e),1)%2523</code></p>
+<p>添加参数后，随便输入字符返回报错</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129182031431.png" data-caption="image-20221129182031431"><img src="/../images/Java/ruoyi/image-20221129182031431.png" alt="image-20221129182031431"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129181939916.png" data-caption="image-20221129181939916"><img src="/../images/Java/ruoyi/image-20221129181939916.png" alt="image-20221129181939916"></a></p>
+<p>成功查询版本信息，证明存在SQL注入</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129182436018.png" data-caption="image-20221129182436018"><img src="/../images/Java/ruoyi/image-20221129182436018.png" alt="image-20221129182436018"></a></p>
+<p>可直接发包到 sqlmap 跑数据 </p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129182906151.png" data-caption="image-20221129182906151"><img src="/../images/Java/ruoyi/image-20221129182906151.png" alt="image-20221129182906151"></a></p>
+<p>至此，<code>selectRolelist</code> 接口的SQL注入审计就结束了，整个审计流程为 <code>SysRoleMapper.xml -》SysRoleMapper.jave -》SysRoleServiceImpI.java -》ISysRoleService.java -》SysRoleController.java -》SysRole.java</code></p>
+<p>简单概况就是 ${ 定位漏洞点 -》resource 目录下的 Mybatis 映射语句配置文件 -》通过映射语句定位 Service 层的实体类接口 -》再定位到 Service 层的接口文件 -》通过接口定位到 Controller 层最终调用接口 -》最后定位到接口的具体实现代码 -》分析参数是否有过滤</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230220220920253.png" data-caption="image-20230220220920253"><img src="/../images/Java/ruoyi/image-20230220220920253.png" alt="image-20230220220920253"></a></p>
+<p>我们亦可以通过对比官方更新文件找到漏洞点进行审计</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230216125250617.png" data-caption="image-20230216125250617"><img src="/../images/Java/ruoyi/image-20230216125250617.png" alt="image-20230216125250617"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230216125414063.png" data-caption="image-20230216125414063"><img src="/../images/Java/ruoyi/image-20230216125414063.png" alt="image-20230216125414063"></a></p>
+<p>修改前</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230216130127701.png" data-caption="image-20230216130127701"><img src="/../images/Java/ruoyi/image-20230216130127701.png" alt="image-20230216130127701"></a></p>
+<p>修改后</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230216130102638.png" data-caption="image-20230216130102638"><img src="/../images/Java/ruoyi/image-20230216130102638.png" alt="image-20230216130102638"></a></p>
+<br/>
+
+<h4 id="Shiro组件漏洞"><a href="#Shiro组件漏洞" class="headerlink" title="Shiro组件漏洞"></a>Shiro组件漏洞</h4><p>若依系统使用了 Shiro ，我们知道 Shiro &lt; 1.2.4 存在反序列化漏洞， Shiro 1.4.2 到 1.8.0 存在权限绕过漏洞，本项目使用的 Shiro 版本为 1.7.0。</p>
+<p><strong>1）Shiro 反序列化</strong></p>
+<p>这里通过 Burp 插件找到了 Shiro 默认密钥 <code>zSyK5Kp6PZAAjlT+eeNMlg==</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129200200219.png" data-caption="image-20221129200200219"><img src="/../images/Java/ruoyi/image-20221129200200219.png" alt="image-20221129200200219"></a></p>
+<p>这边使用 <a target="_blank" rel="noopener" href="https://github.com/Ares-X/shiro-exploit">Github</a> 上工具进行了复现，第一次尝试并没成功，后面换了一个工具，发现又可以了，所以平常在实战中遇到 Shiro Key 泄露的情况，多换几个工具尝试一下，没准会有收获</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129200510839.png" data-caption="image-20221129200510839"><img src="/../images/Java/ruoyi/image-20221129200510839.png" alt="image-20221129200510839"></a></p>
+<p>进行命令执行 <code>python3 shiro-exploit.py echo -g CommonsCollectionsK1 -u http://192.168.114.160:8888/ -v 2 -k zSyK5Kp6PZAAjlT+eeNMlg== -c whoami</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129200614230.png" data-caption="image-20221129200614230"><img src="/../images/Java/ruoyi/image-20221129200614230.png" alt="image-20221129200614230"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129200636926.png" data-caption="image-20221129200636926"><img src="/../images/Java/ruoyi/image-20221129200636926.png" alt="image-20221129200636926"></a></p>
+<p><strong>漏洞审计：</strong></p>
+<p>Shiro AES 秘钥在 1.2.4 版本及之前版本是存在密钥硬编码的，1.2.5 版本以后 Shiro 提供了 AES 密钥的随机生成代码，但如果仅进行 Shiro 版本升级，AES 密钥仍硬编码在代码中，仍然会存在反序列化风险。在审计中我们可以全局搜索 <code>setCipherKey</code> ,该方法是用于修改密钥的，若存在 <code>setCipherKey</code> 方法则说明存在默认key，进一步搜索 <code>cipherKey</code> 可查看具体密钥值</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129210227296.png" data-caption="image-20221129210227296"><img src="/../images/Java/ruoyi/image-20221129210227296.png" alt="image-20221129210227296"></a></p>
+<p>密钥硬编码在 <code>application.yml</code> 文件处</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129210304172.png" data-caption="image-20221129210304172"><img src="/../images/Java/ruoyi/image-20221129210304172.png" alt="image-20221129210304172"></a></p>
+<p><strong>2）Shiro 权限绕过审计</strong></p>
+<p>此漏洞也只需要审计 <code>ShiroConfig.java</code> 配置文件里面的过滤器有没有对目录进行限制。由上一篇系列文章我们知道 <code>anon</code> 为匿名拦截器，不需要登录就能访问，一般用于静态资源,或者移动端接口；<code>authc</code> 为登录拦截器，需要登录认证才能访问的资源，需要在配置文件配置需要登录的 URL 路径</p>
+<p>authc 拦截器匹配规则如下：</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">| 通配符 | 说明                    |</span><br><span class="line">| ------ | ----------------------- |</span><br><span class="line">| ？     | 匹配任意一个字符        |</span><br><span class="line">| *      | 匹配任意字符，包括0个   |</span><br><span class="line">| **     | 匹配任意层路径，包括0个 |</span><br></pre></td></tr></table></figure></div>
+
+<p>以下静态资源进行匿名登录，不需要认证即可访问</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129212610780.png" data-caption="image-20221129212610780"><img src="/../images/Java/ruoyi/image-20221129212610780.png" alt="image-20221129212610780"></a></p>
+<p>对需要认证的页面进行了 <code>/**</code> 限制，需要登录认证才能访问</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221129212641545.png" data-caption="image-20221129212641545"><img src="/../images/Java/ruoyi/image-20221129212641545.png" alt="image-20221129212641545"></a></p>
+<h4 id="任意文件读取"><a href="#任意文件读取" class="headerlink" title="任意文件读取"></a>任意文件读取</h4><p>若依系统任意读取文件影响版本为 <code>RuoYi &lt; v4.5.1</code> ，本环境为 <code>4.6.0</code>，这边重新部署了<a target="_blank" rel="noopener" href="https://gitee.com/y_project/RuoYi/repository/archive/v4.5.0.zip">v4.5.0</a> 的环境，学习该漏洞，部署方法如上。</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20221130134353409.png" data-caption="image-20221130134353409"><img src="/../images/Java/ruoyi/image-20221130134353409.png" alt="image-20221130134353409"></a></p>
+<p>通过对比 V4.5.0 与 V4.5.1 的代码分析定位漏洞点</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230206215406546.png" data-caption="image-20230206215406546"><img src="/../images/Java/ruoyi/image-20230206215406546.png" alt="image-20230206215406546"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230206215514857.png" data-caption="image-20230206215514857"><img src="/../images/Java/ruoyi/image-20230206215514857.png" alt="image-20230206215514857"></a></p>
+<p>V4.5.0 漏洞未修复前源码</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230206215622205.png" data-caption="image-20230206215622205"><img src="/../images/Java/ruoyi/image-20230206215622205.png" alt="image-20230206215622205"></a></p>
+<p>V4.5.1漏洞修复后更新后的代码</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230206215726171.png" data-caption="image-20230206215726171"><img src="/../images/Java/ruoyi/image-20230206215726171.png" alt="image-20230206215726171"></a></p>
+<p>根据官方代码可知漏洞位置为</p>
+<p> <code>ruoyi-admin/src/main/java/com/ruoyi/web/controller/common/CommonController.java</code> </p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230207211853841.png" data-caption="image-20230207211853841"><img src="/../images/Java/ruoyi/image-20230207211853841.png" alt="image-20230207211853841"></a></p>
+<p>由代码可知，在下载资源时没有任何的过滤，可直接下载本地资源</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 本地资源通用下载</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@GetMapping(&quot;/common/download/resource&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">resourceDownload</span><span class="params">(String resource, HttpServletRequest request, HttpServletResponse response)</span></span><br><span class="line">        <span class="keyword">throws</span> Exception</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 本地资源路径</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">localPath</span> <span class="operator">=</span> Global.getProfile();</span><br><span class="line">    <span class="comment">// 数据库资源地址</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">downloadPath</span> <span class="operator">=</span> localPath + StringUtils.substringAfter(resource, Constants.RESOURCE_PREFIX);</span><br><span class="line">    <span class="comment">// 下载名称</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">downloadName</span> <span class="operator">=</span> StringUtils.substringAfterLast(downloadPath, <span class="string">&quot;/&quot;</span>);</span><br><span class="line"></span><br><span class="line">    response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);</span><br><span class="line">    FileUtils.setAttachmentResponseHeader(response, downloadName);</span><br><span class="line"></span><br><span class="line">    FileUtils.writeBytes(downloadPath, response.getOutputStream());</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+
+<p>审计初步请求路径为 <code>/common/download/resource?resource=</code>，使用的方法为 GET（因为使用的注解是 @GetMapping）</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230207214447968.png" data-caption="image-20230207214447968"><img src="/../images/Java/ruoyi/image-20230207214447968.png" alt="image-20230207214447968"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230207221539853.png" data-caption="image-20230207221539853"><img src="/../images/Java/ruoyi/image-20230207221539853.png" alt="image-20230207221539853"></a></p>
+<p>本地资源路径为开始时我们设置的 <code>uploadPath</code> 路径，这段代码下载的文件就是这个路径下的文件</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230207214512267.png" data-caption="image-20230207214512267"><img src="/../images/Java/ruoyi/image-20230207214512267.png" alt="image-20230207214512267"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230207214258149.png" data-caption="image-20230207214258149"><img src="/../images/Java/ruoyi/image-20230207214258149.png" alt="image-20230207214258149"></a></p>
+<p>分析代码 <code>String downloadPath = localPath + StringUtils.substringAfter(resource, Constants.RESOURCE_PREFIX);</code>，其中 <code>localPath</code> 为本地资源路径 + <code>StringUtils.substringAfter()</code> 方法，其中方法中定义了请求参数为 <code>resource</code>  和请求前缀 <code>Constants.RESOURCE_PREFIX</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230207214603424.png" data-caption="image-20230207214603424"><img src="/../images/Java/ruoyi/image-20230207214603424.png" alt="image-20230207214603424"></a></p>
+<p>我们跟进 <code>Constants.RESOURCE_PREFIX</code>  <code> Ctrl + 鼠标左键</code>  查看文件下载资源时的请求前缀是什么，由下图可知，请求下载前的资源前缀为 <code>/profile</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230207215525136.png" data-caption="image-20230207215525136"><img src="/../images/Java/ruoyi/image-20230207215525136.png" alt="image-20230207215525136"></a></p>
+<p><code>downloadName = StringUtils.substringAfterLast(downloadPath, &quot;/&quot;);</code> 即下载名称为先执行 <code>downloadPath</code> 方法，再用 <code>separator&quot;/&quot;</code>(分隔符+下载文件的名称)</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230207220732139.png" data-caption="image-20230207220732139"><img src="/../images/Java/ruoyi/image-20230207220732139.png" alt="image-20230207220732139"></a></p>
+<p>整合上面分析的，得到整体路由为：<code>/common/download/resource?resource=/profile/下载文件的名称</code>,使用方法为GET</p>
+<p>漏洞复现</p>
+<p>1、我们现在 <code>localPath</code> 即 <code>C:/Tools/enviroment/RuoYi-v4.5.0/ruoyi/uploadPath</code> 目录下创建一个文件用于测试</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230207221912564.png" data-caption="image-20230207221912564"><img src="/../images/Java/ruoyi/image-20230207221912564.png" alt="image-20230207221912564"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230207222514373.png" data-caption="image-20230207222514373"><img src="/../images/Java/ruoyi/image-20230207222514373.png" alt="image-20230207222514373"></a></p>
+<p>2、构造请求连接为 <code>/common/download/resource?resource=/profile/flag.txt</code>，需在后台访问</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230207222626156.png" data-caption="image-20230207222626156"><img src="/../images/Java/ruoyi/image-20230207222626156.png" alt="image-20230207222626156"></a></p>
+<p>3、由于代码没有对下载的路径进行限制，我们尝试利用目录穿越任意下载系统文件 <code>windows/win.ini</code>，由下图可知，我们到达 C盘下的 <code>windows/win.ini</code> 有六层，所以我们需要六个 ..&#x2F; 进行目录穿越</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230207222906262.png" data-caption="image-20230207222906262"><img src="/../images/Java/ruoyi/image-20230207222906262.png" alt="image-20230207222906262"></a></p>
+<p>成功利用目录穿越漏洞实现任意文件下载</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/ruoyi/image-20230207223141156.png" data-caption="image-20230207223141156"><img src="/../images/Java/ruoyi/image-20230207223141156.png" alt="image-20230207223141156"></a></p>
+<h2 id="四、参考"><a href="#四、参考" class="headerlink" title="四、参考"></a>四、参考</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">https://blog.csdn.net/qq_44029310/article/details/125296406</span><br><span class="line">https://gitee.com/y_project/RuoYi/releases</span><br><span class="line">https://power7089.github.io/2022/08/22/JavaWeb%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E5%AE%9E%E6%88%98%E4%B9%8B%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F%EF%BC%8C%E7%BB%86%E8%8A%82%E6%BB%A1%E6%BB%A1%E4%B8%8D%E5%BE%97%E4%B8%8D%E5%A5%BD%E5%A5%BD%E5%AD%A6%E7%9A%84%E4%B8%80%E4%B8%AA%E7%B3%BB%E7%BB%9F/    </span><br></pre></td></tr></table></figure></div>
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">二、环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.</span> <span class="toc-text">三、代码审计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81pom-xml-%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.1.</span> <span class="toc-text">1、pom.xml 审计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E6%BC%8F%E6%B4%9E%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.2.</span> <span class="toc-text">2、漏洞审计</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SQL%E6%B3%A8%E5%85%A5"><span class="toc-number">3.2.1.</span> <span class="toc-text">SQL注入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Shiro%E7%BB%84%E4%BB%B6%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.2.2.</span> <span class="toc-text">Shiro组件漏洞</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96"><span class="toc-number">3.2.3.</span> <span class="toc-text">任意文件读取</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">4.</span> <span class="toc-text">四、参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&text=Java代码审计(六)-若依管理系统V4.6.0"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&title=Java代码审计(六)-若依管理系统V4.6.0"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&is_video=false&description=Java代码审计(六)-若依管理系统V4.6.0"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java代码审计(六)-若依管理系统V4.6.0&body=Check out this article: http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&title=Java代码审计(六)-若依管理系统V4.6.0"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&title=Java代码审计(六)-若依管理系统V4.6.0"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&title=Java代码审计(六)-若依管理系统V4.6.0"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&title=Java代码审计(六)-若依管理系统V4.6.0"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&name=Java代码审计(六)-若依管理系统V4.6.0&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/03/02/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%85%AD)-%E8%8B%A5%E4%BE%9D%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9FV4-6-0/&t=Java代码审计(六)-若依管理系统V4.6.0"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

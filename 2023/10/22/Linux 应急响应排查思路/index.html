@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、前言应急响应 Linux 篇幅，由于我们平常使用 Windows 系统较为熟练，对于 Linux 平台通常或会仅限于普通服务搭建使用，不会深入的了解其。日常工作会遇到 Linux 服务器的应急响应工作，于是记录下以便后续的工作能顺利的开展。 二、应急流程接到应急事件，应急人员应先充分了解事件详情，具体应急事件的类型是恶意攻击、蠕虫攻击、上级通报还是疑似攻击等。充分了解事件过程对应急排查起关键作">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 应急响应排查思路">
+<meta property="og:url" content="http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、前言应急响应 Linux 篇幅，由于我们平常使用 Windows 系统较为熟练，对于 Linux 平台通常或会仅限于普通服务搭建使用，不会深入的了解其。日常工作会遇到 Linux 服务器的应急响应工作，于是记录下以便后续的工作能顺利的开展。 二、应急流程接到应急事件，应急人员应先充分了解事件详情，具体应急事件的类型是恶意攻击、蠕虫攻击、上级通报还是疑似攻击等。充分了解事件过程对应急排查起关键作">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215124511958.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215124605002.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215124650630.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215124731218.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215124750562.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215124811746.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215124837096.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215124859476.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215124918880.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215124933161.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215124949699.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125006235.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125030322.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125108596.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125313535.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125332381.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125404019.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125434353.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125511429.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125557765.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125626387.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125646608.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125723942.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125742962.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125809753.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125830517.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125851015.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125909675.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215125955194.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215130021004.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215130044082.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215130509214.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215130538066.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215130627186.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215130643200.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215130731090.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215130754649.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215130816251.png">
+<meta property="og:image" content="http://example.com/images/emergency/linux/image-20230215130902211.png">
+<meta property="article:published_time" content="2023-10-22T12:54:30.000Z">
+<meta property="article:modified_time" content="2024-05-12T07:38:08.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="Linux 应急响应">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/emergency/linux/image-20230215124511958.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>Linux 应急响应排查思路</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Android%20APP%20%E5%8A%A0%E5%9B%BA%E5%A3%B3%E5%8E%9F%E7%90%86/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&text=Linux 应急响应排查思路"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&title=Linux 应急响应排查思路"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&is_video=false&description=Linux 应急响应排查思路"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Linux 应急响应排查思路&body=Check out this article: http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&title=Linux 应急响应排查思路"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&title=Linux 应急响应排查思路"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&title=Linux 应急响应排查思路"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&title=Linux 应急响应排查思路"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&name=Linux 应急响应排查思路&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&t=Linux 应急响应排查思路"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%BA%94%E6%80%A5%E6%B5%81%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">二、应急流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E6%8E%92%E6%9F%A5%E6%98%AF%E5%90%A6%E6%9C%89%E5%BC%82%E5%B8%B8%E7%9A%84%E7%B3%BB%E7%BB%9F%E7%94%A8%E6%88%B7"><span class="toc-number">2.1.</span> <span class="toc-text">1、排查是否有异常的系统用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E6%8E%92%E6%9F%A5%E8%B4%A6%E5%8F%B7%E4%BF%A1%E6%81%AF%EF%BC%88%E6%8C%89%E7%85%A7%E5%AE%9E%E9%99%85%E6%83%85%E5%86%B5%E6%9F%A5%E8%AF%A2%EF%BC%89"><span class="toc-number">2.2.</span> <span class="toc-text">2、排查账号信息（按照实际情况查询）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E6%8E%92%E6%9F%A5%E5%8F%AF%E7%96%91%E8%BF%9B%E7%A8%8B"><span class="toc-number">2.3.</span> <span class="toc-text">3、排查可疑进程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E5%AE%9A%E4%BD%8D%E5%8F%AF%E7%96%91%E7%A8%8B%E5%BA%8F%E8%B7%AF%E5%BE%84"><span class="toc-number">2.4.</span> <span class="toc-text">4、定位可疑程序路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5%E3%80%81%E6%8E%92%E6%9F%A5%E5%A4%96%E8%81%94%E6%83%85%E5%86%B5"><span class="toc-number">2.5.</span> <span class="toc-text">5、排查外联情况</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6%E3%80%81%E7%9B%91%E6%8E%A7%E6%8C%87%E5%AE%9AIP%E7%9A%84%E9%80%9A%E8%AE%AF%E8%BF%9B%E7%A8%8B"><span class="toc-number">2.6.</span> <span class="toc-text">6、监控指定IP的通讯进程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7%E3%80%81%E6%8E%92%E6%9F%A5%E8%87%AA%E5%90%AF%E9%A1%B9"><span class="toc-number">2.7.</span> <span class="toc-text">7、排查自启项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8%E3%80%81%E6%8E%92%E6%9F%A5%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1"><span class="toc-number">2.8.</span> <span class="toc-text">8、排查计划任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9%E3%80%81%E6%8E%92%E6%9F%A5%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">2.9.</span> <span class="toc-text">9、排查环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10%E3%80%81%E6%9F%A5%E7%9C%8Bhost%E6%96%87%E4%BB%B6%E6%98%AF%E5%90%A6%E8%A2%AB%E7%AF%A1%E6%94%B9"><span class="toc-number">2.10.</span> <span class="toc-text">10、查看host文件是否被篡改</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11%E3%80%81%E5%8F%AF%E7%96%91%E6%96%87%E4%BB%B6%E6%8E%92%E6%9F%A5"><span class="toc-number">2.11.</span> <span class="toc-text">11、可疑文件排查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12%E3%80%81%E6%8E%92%E6%9F%A5%E6%97%A5%E5%BF%97"><span class="toc-number">2.12.</span> <span class="toc-text">12、排查日志</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13%E3%80%81webshell-%E6%9F%A5%E6%9D%80"><span class="toc-number">2.13.</span> <span class="toc-text">13、webshell 查杀</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14%E3%80%81%E5%86%85%E5%AD%98%E9%A9%AC%E6%9F%A5%E6%9D%80"><span class="toc-number">2.14.</span> <span class="toc-text">14、内存马查杀</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15%E3%80%81%E6%B8%85%E9%99%A4%E5%8F%AF%E7%96%91%E8%BF%9B%E7%A8%8B%E4%B8%8E%E6%96%87%E4%BB%B6"><span class="toc-number">2.15.</span> <span class="toc-text">15、清除可疑进程与文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E7%89%B9%E5%AE%9A%E5%9C%BA%E6%99%AF"><span class="toc-number">3.</span> <span class="toc-text">三、特定场景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%96%E7%9F%BF%E4%BA%8B%E4%BB%B6"><span class="toc-number">3.1.</span> <span class="toc-text">挖矿事件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B"><span class="toc-number">3.1.1.</span> <span class="toc-text">基本流程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8B%92%E7%B4%A2%E7%97%85%E6%AF%92"><span class="toc-number">3.2.</span> <span class="toc-text">勒索病毒</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B-1"><span class="toc-number">3.2.1.</span> <span class="toc-text">基本流程</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">4.</span> <span class="toc-text">六、参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Linux 应急响应排查思路
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-22T12:54:30.000Z" itemprop="datePublished">2023-10-22</time>
+        
+        (Updated: <time datetime="2024-05-12T07:38:08.000Z" itemprop="dateModified">2024-05-12</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E7%B3%BB%E5%88%97/">应急响应系列</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Linux-%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/" rel="tag">Linux 应急响应</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>应急响应 Linux 篇幅，由于我们平常使用 Windows 系统较为熟练，对于 Linux 平台通常或会仅限于普通服务搭建使用，不会深入的了解其。日常工作会遇到 Linux 服务器的应急响应工作，于是记录下以便后续的工作能顺利的开展。</p>
+<h2 id="二、应急流程"><a href="#二、应急流程" class="headerlink" title="二、应急流程"></a>二、应急流程</h2><p>接到应急事件，应急人员应先充分了解事件详情，具体应急事件的类型是恶意攻击、蠕虫攻击、上级通报还是疑似攻击等。充分了解事件过程对应急排查起关键作用，免得做无用功事。</p>
+<p><strong>应急前期</strong></p>
+<p>开始排查前，应询问是否有安全设备，若有，可通过安全平台针对应急事件类型查看日志获取有用信息，若已捕获相关样本请求提供开展分析。</p>
+<h3 id="1、排查是否有异常的系统用户"><a href="#1、排查是否有异常的系统用户" class="headerlink" title="1、排查是否有异常的系统用户"></a>1、排查是否有异常的系统用户</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 查看用户</span><br><span class="line">cat /etc/passwd</span><br><span class="line">格式：用户名：密码：用户ID：组ID：用户说明：家（home）目录：登陆之后shell</span><br><span class="line">无密码只允许本机登陆，远程不允许ssh登陆</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215124511958.png" data-caption="image-20230215124511958"><img src="/../images/emergency/linux/image-20230215124511958.png" alt="image-20230215124511958"></a></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 查看加密密码</span><br><span class="line">cat /etc/shadow</span><br><span class="line">用户名：加密密码：密码最后一次修改日期：两次密码的修改时间间隔：密码有效期：密码修改到期到的警告天数：密码过期之后的宽限天数：账号失效时间：保留字段</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215124605002.png" data-caption="image-20230215124605002"><img src="/../images/emergency/linux/image-20230215124605002.png" alt="image-20230215124605002"></a></p>
+<h3 id="2、排查账号信息（按照实际情况查询）"><a href="#2、排查账号信息（按照实际情况查询）" class="headerlink" title="2、排查账号信息（按照实际情况查询）"></a>2、排查账号信息（按照实际情况查询）</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"># 查询特权账户 &amp; 组</span><br><span class="line">cat /etc/passwd | awk -F: &#x27;$3==0&#123;print $1&#125;&#x27;</span><br><span class="line"></span><br><span class="line"># 可以远程登录的账号</span><br><span class="line">awk &#x27;/\$1|\$6/&#123;print $1&#125;&#x27; /etc/shadow</span><br><span class="line"></span><br><span class="line"># 查看哪些用户使用shell</span><br><span class="line">cat /etc/passwd | grep /bin/bash</span><br><span class="line"></span><br><span class="line"># 查看哪些用户为root权限</span><br><span class="line">cat /etc/passwd | grep x:0</span><br><span class="line"></span><br><span class="line"># 查看除了不可登录以外的用户都有哪些，有没有新增的</span><br><span class="line">cat /etc/passwd | grep -v nologin</span><br><span class="line"></span><br><span class="line"># 查询系统中所有账户</span><br><span class="line">cat /etc/passwd | awk -F: &#x27;&#123;print $1&#125;&#x27;</span><br><span class="line"></span><br><span class="line"># 查看当前登录用户（tty 本地登陆  pts 远程登录）</span><br><span class="line">who</span><br><span class="line"></span><br><span class="line"># 查看系统信息，想知道某一时刻用户的行为</span><br><span class="line">w</span><br><span class="line"></span><br><span class="line"># 查看登陆多久、多少用户，负载</span><br><span class="line">uptime</span><br><span class="line"></span><br><span class="line"># 查看密码文件上一次修改的时间</span><br><span class="line">stat /etc/passwd</span><br><span class="line"></span><br><span class="line"># 查询 sudo 权限账户</span><br><span class="line">more /etc/sudoers | grep -v &quot;^#\|^$&quot; | grep &quot;ALL=(ALL)&quot;</span><br></pre></td></tr></table></figure></div>
+
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 查询特权账户 &amp; 组</span><br><span class="line">cat /etc/passwd | awk -F: &#x27;$3==0&#123;print $1&#125;&#x27;</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215124650630.png" data-caption="image-20230215124650630"><img src="/../images/emergency/linux/image-20230215124650630.png" alt="image-20230215124650630"></a></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 可以远程登录的账号</span><br><span class="line">awk &#x27;/\$1|\$6/&#123;print $1&#125;&#x27; /etc/shadow</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215124731218.png" data-caption="image-20230215124731218"><img src="/../images/emergency/linux/image-20230215124731218.png" alt="image-20230215124731218"></a></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 查看哪些用户使用shell</span><br><span class="line">cat /etc/passwd | grep /bin/bash</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215124750562.png" data-caption="image-20230215124750562"><img src="/../images/emergency/linux/image-20230215124750562.png" alt="image-20230215124750562"></a></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 查看哪些用户为root权限</span><br><span class="line">cat /etc/passwd | grep x:0</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215124811746.png" data-caption="image-20230215124811746"><img src="/../images/emergency/linux/image-20230215124811746.png" alt="image-20230215124811746"></a></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 查看除了不可登录以外的用户都有哪些，有没有新增的</span><br><span class="line">cat /etc/passwd | grep -v nologin</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215124837096.png" data-caption="image-20230215124837096"><img src="/../images/emergency/linux/image-20230215124837096.png" alt="image-20230215124837096"></a></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 查询系统中所有账户</span><br><span class="line">cat /etc/passwd | awk -F: &#x27;&#123;print $1&#125;&#x27;</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215124859476.png" data-caption="image-20230215124859476"><img src="/../images/emergency/linux/image-20230215124859476.png" alt="image-20230215124859476"></a></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 查看当前登录用户（tty 本地登陆  pts 远程登录）</span><br><span class="line">who</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215124918880.png" data-caption="image-20230215124918880"><img src="/../images/emergency/linux/image-20230215124918880.png" alt="image-20230215124918880"></a></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 查看系统信息，想知道某一时刻用户的行为</span><br><span class="line">w</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215124933161.png" data-caption="image-20230215124933161"><img src="/../images/emergency/linux/image-20230215124933161.png" alt="image-20230215124933161"></a></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 查看登陆多久、多少用户，负载</span><br><span class="line">uptime</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215124949699.png" data-caption="image-20230215124949699"><img src="/../images/emergency/linux/image-20230215124949699.png" alt="image-20230215124949699"></a></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 查看密码文件上一次修改的时间</span><br><span class="line">stat /etc/passwd</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125006235.png" data-caption="image-20230215125006235"><img src="/../images/emergency/linux/image-20230215125006235.png" alt="image-20230215125006235"></a></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 查询 sudo 权限账户</span><br><span class="line">more /etc/sudoers | grep -v &quot;^#\|^$&quot; | grep &quot;ALL=(ALL)&quot;</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125030322.png" data-caption="image-20230215125030322"><img src="/../images/emergency/linux/image-20230215125030322.png" alt="image-20230215125030322"></a></p>
+<h3 id="3、排查可疑进程"><a href="#3、排查可疑进程" class="headerlink" title="3、排查可疑进程"></a>3、排查可疑进程</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># 查看全部进程</span><br><span class="line">ps -aux</span><br><span class="line"></span><br><span class="line"># 查看关联进程</span><br><span class="line">ps -aux | grep pid</span><br><span class="line"></span><br><span class="line"># 查看cpu占用情况（动态）</span><br><span class="line">top -c -o %CPU</span><br><span class="line"></span><br><span class="line"># 查看CPU占用前十的进程</span><br><span class="line">ps -eo user,pid,ppid,%mem,%cpu,cmd --sort=-%cpu | head -n 10</span><br><span class="line"></span><br><span class="line"># 按CPU 使用率从高到底排序</span><br><span class="line">ps -ef --sort -pcpu</span><br><span class="line"></span><br><span class="line"># 按内存从高到低</span><br><span class="line">ps -ef --sort -pmem</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125108596.png" data-caption="image-20230215125108596"><img src="/../images/emergency/linux/image-20230215125108596.png" alt="image-20230215125108596"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125313535.png" data-caption="image-20230215125313535"><img src="/../images/emergency/linux/image-20230215125313535.png" alt="image-20230215125313535"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125332381.png" data-caption="image-20230215125332381"><img src="/../images/emergency/linux/image-20230215125332381.png" alt="image-20230215125332381"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125404019.png" data-caption="image-20230215125404019"><img src="/../images/emergency/linux/image-20230215125404019.png" alt="image-20230215125404019"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125434353.png" data-caption="image-20230215125434353"><img src="/../images/emergency/linux/image-20230215125434353.png" alt="image-20230215125434353"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125511429.png" data-caption="image-20230215125511429"><img src="/../images/emergency/linux/image-20230215125511429.png" alt="image-20230215125511429"></a></p>
+<h3 id="4、定位可疑程序路径"><a href="#4、定位可疑程序路径" class="headerlink" title="4、定位可疑程序路径"></a>4、定位可疑程序路径</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 定位可疑进程的程序是什么</span><br><span class="line">ps -ef | grep pid号</span><br><span class="line"></span><br><span class="line"># 定位可疑进程文件位置</span><br><span class="line">lsof -p PID</span><br><span class="line">ls -al /proc/9109/exe </span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125557765.png" data-caption="image-20230215125557765"><img src="/../images/emergency/linux/image-20230215125557765.png" alt="image-20230215125557765"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125626387.png" data-caption="image-20230215125626387"><img src="/../images/emergency/linux/image-20230215125626387.png" alt="image-20230215125626387"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125646608.png" data-caption="image-20230215125646608"><img src="/../images/emergency/linux/image-20230215125646608.png" alt="image-20230215125646608"></a></p>
+<h3 id="5、排查外联情况"><a href="#5、排查外联情况" class="headerlink" title="5、排查外联情况"></a>5、排查外联情况</h3><p><strong>lsof</strong></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># 显示已建立连接信息</span><br><span class="line">lsof -i -sTCP:ESTABLISHED</span><br><span class="line"></span><br><span class="line"># 显示正在监听的端</span><br><span class="line">lsof -i -sTCP:LISTEN</span><br><span class="line"></span><br><span class="line"># 查看端口绑定的应用</span><br><span class="line">lsof -i :22</span><br><span class="line"></span><br><span class="line"># 显示指定主机连接的信息</span><br><span class="line">lsof -i@1.1.1.1</span><br><span class="line"></span><br><span class="line"># 显示基于主机与端口连接的信息</span><br><span class="line">lsof -i@1.1.1.1:3333</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125723942.png" data-caption="image-20230215125723942"><img src="/../images/emergency/linux/image-20230215125723942.png" alt="image-20230215125723942"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125742962.png" data-caption="image-20230215125742962"><img src="/../images/emergency/linux/image-20230215125742962.png" alt="image-20230215125742962"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125809753.png" data-caption="image-20230215125809753"><img src="/../images/emergency/linux/image-20230215125809753.png" alt="image-20230215125809753"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125830517.png" data-caption="image-20230215125830517"><img src="/../images/emergency/linux/image-20230215125830517.png" alt="image-20230215125830517"></a></p>
+<p><strong>netstat</strong></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># 查看端口开放和连接情况</span><br><span class="line">netstat -pantu</span><br><span class="line">netstat -anulpt</span><br><span class="line"></span><br><span class="line"># 指定tcp进程</span><br><span class="line">netstat -tnap</span><br><span class="line"></span><br><span class="line"># 指定udp进程</span><br><span class="line">netstat -unap</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125851015.png" data-caption="image-20230215125851015"><img src="/../images/emergency/linux/image-20230215125851015.png" alt="image-20230215125851015"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125909675.png" data-caption="image-20230215125909675"><img src="/../images/emergency/linux/image-20230215125909675.png" alt="image-20230215125909675"></a></p>
+<h3 id="6、监控指定IP的通讯进程"><a href="#6、监控指定IP的通讯进程" class="headerlink" title="6、监控指定IP的通讯进程"></a>6、监控指定IP的通讯进程</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">while true; do netstat -antp | grep 10.10.10.1; done</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215125955194.png" data-caption="image-20230215125955194"><img src="/../images/emergency/linux/image-20230215125955194.png" alt="image-20230215125955194"></a></p>
+<h3 id="7、排查自启项"><a href="#7、排查自启项" class="headerlink" title="7、排查自启项"></a>7、排查自启项</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># 查看所有的服务项目</span><br><span class="line">systemctl list-unit-files</span><br><span class="line"></span><br><span class="line"># 过滤出所有的开机启动的项目</span><br><span class="line">systemctl list-unit-files |grep enabled</span><br><span class="line"></span><br><span class="line"># 查看开机启动项目</span><br><span class="line">chkconfig </span><br><span class="line"></span><br><span class="line"># 查看服务自启状态</span><br><span class="line">chkconfig  --list</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215130021004.png" data-caption="image-20230215130021004"><img src="/../images/emergency/linux/image-20230215130021004.png" alt="image-20230215130021004"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215130044082.png" data-caption="image-20230215130044082"><img src="/../images/emergency/linux/image-20230215130044082.png" alt="image-20230215130044082"></a></p>
+<h3 id="8、排查计划任务"><a href="#8、排查计划任务" class="headerlink" title="8、排查计划任务"></a>8、排查计划任务</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"># 查看计划任务</span><br><span class="line">crontab  -l</span><br><span class="line"></span><br><span class="line"># 查看指定用户计划任务</span><br><span class="line">crontab -u 用户名 -l</span><br><span class="line"></span><br><span class="line"># 查看计划任务</span><br><span class="line">cat /var/spool/cron/* 				# centos</span><br><span class="line">cat /var/spool/cron/crontabs/* 		# ubuntu的</span><br><span class="line">cat /etc/crontab</span><br><span class="line">cat /etc/cron.d/*</span><br><span class="line">cat /etc/cron.daily/* </span><br><span class="line">cat /etc/cron.hourly/* </span><br><span class="line">cat /etc/cron.monthly/*</span><br><span class="line">cat /etc/cron.weekly/</span><br><span class="line">cat /etc/anacrontab 				# 异步定时</span><br><span class="line">cat /var/spool/anacron/*</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">cat crontab  -l 					# 查看定时任务</span><br><span class="line">cat crontab –e 						# 编辑定时任务</span><br><span class="line">ls /var/spool/cron/  				#查看每个用户自己的执行计划</span><br><span class="line">sed &#x27;/gcc.sh/d&#x27; /etc/crontab &amp;&amp; chmod 0000 /etc/crontab &amp;&amp; chattr +i /etc/crontab   #删除计划任务且控制计划任务不能写东西，慎用。</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215130509214.png" data-caption="image-20230215130509214"><img src="/../images/emergency/linux/image-20230215130509214.png" alt="image-20230215130509214"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215130538066.png" data-caption="image-20230215130538066"><img src="/../images/emergency/linux/image-20230215130538066.png" alt="image-20230215130538066"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215130627186.png" data-caption="image-20230215130627186"><img src="/../images/emergency/linux/image-20230215130627186.png" alt="image-20230215130627186"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215130643200.png" data-caption="image-20230215130643200"><img src="/../images/emergency/linux/image-20230215130643200.png" alt="image-20230215130643200"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215130731090.png" data-caption="image-20230215130731090"><img src="/../images/emergency/linux/image-20230215130731090.png" alt="image-20230215130731090"></a></p>
+<h3 id="9、排查环境变量"><a href="#9、排查环境变量" class="headerlink" title="9、排查环境变量"></a>9、排查环境变量</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">env</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215130754649.png" data-caption="image-20230215130754649"><img src="/../images/emergency/linux/image-20230215130754649.png" alt="image-20230215130754649"></a></p>
+<h3 id="10、查看host文件是否被篡改"><a href="#10、查看host文件是否被篡改" class="headerlink" title="10、查看host文件是否被篡改"></a>10、查看host文件是否被篡改</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/hosts</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215130816251.png" data-caption="image-20230215130816251"><img src="/../images/emergency/linux/image-20230215130816251.png" alt="image-20230215130816251"></a></p>
+<h3 id="11、可疑文件排查"><a href="#11、可疑文件排查" class="headerlink" title="11、可疑文件排查"></a>11、可疑文件排查</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># 查找指定目录下的指定时间下生产的文件</span><br><span class="line">find /指定路径 -name &quot;*.jsp&quot; -newermt &quot;2023-10-01 00:00:00&quot; ! -newermt &quot;2024-01-01 00:00:00&quot; -exec ls -l &#123;&#125; \; &gt; /保存路径/result.txt</span><br><span class="line"></span><br><span class="line"># 全局搜索指定文件名后缀</span><br><span class="line">find / -name &quot;*.log&quot;</span><br><span class="line"></span><br><span class="line"># 指定时间段内搜索具有 &quot;.log&quot; 扩展名的文件</span><br><span class="line">find / -name &quot;*.log&quot; -exec grep -E &quot;^(YYYY-MM-DD HH:MM:SS|YYYY-MM-DD HH:MM:SS)&quot; &#123;&#125; \;</span><br><span class="line"></span><br><span class="line"># 全局搜索指定时间段生成的文件</span><br><span class="line">find / -type f -newermt &quot;2022-01-01 00:00:00&quot; ! -newermt &quot;2023-12-31 23:59:59&quot; -exec ls -l --time-style=long-iso &#123;&#125; \; &gt;&gt; search_results.log 2&gt;&amp;1</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="12、排查日志"><a href="#12、排查日志" class="headerlink" title="12、排查日志"></a>12、排查日志</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"># 终端输出指定日志指定时间的日志</span><br><span class="line">cat /var/log/syslog | grep &quot;YYYY-MM-DD HH:MM:SS&quot;</span><br><span class="line"></span><br><span class="line"># 终端输出日志中指定 ip 的日志</span><br><span class="line">cat /var/log/syslog | grep &quot;外部IP地址&quot;</span><br><span class="line"></span><br><span class="line"># 统计爆破主机root账号的失败次数及ip</span><br><span class="line">grep &quot;Failed password for root&quot; /var/log/secure | awk &#x27;&#123;print $11&#125;&#x27; | sort | uniq -c | sort -nr | more</span><br><span class="line"></span><br><span class="line"># 定位哪些IP在爆破</span><br><span class="line">grep &quot;Failed password&quot; /var/log/secure|grep -E -o &quot;(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)&quot;|uniq -c</span><br><span class="line"></span><br><span class="line"># 查看成功登录的日期、用户名、IP</span><br><span class="line">grep &quot;Accepted &quot; /var/log/secure | awk &#x27;&#123;print $1,$2,$3,$9,$11&#125;&#x27;</span><br><span class="line"></span><br><span class="line"># 爆破用户名字典是什么？</span><br><span class="line">grep &quot;Failed password&quot; /var/log/secure|perl -e &#x27;while($_=&lt;&gt;)&#123; /for(.*?) from/; print &quot;$1\n&quot;;&#125;&#x27;|uniq -c|sort -nr </span><br><span class="line"></span><br><span class="line"># 日志默认存放位置</span><br><span class="line">/var/log</span><br><span class="line"></span><br><span class="line"># 查看日志配置情况</span><br><span class="line">more /etc/rsyslog.conf</span><br><span class="line"></span><br><span class="line"># 登录日志记录</span><br><span class="line">/var/log/secure</span><br><span class="line"></span><br><span class="line"># 登录失败记录</span><br><span class="line">/var/log/btmp</span><br><span class="line"></span><br><span class="line"># 登录成功记录</span><br><span class="line">/var/log/wtmp</span><br><span class="line"></span><br><span class="line"># 最后一次登录</span><br><span class="line">/var/log/lastlog</span><br><span class="line"></span><br><span class="line"># 历史命令</span><br><span class="line">history</span><br><span class="line"></span><br><span class="line"># 文件内容中的恶意函数</span><br><span class="line">PHP：eval(、system(、assert(</span><br><span class="line">JSP：getRunTime(、 FileOutputStream(</span><br><span class="line">ASP：eval(、execute(、 ExecuteGlobal（</span><br><span class="line"></span><br><span class="line"># 保存历史命令</span><br><span class="line">cat .bash_history &gt;&gt;history.txt</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/linux/image-20230215130902211.png" data-caption="image-20230215130902211"><img src="/../images/emergency/linux/image-20230215130902211.png" alt="image-20230215130902211"></a></p>
+<h3 id="13、webshell-查杀"><a href="#13、webshell-查杀" class="headerlink" title="13、webshell 查杀"></a>13、webshell 查杀</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 河马 https://www.shellpub.com，扫描完成之后结果会保存为result.csv文件，使用记事本或者excel打开查看</span><br><span class="line">./hm scan 你的web目录</span><br><span class="line">./hm deepscan 你的web目录（扫描时开启深度解码 ）</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="14、内存马查杀"><a href="#14、内存马查杀" class="headerlink" title="14、内存马查杀"></a>14、内存马查杀</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># 河马内存马专杀，自动扫描java进程，自动模式下仅支持扫描 tomcat/weblogic/jboss 应用进程</span><br><span class="line">sudo ./hmj javascan</span><br><span class="line"></span><br><span class="line"># 指定进程扫描模式，程序仅扫描 -p 指定的进程</span><br><span class="line">sudo ./hmj javascan -p 3361</span><br><span class="line"></span><br><span class="line"># 也可以一次指定多个进程 id 进行扫描</span><br><span class="line">sudo ./hmj javascan -p 3361,3356</span><br><span class="line"></span><br><span class="line"># 默认情况下在当前执行目录下生成 result.csv 和 data.db 文件，未联网情况下还会生成 result.zip 文件</span><br><span class="line">- result.csv: 恶意内容的列表，包括恶意类型和路径</span><br><span class="line">- data.db: 检测结果的详细信息，sqlite 文件</span><br><span class="line">- result.zip: 检测到的恶意内容</span><br><span class="line">- output 指定输出扫描结果的目录</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="15、清除可疑进程与文件"><a href="#15、清除可疑进程与文件" class="headerlink" title="15、清除可疑进程与文件"></a>15、清除可疑进程与文件</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># 清除进程：</span><br><span class="line">ps -aux</span><br><span class="line">ps -elf | grep 66579   </span><br><span class="line">kill -9 66579</span><br><span class="line"></span><br><span class="line"># 清除文件：</span><br><span class="line">ps -aux</span><br><span class="line">ls -al /proc/67730/exe</span><br><span class="line">rm -f /home/c2test</span><br><span class="line"></span><br><span class="line"># 使用 ps 查看启动 时间并 杀掉危险进</span><br><span class="line">ps -p 7224(进程PID) -o lstart</span><br><span class="line">kill -9 7224(进程PID)</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="三、特定场景"><a href="#三、特定场景" class="headerlink" title="三、特定场景"></a>三、特定场景</h2><h3 id="挖矿事件"><a href="#挖矿事件" class="headerlink" title="挖矿事件"></a>挖矿事件</h3><p>通过模拟挖矿事件开展应急响应，首先我们知道通常挖矿一个明显特征就是资源占用，内存飙升。通过者一特征很容易判断是否为挖矿事件，当然具体案例得具体分析。</p>
+<h4 id="基本流程"><a href="#基本流程" class="headerlink" title="基本流程"></a>基本流程</h4><p>1、查看占用情况。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"># 查看cpu占用情况（动态）</span><br><span class="line">top -c -o %CPU</span><br><span class="line"></span><br><span class="line"># 查看CPU占用前十的进程</span><br><span class="line">ps -eo user,pid,ppid,%mem,%cpu,cmd --sort=-%cpu | head -n 10</span><br><span class="line"></span><br><span class="line"># 按CPU 使用率从高到底排序</span><br><span class="line">ps -ef --sort -pcpu</span><br><span class="line"></span><br><span class="line"># 按内存从高到低</span><br><span class="line">ps -ef --sort -pmem</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>2、定位恶意程序</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 定位可疑进程的程序是什么</span><br><span class="line">ps -aux</span><br><span class="line">ps -ef | grep pid号</span><br><span class="line"></span><br><span class="line"># 定位可疑进程文件位置</span><br><span class="line">lsof -p PID</span><br><span class="line">ls -al /proc/9109/exe </span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>3、清除进程</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># 杀掉进程 </span><br><span class="line">kill -9 66579</span><br><span class="line"></span><br><span class="line"># 查看是否存在子进程</span><br><span class="line">ps ajfx</span><br><span class="line">systemctl status</span><br><span class="line"></span><br><span class="line"># 杀掉进程组</span><br><span class="line">kill -9 -pid</span><br><span class="line"></span><br><span class="line"># 使用 ps 查看启动时间并杀掉危险进</span><br><span class="line">ps -p 7224(进程PID) -o lstart</span><br><span class="line">kill -9 7224(进程PID)</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>4、病毒分析</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"># 微步</span><br><span class="line">https://s.threatbook.com/</span><br><span class="line"></span><br><span class="line"># PCHunter</span><br><span class="line">https://scan.anxinsec.com/</span><br><span class="line"></span><br><span class="line"># virustotal</span><br><span class="line">https://www.virustotal.com/gui/home/upload</span><br><span class="line"></span><br><span class="line"># 360</span><br><span class="line">https://ata.360.net/</span><br><span class="line"></span><br><span class="line"># 哈勃</span><br><span class="line">https://habo.qq.com/</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="勒索病毒"><a href="#勒索病毒" class="headerlink" title="勒索病毒"></a>勒索病毒</h3><p>对于专业的勒索病毒，想要通过解密恢复数据的几率比较渺茫，剩下的就是妥协与不妥协。</p>
+<h4 id="基本流程-1"><a href="#基本流程-1" class="headerlink" title="基本流程"></a>基本流程</h4><p>一旦发现疑似中病毒，无论是否为勒索病毒首先还是得先隔离主机，物理隔离或者资源隔离均可以，把损害降到最低。有备份清除病毒后重新拉取就系，没有备份那就……</p>
+<p>解密平台</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 360</span><br><span class="line">https://lesuobingdu.360.cn/</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="六、参考"><a href="#六、参考" class="headerlink" title="六、参考"></a>六、参考</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">https://github.com/wpsec/Emergency-response-notes/blob/main/Linux-%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94.md</span><br><span class="line">https://blog.csdn.net/qq_44874645/article/details/118459837</span><br><span class="line">https://mp.weixin.qq.com/s/iQSEvvLtpW_39UoymliYPA</span><br><span class="line">https://mp.weixin.qq.com/s/eGaQDLVo9yn3fIPFN2bH6w</span><br><span class="line">https://mp.weixin.qq.com/s/x6XKzXsnaY6bg_kZn_O3oA</span><br></pre></td></tr></table></figure></div>
+
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%BA%94%E6%80%A5%E6%B5%81%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">二、应急流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E6%8E%92%E6%9F%A5%E6%98%AF%E5%90%A6%E6%9C%89%E5%BC%82%E5%B8%B8%E7%9A%84%E7%B3%BB%E7%BB%9F%E7%94%A8%E6%88%B7"><span class="toc-number">2.1.</span> <span class="toc-text">1、排查是否有异常的系统用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E6%8E%92%E6%9F%A5%E8%B4%A6%E5%8F%B7%E4%BF%A1%E6%81%AF%EF%BC%88%E6%8C%89%E7%85%A7%E5%AE%9E%E9%99%85%E6%83%85%E5%86%B5%E6%9F%A5%E8%AF%A2%EF%BC%89"><span class="toc-number">2.2.</span> <span class="toc-text">2、排查账号信息（按照实际情况查询）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E6%8E%92%E6%9F%A5%E5%8F%AF%E7%96%91%E8%BF%9B%E7%A8%8B"><span class="toc-number">2.3.</span> <span class="toc-text">3、排查可疑进程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E5%AE%9A%E4%BD%8D%E5%8F%AF%E7%96%91%E7%A8%8B%E5%BA%8F%E8%B7%AF%E5%BE%84"><span class="toc-number">2.4.</span> <span class="toc-text">4、定位可疑程序路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5%E3%80%81%E6%8E%92%E6%9F%A5%E5%A4%96%E8%81%94%E6%83%85%E5%86%B5"><span class="toc-number">2.5.</span> <span class="toc-text">5、排查外联情况</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6%E3%80%81%E7%9B%91%E6%8E%A7%E6%8C%87%E5%AE%9AIP%E7%9A%84%E9%80%9A%E8%AE%AF%E8%BF%9B%E7%A8%8B"><span class="toc-number">2.6.</span> <span class="toc-text">6、监控指定IP的通讯进程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7%E3%80%81%E6%8E%92%E6%9F%A5%E8%87%AA%E5%90%AF%E9%A1%B9"><span class="toc-number">2.7.</span> <span class="toc-text">7、排查自启项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8%E3%80%81%E6%8E%92%E6%9F%A5%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1"><span class="toc-number">2.8.</span> <span class="toc-text">8、排查计划任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9%E3%80%81%E6%8E%92%E6%9F%A5%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">2.9.</span> <span class="toc-text">9、排查环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10%E3%80%81%E6%9F%A5%E7%9C%8Bhost%E6%96%87%E4%BB%B6%E6%98%AF%E5%90%A6%E8%A2%AB%E7%AF%A1%E6%94%B9"><span class="toc-number">2.10.</span> <span class="toc-text">10、查看host文件是否被篡改</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#11%E3%80%81%E5%8F%AF%E7%96%91%E6%96%87%E4%BB%B6%E6%8E%92%E6%9F%A5"><span class="toc-number">2.11.</span> <span class="toc-text">11、可疑文件排查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12%E3%80%81%E6%8E%92%E6%9F%A5%E6%97%A5%E5%BF%97"><span class="toc-number">2.12.</span> <span class="toc-text">12、排查日志</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13%E3%80%81webshell-%E6%9F%A5%E6%9D%80"><span class="toc-number">2.13.</span> <span class="toc-text">13、webshell 查杀</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14%E3%80%81%E5%86%85%E5%AD%98%E9%A9%AC%E6%9F%A5%E6%9D%80"><span class="toc-number">2.14.</span> <span class="toc-text">14、内存马查杀</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#15%E3%80%81%E6%B8%85%E9%99%A4%E5%8F%AF%E7%96%91%E8%BF%9B%E7%A8%8B%E4%B8%8E%E6%96%87%E4%BB%B6"><span class="toc-number">2.15.</span> <span class="toc-text">15、清除可疑进程与文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E7%89%B9%E5%AE%9A%E5%9C%BA%E6%99%AF"><span class="toc-number">3.</span> <span class="toc-text">三、特定场景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%96%E7%9F%BF%E4%BA%8B%E4%BB%B6"><span class="toc-number">3.1.</span> <span class="toc-text">挖矿事件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B"><span class="toc-number">3.1.1.</span> <span class="toc-text">基本流程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8B%92%E7%B4%A2%E7%97%85%E6%AF%92"><span class="toc-number">3.2.</span> <span class="toc-text">勒索病毒</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B-1"><span class="toc-number">3.2.1.</span> <span class="toc-text">基本流程</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">4.</span> <span class="toc-text">六、参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&text=Linux 应急响应排查思路"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&title=Linux 应急响应排查思路"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&is_video=false&description=Linux 应急响应排查思路"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Linux 应急响应排查思路&body=Check out this article: http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&title=Linux 应急响应排查思路"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&title=Linux 应急响应排查思路"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&title=Linux 应急响应排查思路"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&title=Linux 应急响应排查思路"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&name=Linux 应急响应排查思路&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/&t=Linux 应急响应排查思路"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

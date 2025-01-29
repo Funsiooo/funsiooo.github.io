@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、JWT简述JWT(Json Web Token)是一种标准化格式，用于在系统之间发送经过加密签名的 JSON 数据，常用于系统身份认证、会话管理和访问控制机制。其格式主要由头信息（header）、消息体（payload）、签名（signature）3部分组成。 二、JWT格式1、格式规则如下为 JWT 例子，分为三个部分，第一步部分为头信息（header）、第二部分为消息体（payload）、">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WEB漏洞系列-JWT攻击手段考究">
+<meta property="og:url" content="http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、JWT简述JWT(Json Web Token)是一种标准化格式，用于在系统之间发送经过加密签名的 JSON 数据，常用于系统身份认证、会话管理和访问控制机制。其格式主要由头信息（header）、消息体（payload）、签名（signature）3部分组成。 二、JWT格式1、格式规则如下为 JWT 例子，分为三个部分，第一步部分为头信息（header）、第二部分为消息体（payload）、">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022005803698.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022014816164.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022015337482.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022024849697.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022024927517.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022025314222.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022025516380.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022025952064.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022031534531.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022031706787.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022032053932.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022032851198.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022033129331.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022033318882.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022055718503.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022060207246.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022060336778.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022061627075.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022062515948.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022062806245.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022063014666.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022063145114.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022064158310.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022064011276.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022071102736.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022064328897.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022071252972.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022071350414.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022071704133.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022071937771.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022071907390.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022225037179.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022225206954.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022225653680.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022230209305.png">
+<meta property="og:image" content="http://example.com/images/jwt/image-20221022225519054.png">
+<meta property="article:published_time" content="2022-10-22T15:20:24.000Z">
+<meta property="article:modified_time" content="2022-10-22T16:24:38.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="漏洞学习">
+<meta property="article:tag" content="JWT攻击">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/jwt/image-20221022005803698.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>WEB漏洞系列-JWT攻击手段考究</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/10/26/%E7%95%85%E6%8D%B7%E9%80%9A%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%88%86%E6%9E%90%E8%BF%87%E7%A8%8B-CNVD-2022-60632/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&text=WEB漏洞系列-JWT攻击手段考究"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&title=WEB漏洞系列-JWT攻击手段考究"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&is_video=false&description=WEB漏洞系列-JWT攻击手段考究"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=WEB漏洞系列-JWT攻击手段考究&body=Check out this article: http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&title=WEB漏洞系列-JWT攻击手段考究"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&title=WEB漏洞系列-JWT攻击手段考究"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&title=WEB漏洞系列-JWT攻击手段考究"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&title=WEB漏洞系列-JWT攻击手段考究"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&name=WEB漏洞系列-JWT攻击手段考究&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&t=WEB漏洞系列-JWT攻击手段考究"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81JWT%E7%AE%80%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">一、JWT简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81JWT%E6%A0%BC%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">二、JWT格式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E6%A0%BC%E5%BC%8F%E8%A7%84%E5%88%99"><span class="toc-number">2.1.</span> <span class="toc-text">1、格式规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E5%8A%A0%E5%AF%86%E8%A7%84%E5%88%99"><span class="toc-number">2.2.</span> <span class="toc-text">2、加密规则</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81JWT-%E5%8D%B1%E5%AE%B3%E5%8F%8A%E6%94%BB%E5%87%BB%E7%82%B9"><span class="toc-number">3.</span> <span class="toc-text">三、JWT 危害及攻击点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E9%9D%B6%E5%9C%BA%E5%AD%A6%E4%B9%A0"><span class="toc-number">4.</span> <span class="toc-text">四、靶场学习</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E7%A9%BA%E7%AE%97%E6%B3%95%E9%AA%8C%E8%AF%81"><span class="toc-number">4.1.</span> <span class="toc-text">1、空算法验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E4%B8%8D%E9%AA%8C%E8%AF%81%E7%AD%BE%E5%90%8D%E5%86%85%E5%AE%B9"><span class="toc-number">4.2.</span> <span class="toc-text">2、不验证签名内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E5%AF%86%E9%92%A5%E6%B3%84%E9%9C%B2-amp-%E6%9A%B4%E5%8A%9B%E7%A0%B4%E8%A7%A3%E5%AF%86%E9%92%A5"><span class="toc-number">4.3.</span> <span class="toc-text">3、密钥泄露&amp;暴力破解密钥</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E5%AF%86%E7%A0%81%E6%B7%B7%E6%B7%86%E6%94%BB%E5%87%BB"><span class="toc-number">4.4.</span> <span class="toc-text">4、密码混淆攻击</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5%E3%80%81%E7%AF%A1%E6%94%B9-jwt-header%EF%BC%8Ckid%E6%8C%87%E5%AE%9A%E6%94%BB%E5%87%BB"><span class="toc-number">4.5.</span> <span class="toc-text">5、篡改 jwt header，kid指定攻击</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">五、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">6.</span> <span class="toc-text">参考文章</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        WEB漏洞系列-JWT攻击手段考究
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-10-22T15:20:24.000Z" itemprop="datePublished">2022-10-22</time>
+        
+        (Updated: <time datetime="2022-10-22T16:24:38.000Z" itemprop="dateModified">2022-10-23</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97/">WEB漏洞系列</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/JWT%E6%94%BB%E5%87%BB/" rel="tag">JWT攻击</a>, <a class="tag-link-link" href="/tags/%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/" rel="tag">漏洞学习</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、JWT简述"><a href="#一、JWT简述" class="headerlink" title="一、JWT简述"></a>一、JWT简述</h2><p>JWT(Json Web Token)是一种标准化格式，用于在系统之间发送经过加密签名的 JSON 数据，常用于系统身份认证、会话管理和访问控制机制。其格式主要由头信息（header）、消息体（payload）、签名（signature）3部分组成。</p>
+<h2 id="二、JWT格式"><a href="#二、JWT格式" class="headerlink" title="二、JWT格式"></a>二、JWT格式</h2><h3 id="1、格式规则"><a href="#1、格式规则" class="headerlink" title="1、格式规则"></a>1、格式规则</h3><p>如下为 JWT 例子，分为三个部分，第一步部分为头信息（header）、第二部分为消息体（payload）、第三部分为签名（signature），数据经过加密处理后通过符号 <code>.</code> 进行拼接后得到完整的JWT Token 值</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ</span><br></pre></td></tr></table></figure></div>
+
+<br/>
+
+<p>利用 jwt.io 网站进行在线解密获取其信息，如下图：</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022005803698.png" data-caption="image-20221022005803698"><img src="/../images/jwt/image-20221022005803698.png" alt="image-20221022005803698"></a></p>
+<h3 id="2、加密规则"><a href="#2、加密规则" class="headerlink" title="2、加密规则"></a>2、加密规则</h3><p>第一部分：头信息（header），该部分定义了固定的算法为 “HS256”，token类型为 “JWT”,该部分 Json 数据需经过 base64url 加密后得到第一部分数据，以下为原始数据及加密处理后数据</p>
+<div class="highlight-wrap" data-rel="Json"><figure class="iseeu highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;alg&quot;</span><span class="punctuation">:</span><span class="string">&quot;HS256&quot;</span><span class="punctuation">,</span><span class="attr">&quot;typ&quot;</span><span class="punctuation">:</span><span class="string">&quot;JWT&quot;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></div>
+<br/>
+
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022014816164.png" data-caption="image-20221022014816164"><img src="/../images/jwt/image-20221022014816164.png" alt="image-20221022014816164"></a></p>
+<p>第二部分：消息体-payload，该部分主要为一些功能点的数据值，这一部分的 JSON 数据也需要进行 base64url 加密处理，以下为原始数据及加密处理后数据</p>
+<div class="highlight-wrap" data-rel="Json"><figure class="iseeu highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;sub&quot;</span><span class="punctuation">:</span><span class="string">&quot;1234567890&quot;</span><span class="punctuation">,</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;John Doe&quot;</span><span class="punctuation">,</span><span class="attr">&quot;admin&quot;</span><span class="punctuation">:</span><span class="literal"><span class="keyword">true</span></span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></div>
+<br/>
+
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022015337482.png" data-caption="image-20221022015337482"><img src="/../images/jwt/image-20221022015337482.png" alt="image-20221022015337482"></a></p>
+<p>第三部分：签名（signature），将前面第一、第二部分经过加密处理后的数据利用符号 <code>.</code> 拼接起来，然后再利用 “HS256” 加密算法进行加密得到第三部分加密数据，三部分通过符号 <code>.</code> 拼接后得到完整的 JWT Token 值，以下为原始数据及加密处理后数据</p>
+<div class="highlight-wrap" data-rel="Json"><figure class="iseeu highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">base64url(</span><br><span class="line"> HMACSHA256(</span><br><span class="line"> base64UrlEncode(header) + <span class="string">&quot;.&quot;</span> + base64UrlEncode(payload)<span class="punctuation">,</span></span><br><span class="line"> your<span class="number">-256</span>-bit-secret (秘钥加盐)</span><br><span class="line"> )</span><br><span class="line">)</span><br></pre></td></tr></table></figure></div>
+<br/>
+
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ</span><br></pre></td></tr></table></figure></div>
+
+<br/>
+
+<h2 id="三、JWT-危害及攻击点"><a href="#三、JWT-危害及攻击点" class="headerlink" title="三、JWT 危害及攻击点"></a>三、JWT 危害及攻击点</h2><p>JWT 通常以伪造任意值创建自己的有效令牌，提升自己的权限或冒充其他用户，从而完全接管这些用户的账户，主要攻击点有以下几部分：</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">空算法验证</span><br><span class="line">不验证签名内容分</span><br><span class="line">密钥泄露&amp;暴力破解密钥</span><br><span class="line">密码混淆攻击</span><br><span class="line">篡改 JWT Header，kid 指定攻击</span><br></pre></td></tr></table></figure></div>
+
+<br/>
+
+<h2 id="四、靶场学习"><a href="#四、靶场学习" class="headerlink" title="四、靶场学习"></a>四、靶场学习</h2><p>在线靶场</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://jwt-lab.herokuapp.com/challenges</span><br></pre></td></tr></table></figure></div>
+
+<br/>
+
+<h3 id="1、空算法验证"><a href="#1、空算法验证" class="headerlink" title="1、空算法验证"></a>1、空算法验证</h3><p>JWT 值 Header 中的 “alg” 参数用于声明加密算法，如果应用程序没有有效验证 “alg” 的值，那么我们可以将其值更改为 “none”，绕过签名验证</p>
+<p>进入 jwt-lab 靶场，创建一个账号</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022024849697.png" data-caption="image-20221022024849697"><img src="/../images/jwt/image-20221022024849697.png" alt="image-20221022024849697"></a><br><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022024927517.png" data-caption="image-20221022024927517"><img src="/../images/jwt/image-20221022024927517.png" alt="image-20221022024927517"></a></p>
+<p>点击进入 “None Algorithm” 靶场，利用刚才注册的账号进行登录，Burp 抓包</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022025314222.png" data-caption="image-20221022025314222"><img src="/../images/jwt/image-20221022025314222.png" alt="image-20221022025314222"></a></p>
+<p>看到 Cookie 处的 chanllenge 中的值使用的是 JWT 格式</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022025516380.png" data-caption="image-20221022025516380"><img src="/../images/jwt/image-20221022025516380.png" alt="image-20221022025516380"></a></p>
+<p>将前面两部分进行解密得加密算法为 “RS256”、用户名为 “woohoo”</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022025952064.png" data-caption="image-20221022025952064"><img src="/../images/jwt/image-20221022025952064.png" alt="image-20221022025952064"></a></p>
+<p>将加密算法改为 “none” 然后将 JWT Header 头部分进行 base64url 编码，最后替换原始的 JWT Header 头的第一部分利用 Burp 重放，若依然返回正确页面则存在漏洞，我们把 Result 中 <code>eyJhbGciOiJub25lIn0=</code> , “&#x3D;” 去掉，这里编码后不应该出现，暂时先不管。</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022031534531.png" data-caption="image-20221022031534531"><img src="/../images/jwt/image-20221022031534531.png" alt="image-20221022031534531"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022031706787.png" data-caption="image-20221022031706787"><img src="/../images/jwt/image-20221022031706787.png" alt="image-20221022031706787"></a></p>
+<p>替换为 “none” 仍能正常访问，绕过了签名算法，存在 “空算法验证” 漏洞</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022032053932.png" data-caption="image-20221022032053932"><img src="/../images/jwt/image-20221022032053932.png" alt="image-20221022032053932"></a></p>
+<p>实战中可修改第二部分-消息体（payload）中的数据，配合该漏洞进行攻击，将第二部分的 “woohoo” 改为 “admin”，值为 <code>eyJuYW1lIjoiYWRtaW4ifQ</code> ,然后 Burp 放包</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022032851198.png" data-caption="image-20221022032851198"><img src="/../images/jwt/image-20221022032851198.png" alt="image-20221022032851198"></a></p>
+<p>修改后登录用户更改为 “admin”</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022033129331.png" data-caption="image-20221022033129331"><img src="/../images/jwt/image-20221022033129331.png" alt="image-20221022033129331"></a></p>
+<p>原始为 “woohoo”</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022033318882.png" data-caption="image-20221022033318882"><img src="/../images/jwt/image-20221022033318882.png" alt="image-20221022033318882"></a></p>
+<h3 id="2、不验证签名内容"><a href="#2、不验证签名内容" class="headerlink" title="2、不验证签名内容"></a>2、不验证签名内容</h3><p>如果服务端没有对 JWT 签名部分进行校验，那么我们就可以直接删除最后的签名部分，使格式变为 <code>&#123;Header.Payload.&#125;</code>，此时可以修改 <code>Payload</code> 内容为其他用户信息，伪造用户 token 值。这里直接利用 <code>jwt_tool.py</code> 工具进行验证，若证明存在漏洞再自行修改 <code>payload</code> 部分进行测试，也可直接删掉第三部分，若依然返回正确的页面则存在漏洞，这里没有必要利用这个工具去测试，直接删掉 JWT 值第三部分内容就行，这里为了引出这个工具，叭啦一下</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022055718503.png" data-caption="image-20221022055718503"><img src="/../images/jwt/image-20221022055718503.png" alt="image-20221022055718503"></a></p>
+<h3 id="3、密钥泄露-amp-暴力破解密钥"><a href="#3、密钥泄露-amp-暴力破解密钥" class="headerlink" title="3、密钥泄露&amp;暴力破解密钥"></a>3、密钥泄露&amp;暴力破解密钥</h3><p>若JWT签名使用了 “HMAC” 算法（对称加密算法），则可对其 Key 进行爆破，若爆破出 key 值则可以伪造用户 token 值进行攻击。测试过程中如果发现存在密钥泄露的情况下则可直接使用工具重新生成 JWT 值，伪造数据，若没有则需要依靠字典，若 key 值为弱密钥则可进行下一步攻击。</p>
+<p>进入 “Weak signature” 靶场，利用注册账号登录，获取到 challenge 中的 JWT 值</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022060207246.png" data-caption="image-20221022060207246"><img src="/../images/jwt/image-20221022060207246.png" alt="image-20221022060207246"></a></p>
+<p>通过解码得知使用了 “HS256” 算法，”HS256” 为 “HMAC” 算法的其中一种，为对称加密算法，即使用同一个密钥对JWT进行签名和认证，意味着也会对 JWT 进行签名的密钥也用于对其进行验证（注：对称加密算法中，数据发信方将明文（原始数据）和加密密钥一起经过特殊加密算法处理后，使其变成复杂的加密密文发送出去。收信方收到密文后，若想解读原文，则需要使用加密用过的密钥及相同算法的逆算法对密文进行解密，才能使其恢复成可读明文）</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022060336778.png" data-caption="image-20221022060336778"><img src="/../images/jwt/image-20221022060336778.png" alt="image-20221022060336778"></a></p>
+<p>这里使用 jwt_tool.py 工具进行测试 <code>python3 jwt_tool.py jwt值</code>,首先验证是否是可破解的密钥，发现是 “HS256”,可尝试进行 key 爆破</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022061627075.png" data-caption="image-20221022061627075"><img src="/../images/jwt/image-20221022061627075.png" alt="image-20221022061627075"></a></p>
+<p>爆破密钥 <code>python3 jwt_tool.py jwt值 -C -d wordlists.txt </code></p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022062515948.png" data-caption="image-20221022062515948"><img src="/../images/jwt/image-20221022062515948.png" alt="image-20221022062515948"></a></p>
+<p>利用爆破出来的 key 值对 jwt 进行重新签名</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022062806245.png" data-caption="image-20221022062806245"><img src="/../images/jwt/image-20221022062806245.png" alt="image-20221022062806245"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022063014666.png" data-caption="image-20221022063014666"><img src="/../images/jwt/image-20221022063014666.png" alt="image-20221022063014666"></a></p>
+<p>将生成的 jwt 值到 Burp 进行重放</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022063145114.png" data-caption="image-20221022063145114"><img src="/../images/jwt/image-20221022063145114.png" alt="image-20221022063145114"></a></p>
+<br/>
+
+<h3 id="4、密码混淆攻击"><a href="#4、密码混淆攻击" class="headerlink" title="4、密码混淆攻击"></a>4、密码混淆攻击</h3><p>当 JWT 签名算法使用 “RSA “ 加密算法时，RSA 是非对称加密算法，需要两个密钥，先用私钥加密生成 JWT ，然后使用其对应的公钥来解密验证。即假设我们能够将签名算法从 “RS256” 更改为 “HS256”，我们就可以强制应用程序仅使用一个密钥来完成加密和解密这两项任务，此时服务端代码将使用公钥作为密钥，然后使用HS256算法验证签名。（注：非对称加密算法需要两个密钥： 公开密钥 （publickey:简称公钥）和私有密钥（privatekey:简称私钥）。 公钥 与 私钥 是一对，如果用公钥对数据进行加密，只有用对应的私钥才能解密。 因为加密和 解密 使用的是两个不同的密钥，所以这种算法叫作非对称加密算法。）</p>
+<p>进入 “Exposed Key” 靶场，利用注册账号登录，获取到 challenge 中的 JWT 值</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022064158310.png" data-caption="image-20221022064158310"><img src="/../images/jwt/image-20221022064158310.png" alt="image-20221022064158310"></a></p>
+<p>靶场已提供了公钥信息 “public key”（假装通过技术手段获取到泄露的公钥），将其复制保存为本地文件 <strong>public_key</strong> （注意：先将公钥复制到 sublime 删掉前面的空格；文件末尾还有一行空行；文件名没有后缀名）</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022064011276.png" data-caption="image-20221022064011276"><img src="/../images/jwt/image-20221022064011276.png" alt="image-20221022064011276"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022071102736.png" data-caption="image-20221022071102736"><img src="/../images/jwt/image-20221022071102736.png" alt="image-20221022071102736"></a></p>
+<p>这次就不去解码了，直接利用 jwt_tool.py 进行信息获取，加密方式为 “RS256” ，用户名为 “woohoo”</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022064328897.png" data-caption="image-20221022064328897"><img src="/../images/jwt/image-20221022064328897.png" alt="image-20221022064328897"></a></p>
+<p>利用获取到的公钥信息，使用 jwt_tool.py 工具，对 JWT 值使用 “HS256” 算法进行签名 <code>python3 jwt_tool.py -X k -pk public_key jwt值</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022071252972.png" data-caption="image-20221022071252972"><img src="/../images/jwt/image-20221022071252972.png" alt="image-20221022071252972"></a></p>
+<p>将重新生成的 JWT 值到 Burp 重放，若返回值与，RS256 算法签名的 JWT 值一样的页面则证明存在漏洞</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022071350414.png" data-caption="image-20221022071350414"><img src="/../images/jwt/image-20221022071350414.png" alt="image-20221022071350414"></a></p>
+<p>进一步利用，修改 JWT 第二部分消息体(Payload)，伪造 “admin” 用户 token 值</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022071704133.png" data-caption="image-20221022071704133"><img src="/../images/jwt/image-20221022071704133.png" alt="image-20221022071704133"></a> </p>
+<p><code>python3 jwt_tool.py -X k -pk public_key eyJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoiYWRtaW4ifQ==. </code></p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022071937771.png" data-caption="image-20221022071937771"><img src="/../images/jwt/image-20221022071937771.png" alt="image-20221022071937771"></a></p>
+<p>成功伪造 admin 用户的 token 进行登录</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022071907390.png" data-caption="image-20221022071907390"><img src="/../images/jwt/image-20221022071907390.png" alt="image-20221022071907390"></a></p>
+<h3 id="5、篡改-jwt-header，kid指定攻击"><a href="#5、篡改-jwt-header，kid指定攻击" class="headerlink" title="5、篡改 jwt header，kid指定攻击"></a>5、篡改 jwt header，kid指定攻击</h3><p>密钥 ID (kid) 是Header中一个可选标头，即 key ID，用于指示文件系统或数据库中存在的特定密钥，然后使用其内容来验证签名</p>
+<p>进入 “Vulnerable Kid “ 靶场，输入账户密码获取 JWT 值。解码后，得知存在 “kid”</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022225037179.png" data-caption="image-20221022225037179"><img src="/../images/jwt/image-20221022225037179.png" alt="image-20221022225037179"></a></p>
+<p>也可以直接使用 jwt_tool.py 进行解码</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022225206954.png" data-caption="image-20221022225206954"><img src="/../images/jwt/image-20221022225206954.png" alt="image-20221022225206954"></a></p>
+<p>将kid内容修改为 “&#x2F;dev&#x2F;null” ，并将 Payload 中 “name” 修改为 “admin” ，然后生成新的 token 。<code>python3 jwt_tool.py jwt值 -I -hc kid -hv &quot;/dev/null&quot; -pc name -pv &quot;admin&quot; -S hs256 </code></p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022225653680.png" data-caption="image-20221022225653680"><img src="/../images/jwt/image-20221022225653680.png" alt="image-20221022225653680"></a></p>
+<p>生成后的 JWT 解码后为</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022230209305.png" data-caption="image-20221022230209305"><img src="/../images/jwt/image-20221022230209305.png" alt="image-20221022230209305"></a></p>
+<p>最后将生成的 token 到 Burp 放包，实现伪造 admin 身份</p>
+<p><a data-fancybox="gallery" data-src="/../images/jwt/image-20221022225519054.png" data-caption="image-20221022225519054"><img src="/../images/jwt/image-20221022225519054.png" alt="image-20221022225519054"></a></p>
+<p>若 kid 值没有存在过滤，有可能存在其它漏洞，如：任意文件读取、SQL注入、命令执行等，例子如下</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line"> &quot;alg&quot; : &quot;HS256&quot;,</span><br><span class="line"> &quot;typ&quot; : &quot;jwt&quot;,</span><br><span class="line"> &quot;kid&quot; : &quot;../../etc/passwd&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+<br/>
+
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line"> &quot;alg&quot; : &quot;HS256&quot;,</span><br><span class="line"> &quot;typ&quot; : &quot;jwt&quot;,</span><br><span class="line"> &quot;kid&quot; : &quot;admin&#x27; || union select &#x27;secretkey&#x27; -- &quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>经过学习发现，JWT 攻击面大多为伪造令牌从而提升权限或冒充其它用户，进而构建下一步攻击。总体上攻击点还是取决于 JWT 的加密方式、签名验证等是否安全。</p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">https://www.anquanke.com/post/id/225947</span><br><span class="line">https://mp.weixin.qq.com/s/BP33m2Z5LeNcU2owGTSM2Q</span><br><span class="line">https://mp.weixin.qq.com/s/puYElYPTz6zfEjND0jcm2g</span><br><span class="line">https://simplycalc.com/base64url-encode.php</span><br><span class="line">https://adamc95.medium.com/json-web-token-lab-guide-c402857fa44c</span><br><span class="line">https://jwt.io/</span><br><span class="line">https://base64.us/</span><br></pre></td></tr></table></figure></div>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81JWT%E7%AE%80%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">一、JWT简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81JWT%E6%A0%BC%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">二、JWT格式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E6%A0%BC%E5%BC%8F%E8%A7%84%E5%88%99"><span class="toc-number">2.1.</span> <span class="toc-text">1、格式规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E5%8A%A0%E5%AF%86%E8%A7%84%E5%88%99"><span class="toc-number">2.2.</span> <span class="toc-text">2、加密规则</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81JWT-%E5%8D%B1%E5%AE%B3%E5%8F%8A%E6%94%BB%E5%87%BB%E7%82%B9"><span class="toc-number">3.</span> <span class="toc-text">三、JWT 危害及攻击点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E9%9D%B6%E5%9C%BA%E5%AD%A6%E4%B9%A0"><span class="toc-number">4.</span> <span class="toc-text">四、靶场学习</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E7%A9%BA%E7%AE%97%E6%B3%95%E9%AA%8C%E8%AF%81"><span class="toc-number">4.1.</span> <span class="toc-text">1、空算法验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E4%B8%8D%E9%AA%8C%E8%AF%81%E7%AD%BE%E5%90%8D%E5%86%85%E5%AE%B9"><span class="toc-number">4.2.</span> <span class="toc-text">2、不验证签名内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E5%AF%86%E9%92%A5%E6%B3%84%E9%9C%B2-amp-%E6%9A%B4%E5%8A%9B%E7%A0%B4%E8%A7%A3%E5%AF%86%E9%92%A5"><span class="toc-number">4.3.</span> <span class="toc-text">3、密钥泄露&amp;暴力破解密钥</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E5%AF%86%E7%A0%81%E6%B7%B7%E6%B7%86%E6%94%BB%E5%87%BB"><span class="toc-number">4.4.</span> <span class="toc-text">4、密码混淆攻击</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5%E3%80%81%E7%AF%A1%E6%94%B9-jwt-header%EF%BC%8Ckid%E6%8C%87%E5%AE%9A%E6%94%BB%E5%87%BB"><span class="toc-number">4.5.</span> <span class="toc-text">5、篡改 jwt header，kid指定攻击</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">五、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">6.</span> <span class="toc-text">参考文章</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&text=WEB漏洞系列-JWT攻击手段考究"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&title=WEB漏洞系列-JWT攻击手段考究"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&is_video=false&description=WEB漏洞系列-JWT攻击手段考究"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=WEB漏洞系列-JWT攻击手段考究&body=Check out this article: http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&title=WEB漏洞系列-JWT攻击手段考究"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&title=WEB漏洞系列-JWT攻击手段考究"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&title=WEB漏洞系列-JWT攻击手段考究"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&title=WEB漏洞系列-JWT攻击手段考究"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&name=WEB漏洞系列-JWT攻击手段考究&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/10/22/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-JWT%E6%94%BB%E5%87%BB%E6%89%8B%E6%AE%B5%E8%80%83%E7%A9%B6/&t=WEB漏洞系列-JWT攻击手段考究"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="SQL Injection - JDBCSQLI(SQL Injection)， SQL注入是因为程序未能正确对用户的输入进行检查，将用户的输入以拼接的方式带入SQL语句，导致了SQL注入的产生。攻击者可通过SQL注入直接获取数据库信息，造成信息泄漏。JDBC有两个方法执行SQL语句，分别是PrepareStatement和Statement。   一、PrepareStatement和State">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java代码审计(一)-SQL注入">
+<meta property="og:url" content="http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="SQL Injection - JDBCSQLI(SQL Injection)， SQL注入是因为程序未能正确对用户的输入进行检查，将用户的输入以拼接的方式带入SQL语句，导致了SQL注入的产生。攻击者可通过SQL注入直接获取数据库信息，造成信息泄漏。JDBC有两个方法执行SQL语句，分别是PrepareStatement和Statement。   一、PrepareStatement和State">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220915170827278.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220915171439247.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220915171322760.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220915171631902.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220915154833152.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220915172209445.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916103927914.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916221526099.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916221711148.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916221936799.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916222014077.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916102933090.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916103017494.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220917103535006.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916230200246.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916230305522.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916230321871.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916233026648.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916223854118.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916224009296.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916223455798.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916224207000.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916224309538.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916224349615.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916224407884.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916224841069.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916225058940.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916231424395.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916233109842.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916232156934.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916224555430.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916224631034.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916233227501.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916233245750.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916144233146.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916144417442.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916153458532.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916153744387.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916155038180.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916155406997.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916155943404.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916160453470.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916160956840.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916161203467.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220917105051989.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916163457592.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916163649650.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916164206987.png">
+<meta property="og:image" content="http://example.com/images/Java/sql/image-20220916164227132.png">
+<meta property="article:published_time" content="2022-09-17T03:03:58.000Z">
+<meta property="article:modified_time" content="2022-10-11T02:00:10.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="SQL注入">
+<meta property="article:tag" content="Java代码审计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/Java/sql/image-20220915170827278.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>Java代码审计(一)-SQL注入</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/09/25/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%BA%8C)-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&text=Java代码审计(一)-SQL注入"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&title=Java代码审计(一)-SQL注入"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&is_video=false&description=Java代码审计(一)-SQL注入"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java代码审计(一)-SQL注入&body=Check out this article: http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&title=Java代码审计(一)-SQL注入"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&title=Java代码审计(一)-SQL注入"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&title=Java代码审计(一)-SQL注入"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&title=Java代码审计(一)-SQL注入"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&name=Java代码审计(一)-SQL注入&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&t=Java代码审计(一)-SQL注入"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#SQL-Injection-JDBC"><span class="toc-number">1.</span> <span class="toc-text">SQL Injection - JDBC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81PrepareStatement%E5%92%8CStatement%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.1.</span> <span class="toc-text">一、PrepareStatement和Statement的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%AE%80%E5%8D%95%E6%BC%8F%E6%B4%9E%E4%BE%8B%E5%AD%90"><span class="toc-number">1.2.</span> <span class="toc-text">二、简单漏洞例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%BC%8F%E6%B4%9E%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.3.</span> <span class="toc-text">三、漏洞类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%B0%8F%E7%BB%93"><span class="toc-number">1.4.</span> <span class="toc-text">四、小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SQL-Injection-MyBatis%E6%A1%86%E6%9E%B6"><span class="toc-number">2.</span> <span class="toc-text">SQL Injection - MyBatis框架</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81Mybatis%E7%89%B9%E6%80%A7"><span class="toc-number">2.1.</span> <span class="toc-text">一、Mybatis特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%BC%8F%E6%B4%9E%E7%B1%BB%E5%9E%8B"><span class="toc-number">2.2.</span> <span class="toc-text">二、漏洞类型</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1%E3%80%81like%E6%B3%A8%E5%85%A5"><span class="toc-number">2.2.0.1.</span> <span class="toc-text">1、like注入</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2%E3%80%81in%E5%90%8E%E7%9A%84%E5%8F%82%E6%95%B0%E6%B3%A8%E5%85%A5"><span class="toc-number">2.2.0.2.</span> <span class="toc-text">2、in后的参数注入</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3%E3%80%81order-by-%E6%B3%A8%E5%85%A5"><span class="toc-number">2.2.0.3.</span> <span class="toc-text">3、order by 注入</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E9%9D%B6%E5%9C%BA%E5%AD%A6%E4%B9%A0"><span class="toc-number">2.3.</span> <span class="toc-text">三、靶场学习</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1%E3%80%81%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">2.3.0.1.</span> <span class="toc-text">1、环境搭建</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2%E3%80%81IDEA%E6%90%AD%E5%BB%BA%E7%BD%91%E7%AB%99"><span class="toc-number">2.3.0.2.</span> <span class="toc-text">2、IDEA搭建网站</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3%E3%80%81%E5%AE%A1%E8%AE%A1%E5%BC%80%E5%A7%8B"><span class="toc-number">2.3.0.3.</span> <span class="toc-text">3、审计开始</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4%E3%80%81%E5%AE%A1%E8%AE%A1SQL%E6%B3%A8%E5%85%A5"><span class="toc-number">2.3.0.4.</span> <span class="toc-text">4、审计SQL注入</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9D%91%E7%82%B9"><span class="toc-number">3.</span> <span class="toc-text">坑点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">4.</span> <span class="toc-text">参考文章</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Java代码审计(一)-SQL注入
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-09-17T03:03:58.000Z" itemprop="datePublished">2022-09-17</time>
+        
+        (Updated: <time datetime="2022-10-11T02:00:10.000Z" itemprop="dateModified">2022-10-11</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">代码审计</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag">Java代码审计</a>, <a class="tag-link-link" href="/tags/SQL%E6%B3%A8%E5%85%A5/" rel="tag">SQL注入</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="SQL-Injection-JDBC"><a href="#SQL-Injection-JDBC" class="headerlink" title="SQL Injection - JDBC"></a>SQL Injection - JDBC</h2><p>SQLI(SQL Injection)， SQL注入是因为程序未能正确对用户的输入进行检查，将用户的输入以拼接的方式带入SQL语句，导致了SQL注入的产生。攻击者可通过SQL注入直接获取数据库信息，造成信息泄漏。JDBC有两个方法执行SQL语句，分别是PrepareStatement和Statement。</p>
+<br/>
+
+<h3 id="一、PrepareStatement和Statement的区别"><a href="#一、PrepareStatement和Statement的区别" class="headerlink" title="一、PrepareStatement和Statement的区别"></a>一、PrepareStatement和Statement的区别</h3><figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+# 当使用Statement对象时，每次执行一个SQL命令时，都会对它进行解析和编译。
+# 当使用PreparedStatement对象时，无论多少次地使用同一个SQL命令，都只会解析和编译一次。
+</pre>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+<br/>
+
+<h3 id="二、简单漏洞例子"><a href="#二、简单漏洞例子" class="headerlink" title="二、简单漏洞例子"></a>二、简单漏洞例子</h3><p>1、漏洞代码 - 语句拼接(Statement)，没有对语句进行过滤直接拼接</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 采用原始的Statement拼接语句，导致漏洞产生</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">jdbcVul</span><span class="params">(String id)</span> &#123;</span><br><span class="line">    <span class="type">StringBuilder</span> <span class="variable">result</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Class.forName(<span class="string">&quot;com.mysql.cj.jdbc.Driver&quot;</span>);</span><br><span class="line">        <span class="type">Connection</span> <span class="variable">conn</span> <span class="operator">=</span> DriverManager.getConnection(db_url, db_user, db_pass);</span><br><span class="line"></span><br><span class="line">        <span class="type">Statement</span> <span class="variable">stmt</span> <span class="operator">=</span> conn.createStatement();</span><br><span class="line">        <span class="comment">// 拼接语句产生SQL注入</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">sql</span> <span class="operator">=</span> <span class="string">&quot;select * from users where id = &#x27;&quot;</span> + id + <span class="string">&quot;&#x27;&quot;</span>;</span><br><span class="line">        <span class="type">ResultSet</span> <span class="variable">rs</span> <span class="operator">=</span> stmt.executeQuery(sql);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (rs.next()) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">res_name</span> <span class="operator">=</span> rs.getString(<span class="string">&quot;user&quot;</span>);</span><br><span class="line">            <span class="type">String</span> <span class="variable">res_pass</span> <span class="operator">=</span> rs.getString(<span class="string">&quot;pass&quot;</span>);</span><br><span class="line">            <span class="type">String</span> <span class="variable">info</span> <span class="operator">=</span> String.format(<span class="string">&quot;查询结果 %s: %s&quot;</span>, res_name, res_pass);</span><br><span class="line">            result.append(info);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>安全代码 - 过滤方法</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 采用黑名单过滤危险字符，同时也容易误伤（次方案）</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">checkSql</span><span class="params">(String content)</span> &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">black</span> <span class="operator">=</span> <span class="string">&quot;&#x27;|;|--|+|,|%|=|*|(|)|like|xor|and|or|exec|insert|select|delete|update|count|drop|chr|mid|master|truncate|char|declare｜sleep|abs|rand|union&quot;</span>;</span><br><span class="line">    String[] black_list = black.split(<span class="string">&quot;|&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span> ; i &lt; black_list.length ; i++ )&#123;</span><br><span class="line">        <span class="keyword">if</span> (content.contains(black_list[i]))&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+
+<br/>
+<br/>
+2、漏洞代码 - 语句拼接(PrepareStatement)
+
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// PrepareStatement会对SQL语句进行预编译，但有时开发者为了便利，直接采取拼接的方式构造SQL，此时进行预编译也无用。</span></span><br><span class="line"></span><br><span class="line"><span class="type">Connection</span> <span class="variable">conn</span> <span class="operator">=</span> DriverManager.getConnection(db_url, db_user, db_pass);</span><br><span class="line"><span class="type">String</span> <span class="variable">sql</span> <span class="operator">=</span> <span class="string">&quot;select * from users where id = &quot;</span> + id;</span><br><span class="line"><span class="type">PreparedStatement</span> <span class="variable">st</span> <span class="operator">=</span> conn.prepareStatement(sql);</span><br><span class="line">System.out.println(<span class="string">&quot;[*] 执行SQL语句：&quot;</span> + st);</span><br><span class="line"><span class="type">ResultSet</span> <span class="variable">rs</span> <span class="operator">=</span> st.executeQuery();</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>安全代码 - 预编译</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 正确的使用PrepareStatement可以有效避免SQL注入，使用？作为占位符，进行参数化查询</span></span><br><span class="line"></span><br><span class="line"><span class="type">String</span> <span class="variable">sql</span> <span class="operator">=</span> <span class="string">&quot;select * from users where id = ?&quot;</span>;</span><br><span class="line"><span class="type">PreparedStatement</span> <span class="variable">st</span> <span class="operator">=</span> conn.prepareStatement(sql);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 对sql语句进行赋值，其中第一个参数是参数的位置，即第几个参数，第二个参数是传给该位置的值</span></span><br><span class="line">st.setString(<span class="number">1</span>, id);</span><br><span class="line"><span class="type">ResultSet</span> <span class="variable">rs</span> <span class="operator">=</span> st.executeQuery();</span><br></pre></td></tr></table></figure></div>
+
+<br/>
+
+<p>3、安全代码 - ESAPI安全框架</p>
+<div class="highlight-wrap" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ESAPI (OWASP企业安全应用程序接口)是一个免费、开源的、网页应用程序安全控件库，它使程序员能够更容易写出更低风险的程序</span></span><br><span class="line"></span><br><span class="line">Codec&lt;Character&gt; oracleCodec = <span class="keyword">new</span> <span class="title class_">OracleCodec</span>();</span><br><span class="line"></span><br><span class="line"><span class="type">Statement</span> <span class="variable">stmt</span> <span class="operator">=</span> conn.createStatement();</span><br><span class="line"><span class="type">String</span> <span class="variable">sql</span> <span class="operator">=</span> <span class="string">&quot;select * from users where id = &#x27;&quot;</span> + ESAPI.encoder().encodeForSQL(oracleCodec, id) + <span class="string">&quot;&#x27;&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">ResultSet</span> <span class="variable">rs</span> <span class="operator">=</span> stmt.executeQuery(sql);                    </span><br></pre></td></tr></table></figure></div>
+
+<br/>
+
+<h3 id="三、漏洞类型"><a href="#三、漏洞类型" class="headerlink" title="三、漏洞类型"></a>三、漏洞类型</h3><br/>
+POST型注入
+<div class="highlight-wrap" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">String <span class="keyword">sql</span> <span class="operator">=</span> &quot;select * from users where username = &#x27;&quot;<span class="operator">+</span>username<span class="operator">+</span>&quot;&#x27; and password = &#x27;&quot;<span class="operator">+</span>password<span class="operator">+</span>&quot;&#x27; &quot;;</span><br></pre></td></tr></table></figure></div>
+
+<br/>
+Like型注入
+
+<div class="highlight-wrap" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String name <span class="operator">=</span> req.getParameter(&quot;name&quot;);</span><br><span class="line">           String <span class="keyword">sql</span> <span class="operator">=</span> &quot;select * from users where name like &#x27;%&#x27;+name+&#x27;%&#x27;&quot;;</span><br></pre></td></tr></table></figure></div>
+
+<br/>
+Header注入
+
+<div class="highlight-wrap" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String referer <span class="operator">=</span> req.getHeader(&quot;referer&quot;);</span><br><span class="line">String <span class="keyword">sql</span> <span class="operator">=</span> &quot;update user set referer =&#x27;&quot;<span class="operator">+</span>referer<span class="operator">+</span>&quot;&#x27;&quot;;</span><br></pre></td></tr></table></figure></div>
+
+<br/>
+
+<h3 id="四、小结"><a href="#四、小结" class="headerlink" title="四、小结"></a>四、小结</h3><p>代码审计时，若发现存在使用JDBC连接数据库可进一步跟踪其代码，在没有使用预编译的情况下且未定义过滤方法，则可能存在SQL注入。</p>
+<hr>
+<h2 id="SQL-Injection-MyBatis框架"><a href="#SQL-Injection-MyBatis框架" class="headerlink" title="SQL Injection - MyBatis框架"></a>SQL Injection - MyBatis框架</h2><p>Mybatis 是一个基于 Java 的持久层框架，它内部封装了 jdbc，开发者只需要关注 sql 语句本身，不需要花费时间和精力去处理加载驱动、创建连接、创建 statement 等繁杂的过程。MyBatis 框架底层已经实现了对 SQL 注入的防御，但存在使用不当的情况下，仍然存在 SQL 注入的风险。</p>
+<br/>
+
+<h3 id="一、Mybatis特性"><a href="#一、Mybatis特性" class="headerlink" title="一、Mybatis特性"></a>一、Mybatis特性</h3><p>Mybatis 获取值有两种方法，<code>$&#123;&#125;</code> 和 <code>#&#123;&#125;</code>，一般情况下 Mybatis 使用 #{} 获取值，因为能避免 SQL 注入漏洞的产生，若直接使用 ${} 获取值则不能有效的避免注入。</p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+#{} 解析的是占位符问号，可以防止SQL注入，使用了预编译。
+${} 直接获取值
+</pre>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+<br/>
+
+<h3 id="二、漏洞类型"><a href="#二、漏洞类型" class="headerlink" title="二、漏洞类型"></a>二、漏洞类型</h3><h5 id="1、like注入"><a href="#1、like注入" class="headerlink" title="1、like注入"></a><code>1、like注入</code></h5><p>以下语句在运行时会报错</p>
+<div class="highlight-wrap" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Select</span> <span class="operator">*</span> <span class="keyword">from</span> news <span class="keyword">where</span> title <span class="keyword">like</span> <span class="string">&#x27;%#&#123;title&#125;%&#x27;</span></span><br></pre></td></tr></table></figure></div>
+
+<p>该语句能正常运行，但由于使用了${}获取值，产生了SLQ语句拼接，即使使用了预编译，但若没有对语句进行过滤也会产生SQL注入漏洞</p>
+<div class="highlight-wrap" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> name <span class="keyword">like</span> <span class="string">&#x27;%$&#123;name&#125;%&#x27;</span></span><br></pre></td></tr></table></figure></div>
+
+<p>正确语句</p>
+<div class="highlight-wrap" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> <span class="keyword">user</span> <span class="keyword">where</span> name <span class="keyword">like</span> #&#123;name&#125;</span><br></pre></td></tr></table></figure></div>
+
+<br/>
+
+<h5 id="2、in后的参数注入"><a href="#2、in后的参数注入" class="headerlink" title="2、in后的参数注入"></a><code>2、in后的参数注入</code></h5><p>以下语句在运行时会报错</p>
+<div class="highlight-wrap" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Select</span> <span class="operator">*</span> <span class="keyword">from</span> news <span class="keyword">where</span> id <span class="keyword">in</span> (#&#123;id&#125;)</span><br></pre></td></tr></table></figure></div>
+
+<p>该语句则能正常运行，但由于使用了${}获取值，产生了SLQ语句拼接，即使使用了预编译，但没有对语句进行过滤则也会产生SQL注入漏洞</p>
+<div class="highlight-wrap" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Select</span> <span class="operator">*</span> <span class="keyword">from</span> news <span class="keyword">where</span> id <span class="keyword">in</span> ($&#123;id&#125;)	</span><br></pre></td></tr></table></figure></div>
+
+<p>正确语句，使用forrach</p>
+<div class="highlight-wrap" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&lt;</span>foreach collection<span class="operator">=</span>&quot;ids&quot; item<span class="operator">=</span>&quot;item&quot; <span class="keyword">open</span><span class="operator">=</span>&quot;(&quot;separatosr<span class="operator">=</span>&quot;,&quot; <span class="keyword">close</span><span class="operator">=</span>&quot;)&quot;<span class="operator">&gt;</span></span><br><span class="line">#&#123;ids&#125;</span><br><span class="line"><span class="operator">&lt;</span><span class="operator">/</span>foreach<span class="operator">&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<br>
+
+<h5 id="3、order-by-注入"><a href="#3、order-by-注入" class="headerlink" title="3、order by 注入"></a><code>3、order by 注入</code></h5><p>以下语句在运行时会报错</p>
+<div class="highlight-wrap" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Select</span> <span class="operator">*</span> <span class="keyword">from</span> news <span class="keyword">where</span> title <span class="operator">=</span><span class="string">&#x27;新闻&#x27;</span> <span class="keyword">order</span> <span class="keyword">by</span> #&#123;<span class="type">time</span>&#125; <span class="keyword">asc</span></span><br></pre></td></tr></table></figure></div>
+
+<p>该语句则能正常运行，但由于使用了${}获取值，产生了SLQ语句拼接，即使使用了预编译，但没有对语句进行过滤则也会产生SQL注入漏洞</p>
+<div class="highlight-wrap" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Select</span> <span class="operator">*</span> <span class="keyword">from</span> news <span class="keyword">where</span> title <span class="operator">=</span><span class="string">&#x27;新闻&#x27;</span> <span class="keyword">order</span> <span class="keyword">by</span> $&#123;<span class="type">time</span>&#125; <span class="keyword">asc</span></span><br></pre></td></tr></table></figure></div>
+
+<p>正确语句</p>
+<div class="highlight-wrap" data-rel="Sql"><figure class="iseeu highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Select</span> <span class="operator">*</span> <span class="keyword">from</span> news <span class="keyword">where</span> title <span class="operator">=</span><span class="string">&#x27;新闻&#x27;</span> <span class="keyword">order</span> <span class="keyword">by</span> #&#123;<span class="type">time</span>&#125; <span class="keyword">asc</span></span><br></pre></td></tr></table></figure></div>
+
+
+<br/>
+
+<h3 id="三、靶场学习"><a href="#三、靶场学习" class="headerlink" title="三、靶场学习"></a>三、靶场学习</h3><h5 id="1、环境搭建"><a href="#1、环境搭建" class="headerlink" title="1、环境搭建"></a><code>1、环境搭建</code></h5><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[+] IDEA     2021.1</span><br><span class="line">[+] Mysql    5.7.26 </span><br><span class="line">[+] Tomcat   7</span><br><span class="line">[+] JDK      1.8_3_01 </span><br><span class="line">[+] CMS      inxedu_2.0.6</span><br></pre></td></tr></table></figure></div>
+
+<br/>
+
+<h5 id="2、IDEA搭建网站"><a href="#2、IDEA搭建网站" class="headerlink" title="2、IDEA搭建网站"></a><code>2、IDEA搭建网站</code></h5><p>● IDEA配置Maven,下载Maven，版本选择尽量不要最新</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://archive.apache.org/dist/maven/maven-3/</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220915170827278.png" data-caption="image-20220915170827278"><img src="/../images/Java/sql/image-20220915170827278.png" alt="image-20220915170827278"></a></p>
+<p>配置Maven环境变量，cmd打开：sysdm.cpl</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220915171439247.png" data-caption="image-20220915171439247"><img src="/../images/Java/sql/image-20220915171439247.png" alt="image-20220915171439247"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220915171322760.png" data-caption="image-20220915171322760"><img src="/../images/Java/sql/image-20220915171322760.png" alt="image-20220915171322760"></a></p>
+<p>测试是否成功安装</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn -v</span><br></pre></td></tr></table></figure></div>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220915171631902.png" data-caption="image-20220915171322760"><img src="/../images/Java/sql/image-20220915171631902.png" alt="image-20220915171322760"></a></p>
+<p>配置阿里镜像和jdk，在Maven解压的地方创建一个新文件夹<code>responsitory</code>，打开Maven文件夹下的conf中的settings.xml的<code>&lt;settings&gt;</code>标签内添加以下内容</p>
+<p>配置jdk1.8</p>
+<div class="highlight-wrap" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">profiles</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">profile</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">id</span>&gt;</span>jdk-1.8<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">activation</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">activeByDefault</span>&gt;</span>true<span class="tag">&lt;/<span class="name">activeByDefault</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">jdk</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">jdk</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">activation</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">maven.compiler.compilerVersion</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">maven.compiler.compilerVersion</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">profile</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">profiles</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+
+<p>配置阿里镜像源</p>
+<div class="highlight-wrap" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mirrors</span>&gt;</span></span><br><span class="line">	 <span class="tag">&lt;<span class="name">mirror</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">id</span>&gt;</span>alimaven<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">name</span>&gt;</span>aliyun maven<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">url</span>&gt;</span>http://maven.aliyun.com/nexus/content/groups/public/<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">mirrorOf</span>&gt;</span>central<span class="tag">&lt;/<span class="name">mirrorOf</span>&gt;</span>       </span><br><span class="line">		<span class="tag">&lt;/<span class="name">mirror</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">mirrors</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220915154833152.png" data-caption="image-20220915154833152"><img src="/../images/Java/sql/image-20220915154833152.png" alt="image-20220915154833152"></a></p>
+<p>将配置的Maven适配到IDEA，<code>File -》 Settings -》 Build,Execution,Deployment -》 Maven</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220915172209445.png" data-caption="image-20220915172209445"><img src="/../images/Java/sql/image-20220915172209445.png" alt="image-20220915172209445"></a></p>
+<p>● IDEA配置JDK,<code>File -》 Project Structure -》 Project -》 Project SDK</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916103927914.png" data-caption="image-20220916103927914"><img src="/../images/Java/sql/image-20220916103927914.png" alt="image-20220916103927914"></a></p>
+<p>● IDEA 添加 pom.xml 文件为 Maven 文件,由于部署环境不一样，我们需先修改 pom.xml 文件部分内容，首先将<code>&lt;systemPath&gt;</code>中的 basedir 修改为 pom.basedir ，共四处</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916221526099.png" data-caption="image-20220916221526099"><img src="/../images/Java/sql/image-20220916221526099.png" alt="image-20220916221526099"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916221711148.png" data-caption="image-20220916221711148"><img src="/../images/Java/sql/image-20220916221711148.png" alt="image-20220916221711148"></a></p>
+<p>添加 plugin 版本号</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916221936799.png" data-caption="image-20220916221936799"><img src="/../images/Java/sql/image-20220916221936799.png" alt="image-20220916221936799"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916222014077.png" data-caption="image-20220916222014077"><img src="/../images/Java/sql/image-20220916222014077.png" alt="image-20220916222014077"></a></p>
+<p>● 导入数据至 <code>MYSQL</code> ,利用 <code>phpstudy</code> 导入程序数据库，注意由于数据库文件中有效时间填写为 <code>0000-00-00 00:00:00</code>，但 <code>timestamp</code> 有效时间在：<code>1970-01-01 00:00:00</code> 到 <code>2037-12-31 23:59:59</code>，所以需要将所有的 <code>0000-00-00 00:00:00</code> 修改为有效时间内，否则导入文件会报错。</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916102933090.png" data-caption="image-20220916102933090"><img src="/../images/Java/sql/image-20220916102933090.png" alt="image-20220916102933090"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916103017494.png" data-caption="image-20220916103017494"><img src="/../images/Java/sql/image-20220916103017494.png" alt="image-20220916103017494"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220917103535006.png" data-caption="image-20220917103535006"><img src="/../images/Java/sql/image-20220917103535006.png" alt="image-20220917103535006"></a></p>
+<p>注意数据库名必须与 <code>src/resources/project.properties</code> 相同，否则网站数据会缺失，按照以下操作避免出现错误</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916230200246.png" data-caption="image-20220916230200246"><img src="/../images/Java/sql/image-20220916230200246.png" alt="image-20220916230200246"></a></p>
+<p>导入数据</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916230305522.png" data-caption="image-20220916230305522"><img src="/../images/Java/sql/image-20220916230305522.png" alt="image-20220916230305522"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916230321871.png" data-caption="image-20220916230321871"><img src="/../images/Java/sql/image-20220916230321871.png" alt="image-20220916230321871"></a></p>
+<p>● 配置inxedu项目信息<code>src/resources/project.properties</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916233026648.png" data-caption="image-20220916233026648"><img src="/../images/Java/sql/image-20220916233026648.png" alt="image-20220916233026648"></a></p>
+<p>● 项目运行前，配置相关 Maven 信息,<code>File-》Project Settings -》Artifacts -》Web Application：Archive -》Empty</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916223854118.png" data-caption="image-20220916223854118"><img src="/../images/Java/sql/image-20220916223854118.png" alt="image-20220916223854118"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916224009296.png" data-caption="image-20220916224009296"><img src="/../images/Java/sql/image-20220916224009296.png" alt="image-20220916224009296"></a></p>
+<p>● 配置 <code>Run/Debug Configurations</code> ，配置 <code>Tomcat</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916223455798.png" data-caption="image-20220916223455798"><img src="/../images/Java/sql/image-20220916223455798.png" alt="image-20220916223455798"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916224207000.png" data-caption="image-20220916224207000"><img src="/../images/Java/sql/image-20220916224207000.png" alt="image-20220916224207000"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916224309538.png" data-caption="image-20220916224309538"><img src="/../images/Java/sql/image-20220916224309538.png" alt="image-20220916224309538"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916224349615.png" data-caption="image-20220916224349615"><img src="/../images/Java/sql/image-20220916224349615.png" alt="image-20220916224349615"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916224407884.png" data-caption="image-20220916224407884"><img src="/../images/Java/sql/image-20220916224407884.png" alt="image-20220916224407884"></a></p>
+<p>配置Maven</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916224841069.png" data-caption="image-20220916224841069"><img src="/../images/Java/sql/image-20220916224841069.png" alt="image-20220916224841069"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916225058940.png" data-caption="image-20220916225058940"><img src="/../images/Java/sql/image-20220916225058940.png" alt="image-20220916225058940"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916231424395.png" data-caption="image-20220916231424395"><img src="/../images/Java/sql/image-20220916231424395.png" alt="image-20220916231424395"></a></p>
+<p>注意，若在过程中出现报错，修改了相关配置，记得 <code>clean &amp;&amp; install</code> 清理一下缓存，否则 Run 会出现错误，网站无法起来。</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916233109842.png" data-caption="image-20220916233109842"><img src="/../images/Java/sql/image-20220916233109842.png" alt="image-20220916233109842"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916232156934.png" data-caption="image-20220916232156934"><img src="/../images/Java/sql/image-20220916232156934.png" alt="image-20220916232156934"></a></p>
+<br/>
+● 编译运行
+
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916224555430.png" data-caption="image-20220916224555430"><img src="/../images/Java/sql/image-20220916224555430.png" alt="image-20220916224555430"></a></p>
+<p>编译成功</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916224631034.png" data-caption="image-20220916224631034"><img src="/../images/Java/sql/image-20220916224631034.png" alt="image-20220916224631034"></a></p>
+<br/>
+● Run 启动网站，点击右上角运行符号运行，虽然有报错，但不影响运行
+
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916233227501.png" data-caption="image-20220916233227501"><img src="/../images/Java/sql/image-20220916233227501.png" alt="image-20220916233227501"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916233245750.png" data-caption="image-20220916233245750"><img src="/../images/Java/sql/image-20220916233245750.png" alt="image-20220916233245750"></a></p>
+<br/>
+
+<h5 id="3、审计开始"><a href="#3、审计开始" class="headerlink" title="3、审计开始"></a><code>3、审计开始</code></h5><figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+| 目录结构            |  作用                                                  |
+| ------------------ | -----------------------------------------------------  |
+| src/main/java      | java的代码目录                                          |
+| src/main/resources | 资源目录，存放一些配置文件，如properties、spring-mvc.xml等 |
+| src/main/webapp    | 传统项目的WebContent目录                                 |
+| target             | 编译后的文件                                             |
+</pre>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+<br/>
+
+<p>审计代码为 <code>scr</code> 目录下的代码，先查看其 <code>web.xml</code> ,分析其使用了哪些框架。 <code>web.xml</code> 提供了设置初始化参数的功能，开发者会将一些配置信息写到里面去，通读 <code>web.xml</code> 可以了解系统使用的框架等基本信息，有时候开发者还会把账号信息等情况写在里面。</p>
+<p>通过分析，该网站使用了 <code>SSM</code> 框架，即 <code>Spring+Spring Mvc+Mybatis</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916144233146.png" data-caption="image-20220916144233146"><img src="/../images/Java/sql/image-20220916144233146.png" alt="image-20220916144233146"></a></p>
+<p>查看其目录结构</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916144417442.png" data-caption="image-20220916144417442"><img src="/../images/Java/sql/image-20220916144417442.png" alt="image-20220916144417442"></a></p>
+<br/>
+
+<h5 id="4、审计SQL注入"><a href="#4、审计SQL注入" class="headerlink" title="4、审计SQL注入"></a><code>4、审计SQL注入</code></h5><p>文件清楚看到系统的结构，点开dao文件下的任意文件，看看Mybatis是使用了注解开发还是配置文件开发。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">注解开发：即可不使用任何的xml配置文件来开发java web，直接在代码中体现，不需要单独编写xml文件</span><br><span class="line">配置文件开发：编写xml配置文件来映射相应的代码</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>文件只定义了一些方法，并没有详细的Mybatis的注解，所以该 CMS 使用了 XML 配置方法</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916153458532.png" data-caption="image-20220916153458532"><img src="/../images/Java/sql/image-20220916153458532.png" alt="image-20220916153458532"></a></p>
+<p>寻找 XML 配置文件，XML 配置的映射文件会和 dao 的接口在同层目录下 <code>resource/mybatis/index/article</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916153744387.png" data-caption="image-20220916153744387"><img src="/../images/Java/sql/image-20220916153744387.png" alt="image-20220916153744387"></a></p>
+<p>根据上面的知识点可知，若使用了 <code>$&#123;&#125;</code> 则可能存在 SQL 注入，直接在 XML 配置文件寻找 <code>$</code> 符号，发现<code>deleteArticleByIds</code>使用了 <code>$&#123;&#125;</code>,符合上面知识点 in 参数后注入。</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916155038180.png" data-caption="image-20220916155038180"><img src="/../images/Java/sql/image-20220916155038180.png" alt="image-20220916155038180"></a></p>
+<p>dao文件夹找寻XML配置文件对应映射的 <code>deleteArticleByIds</code> 接口</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916155406997.png" data-caption="image-20220916155406997"><img src="/../images/Java/sql/image-20220916155406997.png" alt="image-20220916155406997"></a></p>
+<p>Ctrl + 鼠标左键选中 <code>deleteArticleByIds</code> 查看代码中哪些类调用了该方法，初步发现代码没有进行过滤处理</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916155943404.png" data-caption="image-20220916155943404"><img src="/../images/Java/sql/image-20220916155943404.png" alt="image-20220916155943404"></a></p>
+<p>跟进代码的 Controller（控制器），选择 <code>deleteArticleByIds</code> ，Ctrl+Alt+H快捷键去查询调用层次，去看Controller的位置</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916160453470.png" data-caption="image-20220916160453470"><img src="/../images/Java/sql/image-20220916160453470.png" alt="image-20220916160453470"></a></p>
+<p>查看 <code>Controller</code> 文件，寻找到目录路径为：<code>/admin/article</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916160956840.png" data-caption="image-20220916160956840"><img src="/../images/Java/sql/image-20220916160956840.png" alt="image-20220916160956840"></a></p>
+<p>查看具体调用位置,位置为：<code>/delete</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916161203467.png" data-caption="image-20220916161203467"><img src="/../images/Java/sql/image-20220916161203467.png" alt="image-20220916161203467"></a></p>
+<p>所以漏洞具体位置为： <code>http://192.168.114.131:82/admin/article/delete</code> , 访问后发现为后台注入，靶场密码为：<code>admin/111111</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220917105051989.png" data-caption="image-20220917105051989"><img src="/../images/Java/sql/image-20220917105051989.png" alt="image-20220917105051989"></a></p>
+<p>再次访问 <code>http://192.168.114.131:82/admin/article/delete</code> 网站页面自动跳转至下面以下链接<br><code>http://192.168.114.131:82/admin/article/showlist? </code>点击删除抓取数据包</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916163457592.png" data-caption="image-20220916163457592"><img src="/../images/Java/sql/image-20220916163457592.png" alt="image-20220916163457592"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916163649650.png" data-caption="image-20220916163649650"><img src="/../images/Java/sql/image-20220916163649650.png" alt="image-20220916163649650"></a></p>
+<p>通过sqlmap成功跑出数据，复现成功</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916164206987.png" data-caption="image-20220916164206987"><img src="/../images/Java/sql/image-20220916164206987.png" alt="image-20220916164206987"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/sql/image-20220916164227132.png" data-caption="image-20220916164227132"><img src="/../images/Java/sql/image-20220916164227132.png" alt="image-20220916164227132"></a></p>
+<h2 id="坑点"><a href="#坑点" class="headerlink" title="坑点"></a>坑点</h2><p>1、数据库名称必须为 <code>demo_inxedu_v2_0_open</code> ,否则会报错<br>2、IDEA 搭建网站中会出现各种报错无法进行下一步操作，当找到解决方案后，记得清理缓存<code>（clean &amp;&amp; install）</code>再 Run，否则会出现网站无法启动的情况<br>3、若 <code>phpstudy</code>创建 <code>demo_inxedu_v2_0_open</code> 数据库提示数据库已存在时，进入root数据库查看是否已经存在这个数据库，然后进行删除,再次导入即可</p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><code>https://github.com/j3ers3/Hello-Java-Sec</code><br><code>https://theoyu.top/2022/04/27/Java-Prepstatementared.html</code><br><code>https://www.cnblogs.com/nice0e3/p/13647511.html#0x01-jdbc-%E6%B3%A8%E5%85%A5%E5%88%86%E6%9E%90</code><br><code>https://mp.weixin.qq.com/s?__biz=MjM5OTk2MTMxOQ==&amp;mid=2727827368&amp;idx=1&amp;sn=765d0835f0069b5145523c31e8229850&amp;mpshare=1&amp;scene=1&amp;srcid=0926a6QC3pGbQ3Pznszb4n2q</code></p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#SQL-Injection-JDBC"><span class="toc-number">1.</span> <span class="toc-text">SQL Injection - JDBC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81PrepareStatement%E5%92%8CStatement%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.1.</span> <span class="toc-text">一、PrepareStatement和Statement的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%AE%80%E5%8D%95%E6%BC%8F%E6%B4%9E%E4%BE%8B%E5%AD%90"><span class="toc-number">1.2.</span> <span class="toc-text">二、简单漏洞例子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%BC%8F%E6%B4%9E%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.3.</span> <span class="toc-text">三、漏洞类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%B0%8F%E7%BB%93"><span class="toc-number">1.4.</span> <span class="toc-text">四、小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SQL-Injection-MyBatis%E6%A1%86%E6%9E%B6"><span class="toc-number">2.</span> <span class="toc-text">SQL Injection - MyBatis框架</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81Mybatis%E7%89%B9%E6%80%A7"><span class="toc-number">2.1.</span> <span class="toc-text">一、Mybatis特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%BC%8F%E6%B4%9E%E7%B1%BB%E5%9E%8B"><span class="toc-number">2.2.</span> <span class="toc-text">二、漏洞类型</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1%E3%80%81like%E6%B3%A8%E5%85%A5"><span class="toc-number">2.2.0.1.</span> <span class="toc-text">1、like注入</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2%E3%80%81in%E5%90%8E%E7%9A%84%E5%8F%82%E6%95%B0%E6%B3%A8%E5%85%A5"><span class="toc-number">2.2.0.2.</span> <span class="toc-text">2、in后的参数注入</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3%E3%80%81order-by-%E6%B3%A8%E5%85%A5"><span class="toc-number">2.2.0.3.</span> <span class="toc-text">3、order by 注入</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E9%9D%B6%E5%9C%BA%E5%AD%A6%E4%B9%A0"><span class="toc-number">2.3.</span> <span class="toc-text">三、靶场学习</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1%E3%80%81%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">2.3.0.1.</span> <span class="toc-text">1、环境搭建</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2%E3%80%81IDEA%E6%90%AD%E5%BB%BA%E7%BD%91%E7%AB%99"><span class="toc-number">2.3.0.2.</span> <span class="toc-text">2、IDEA搭建网站</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3%E3%80%81%E5%AE%A1%E8%AE%A1%E5%BC%80%E5%A7%8B"><span class="toc-number">2.3.0.3.</span> <span class="toc-text">3、审计开始</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#4%E3%80%81%E5%AE%A1%E8%AE%A1SQL%E6%B3%A8%E5%85%A5"><span class="toc-number">2.3.0.4.</span> <span class="toc-text">4、审计SQL注入</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9D%91%E7%82%B9"><span class="toc-number">3.</span> <span class="toc-text">坑点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">4.</span> <span class="toc-text">参考文章</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&text=Java代码审计(一)-SQL注入"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&title=Java代码审计(一)-SQL注入"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&is_video=false&description=Java代码审计(一)-SQL注入"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Java代码审计(一)-SQL注入&body=Check out this article: http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&title=Java代码审计(一)-SQL注入"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&title=Java代码审计(一)-SQL注入"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&title=Java代码审计(一)-SQL注入"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&title=Java代码审计(一)-SQL注入"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&name=Java代码审计(一)-SQL注入&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/&t=Java代码审计(一)-SQL注入"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

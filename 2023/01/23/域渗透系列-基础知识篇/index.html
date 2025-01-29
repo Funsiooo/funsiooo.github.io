@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、基本协议Kerberos 认证协议Kerberos 基于票据的身份认证方式，并非密码认证。客户端想要访问服务端的某个应用必须通过 Kerberos 进行票据身份认证。其主要由客户端（Client）、服务端（Server）、提供认证服务的KDC（Key Distribution Center）三部分组成 LDAP 协议LDAP 的全称是 Lightweight Directory Access">
+<meta property="og:type" content="article">
+<meta property="og:title" content="域渗透系列-基础知识篇">
+<meta property="og:url" content="http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、基本协议Kerberos 认证协议Kerberos 基于票据的身份认证方式，并非密码认证。客户端想要访问服务端的某个应用必须通过 Kerberos 进行票据身份认证。其主要由客户端（Client）、服务端（Server）、提供认证服务的KDC（Key Distribution Center）三部分组成 LDAP 协议LDAP 的全称是 Lightweight Directory Access">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/domain/basics/image-20230118124720467.png">
+<meta property="og:image" content="http://example.com/images/domain/basics/image-20230118125139516.png">
+<meta property="article:published_time" content="2023-01-23T12:59:14.000Z">
+<meta property="article:modified_time" content="2023-01-27T11:17:44.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="基础知识">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/domain/basics/image-20230118124720467.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>域渗透系列-基础知识篇</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/01/24/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%9F%E5%86%85%E7%94%A8%E6%88%B7%E5%90%8D%E6%9E%9A%E4%B8%BE%E5%8F%8A%E5%AF%86%E7%A0%81%E5%96%B7%E6%B4%92/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&text=域渗透系列-基础知识篇"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&title=域渗透系列-基础知识篇"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&is_video=false&description=域渗透系列-基础知识篇"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=域渗透系列-基础知识篇&body=Check out this article: http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&title=域渗透系列-基础知识篇"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&title=域渗透系列-基础知识篇"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&title=域渗透系列-基础知识篇"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&title=域渗透系列-基础知识篇"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&name=域渗透系列-基础知识篇&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&t=域渗透系列-基础知识篇"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E6%9C%AC%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.</span> <span class="toc-text">一、基本协议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Kerberos-%E8%AE%A4%E8%AF%81%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.1.</span> <span class="toc-text">Kerberos 认证协议</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LDAP-%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.2.</span> <span class="toc-text">LDAP 协议</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NTLM-%E8%AE%A4%E8%AF%81%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.3.</span> <span class="toc-text">NTLM 认证协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%9F%9F%E5%88%9D%E8%AF%86"><span class="toc-number">2.</span> <span class="toc-text">二、域初识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AD%EF%BC%88Active-Directory%EF%BC%8C%E6%B4%BB%E5%8A%A8%E7%9B%AE%E5%BD%95%EF%BC%89"><span class="toc-number">2.1.</span> <span class="toc-text">AD（Active Directory，活动目录）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ADDS%EF%BC%88Active-Directory-Domain-Service%EF%BC%8C%E6%B4%BB%E5%8A%A8%E7%9B%AE%E5%BD%95%E5%9F%9F%E6%9C%8D%E5%8A%A1%EF%BC%89"><span class="toc-number">2.2.</span> <span class="toc-text">ADDS（Active Directory Domain Service，活动目录域服务）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DC%EF%BC%88%E5%9F%9F%E6%8E%A7%E5%88%B6%E5%99%A8%EF%BC%8CDomain-Controller%EF%BC%89"><span class="toc-number">2.3.</span> <span class="toc-text">DC（域控制器，Domain Controller）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%B7%A5%E4%BD%9C%E7%BB%84%E5%92%8C%E5%9F%9F"><span class="toc-number">3.</span> <span class="toc-text">三、工作组和域</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E7%BB%84%EF%BC%88work-group%EF%BC%89"><span class="toc-number">3.1.</span> <span class="toc-text">工作组（work group）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%EF%BC%88domain%EF%BC%89"><span class="toc-number">3.2.</span> <span class="toc-text">域（domain）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%9F%9F%E4%BF%A1%E4%BB%BB"><span class="toc-number">4.</span> <span class="toc-text">四、域信任</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%9C%AC%E5%9C%B0%E8%B4%A6%E5%8F%B7%E5%92%8C%E6%B4%BB%E5%8A%A8%E7%9B%AE%E5%BD%95%E8%B4%A6%E5%8F%B7"><span class="toc-number">5.</span> <span class="toc-text">五、本地账号和活动目录账号</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Administrator"><span class="toc-number">5.1.</span> <span class="toc-text">Administrator</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Guest"><span class="toc-number">5.2.</span> <span class="toc-text">Guest</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DefaultAcount"><span class="toc-number">5.3.</span> <span class="toc-text">DefaultAcount</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WDAGUtilityAccount"><span class="toc-number">5.4.</span> <span class="toc-text">WDAGUtilityAccount</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%9C%AC%E5%9C%B0%E7%BB%84%E5%92%8C%E5%9F%9F%E7%BB%84"><span class="toc-number">6.</span> <span class="toc-text">六、本地组和域组</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E7%BB%84"><span class="toc-number">6.1.</span> <span class="toc-text">本地组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E7%BB%84"><span class="toc-number">6.2.</span> <span class="toc-text">域组</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%9F%9F%E4%B8%AD%E7%9A%84%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%E5%88%97%E8%A1%A8%EF%BC%88ACL%EF%BC%89"><span class="toc-number">7.</span> <span class="toc-text">七、域中的访问控制列表（ACL）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">8.</span> <span class="toc-text">八、参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        域渗透系列-基础知识篇
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-01-23T12:59:14.000Z" itemprop="datePublished">2023-01-23</time>
+        
+        (Updated: <time datetime="2023-01-27T11:17:44.000Z" itemprop="dateModified">2023-01-27</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97/">域渗透系列</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag">基础知识</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、基本协议"><a href="#一、基本协议" class="headerlink" title="一、基本协议"></a>一、基本协议</h2><h3 id="Kerberos-认证协议"><a href="#Kerberos-认证协议" class="headerlink" title="Kerberos 认证协议"></a>Kerberos 认证协议</h3><p>Kerberos 基于票据的身份认证方式，并非密码认证。客户端想要访问服务端的某个应用必须通过 Kerberos 进行票据身份认证。其主要由客户端（Client）、服务端（Server）、提供认证服务的KDC（Key Distribution Center）三部分组成</p>
+<h3 id="LDAP-协议"><a href="#LDAP-协议" class="headerlink" title="LDAP 协议"></a>LDAP 协议</h3><p>LDAP 的全称是 Lightweight Directory Access Protocol，轻量目录访问协议。 LDAP 约定了 Client 与 Server 之间的信息交互格式、使用的端口号、认证方式等内，通常将信息以树形方式存储，一个对象可以有多个子对象，这样的结构叫作 DIT（目录信息树），大多数WEB应用使用统一身份认证时，通常使用LDAP作为支撑，保证了用户身份认证存储。</p>
+<h3 id="NTLM-认证协议"><a href="#NTLM-认证协议" class="headerlink" title="NTLM 认证协议"></a>NTLM 认证协议</h3><p>NTLM 协议为微软用于Windows身份认证的主要协议之一，NTML 既可以用于工作组中的机器身份验证，也可用于域环境的身份认证。</p>
+<p>NTLM Hash 加密算法，是微软为提高安全性的同时保证兼容性而设计的散列加密算法，基于MD4加密算法进行加密。Windows Vista 和 Windows Server 2008开始，只存储 NTLM Hash。</p>
+<p>NTLM Hash 加密流程为，<strong>用户密码-》十六进制-》Unicode编码-》MD4单向Hash加密</strong></p>
+<p>NTLM Hash 存储位置，用户密码经 NTLM Hash 加密后存储在：<strong>C:\Windwos\system32\config\SAM</strong>，用户输入密码进行认证过程：<strong>用户输入密码-》系统将密码转换为NTLM Hash 与 SAM 文件中的 NTLM Hash 进行比较</strong>。当用户注销、重启、锁屏后，winlogon.exe 显示登录界面（输入框），当winlogon.exe 接收输入后会将密码交给 lsass.exe 进程，lsass.exe 进程会存一份明文密码，然后将明文密码加密成NTLM Hash 与 SAM 文件进行比较认证。这也是我们常听到的利用 mmikatz 从 lsass.exe 进程抓取明文密码或Hash 密码。</p>
+<h2 id="二、域初识"><a href="#二、域初识" class="headerlink" title="二、域初识"></a>二、域初识</h2><h3 id="AD（Active-Directory，活动目录）"><a href="#AD（Active-Directory，活动目录）" class="headerlink" title="AD（Active Directory，活动目录）"></a>AD（Active Directory，活动目录）</h3><p>AD（Active Directory，活动目录）为微软对通用目录服务器数据库的实现。活动目录使用 LDAP 作为其主要访问协议，存储着有关网络中各种对象的信息，如用户账号、计算机账号、组、Kerberos使用的所以有关凭据等，以便管理员和用户查找和使用这些信息。</p>
+<h3 id="ADDS（Active-Directory-Domain-Service，活动目录域服务）"><a href="#ADDS（Active-Directory-Domain-Service，活动目录域服务）" class="headerlink" title="ADDS（Active Directory Domain Service，活动目录域服务）"></a>ADDS（Active Directory Domain Service，活动目录域服务）</h3><p>ADDS（Active Directory Domain Service，活动目录域服务），活动目录可以作为活动目录域服务或活动目录轻型目录服务（ADDS）部署。</p>
+<h3 id="DC（域控制器，Domain-Controller）"><a href="#DC（域控制器，Domain-Controller）" class="headerlink" title="DC（域控制器，Domain Controller）"></a>DC（域控制器，Domain Controller）</h3><p>域控制器中包含了由这个域的账户、密码、属于这个域的计算机等信息构成的数据库。当电脑联入网络时，域控制器首先要鉴别这台电脑是否是属于这个域的，用户使用的登录账号是否存在、密码是否正确。如果以上信息有一样不正确，那么域控制器就会拒绝这个用户从这台电脑登录。不能登录，用户就不能访问服务器上有权限保护的资源，他只能以对等网用户的方式访问Windows共享出来的资源，这样就在一定程度上保护了网络上的资源。</p>
+<h2 id="三、工作组和域"><a href="#三、工作组和域" class="headerlink" title="三、工作组和域"></a>三、工作组和域</h2><h3 id="工作组（work-group）"><a href="#工作组（work-group）" class="headerlink" title="工作组（work group）"></a>工作组（work group）</h3><p>工作组（Work Group），将同一网络下的计算机分成不同的组，如：技术部、财务部、会计部。大部分中小企业会采取工作组的方式对资源进行权限分配和目录共享。优点就是资源可随机和灵活地分布，便于资源共享，缺点就是缺乏集中管理控制的机制，没有集中的统一账号管理，只适合小规模使用。</p>
+<h3 id="域（domain）"><a href="#域（domain）" class="headerlink" title="域（domain）"></a>域（domain）</h3><p>域（Domain）微软为集中管理计算机推出的一种方式，其中域中的所有用户账号、计算机、打印机和其他安全主体都在域控的中央数据库中注册。在域内使用的计算器中，每个用户有一个唯一的用户账号，管理员可以为这些账号分配访问域内资源的权限。可以理解为升级版的工作组。</p>
+<p>单域：所有计算机加入一个域中</p>
+<p>域树：多个域通过建立信任关系组成的集合。一个域管理员只能管理本域的内部，不能访问或者管理其他的域，两个域之间访问需要建立信任关系。域树内父域与子域之间可按需相互进行管理，还可以跨网分配文件，使不同域之间实现网络资源共享与管理。</p>
+<p>域林：域林是指由一个或多个没有形成连续名字空间的域树组成，它与域树最明显的区别就在于域林之间没有形成连续的名字空间，而域树则是由一些具有连续名字空间的域组成。但域林中的所有域树仍共享同一个表结构、配置和全局目录。域林中的所有域树通过 Kerberos 信任关系建立起来，所以每个域树都知道Kerberos信任关系，不同域树可以交叉引用其他域树中的对象。域林都有根域，域林的根域是域林中创建的第一个域，域林中所有域树的根域与域林的根域建立可传递的信任关系。</p>
+<h2 id="四、域信任"><a href="#四、域信任" class="headerlink" title="四、域信任"></a>四、域信任</h2><p>域信任（Domain Trust）是为了解决多域环境下的跨域资源共享问题而诞生的。一个域之间必须拥有信任关系才可以互相访问到对方域内的资源。因此信任工作是通过 Kerberos 协议来完成的，因此也被称为 Kerberos Trust。</p>
+<h2 id="五、本地账号和活动目录账号"><a href="#五、本地账号和活动目录账号" class="headerlink" title="五、本地账号和活动目录账号"></a>五、本地账号和活动目录账号</h2><p>本地账户（Local Acount）存储在本地的服务器上。这些账户可以在本地服务器上分配权限，但只能在该服务器上进行分配。默认的本地账户是内置账户（如Administrator、Guest），在安装Windows时自动创建，无法进行删除。默认的本地账户不提供对网络资源的访问，根据分配给该账户的权限来管理对本地服务器资源的访问。默认的本地账户和后期创建的本地账户都位于“用户”文件夹中。</p>
+<p><a data-fancybox="gallery" data-src="/../images/domain/basics/image-20230118124720467.png" data-caption="image-20230118124720467"><img src="/../images/domain/basics/image-20230118124720467.png" alt="image-20230118124720467"></a></p>
+<h3 id="Administrator"><a href="#Administrator" class="headerlink" title="Administrator"></a>Administrator</h3><p>Windows 安装时自动创建 Administrator 账户，该账户为默认的本地管理员账号，在本地管理员组 Administrators 中，该账户可以完全控制服务器，并根据需要向用户分配用户权限和访问控制权限，每台 Windows 计算机都有该账户，不能作删除或锁定默认的 Administrator 账户，但可重名或禁用它。在更高的 Windows 系统中，Windows默认禁用内置的管理员账户Administrator，并创建管理员组 Administrators 成员的另一本地账户。若想激活 Administrator 账户可以通过管理员权限执行命令：<strong>net user Administrator &#x2F;active:yes</strong></p>
+<h3 id="Guest"><a href="#Guest" class="headerlink" title="Guest"></a>Guest</h3><p>Windows安装过程中创建 Guest 账户，默认禁用。Guest 账户允许在计算机上没有账户的用户临时登录本地服务器或客户端计算机，Guest账户密码默认为空。</p>
+<h3 id="DefaultAcount"><a href="#DefaultAcount" class="headerlink" title="DefaultAcount"></a>DefaultAcount</h3><p>DefaultAcount 称为默认系统管理账户DSMA，该账户在 Windows 10 版本1607和 Windwos Server 2016中引入的内置账户，是一个用户中立账户，可以运行多用户感知或与用户无关的进程，默认禁用。</p>
+<h3 id="WDAGUtilityAccount"><a href="#WDAGUtilityAccount" class="headerlink" title="WDAGUtilityAccount"></a>WDAGUtilityAccount</h3><p>WDAGUtilityAccount 账户为 Windows Defender 应用程序防护方案管理和使用的用户账户，该账户是在 Windows 10 版本 1709 和 Windows Server 2019 中引入的内置账号，默认禁用。</p>
+<h2 id="六、本地组和域组"><a href="#六、本地组和域组" class="headerlink" title="六、本地组和域组"></a>六、本地组和域组</h2><h3 id="本地组"><a href="#本地组" class="headerlink" title="本地组"></a>本地组</h3><p>当计算机安装完成后，自动默认创建本地组，CMD 执行命令 <strong>net localgroup</strong> 可查询本机上的本地组情况。属于本地组的用户具有本地计算机上执行的各种任务的权限和能力。</p>
+<p><a data-fancybox="gallery" data-src="/../images/domain/basics/image-20230118125139516.png" data-caption="image-20230118125139516"><img src="/../images/domain/basics/image-20230118125139516.png" alt="image-20230118125139516"></a></p>
+<h3 id="域组"><a href="#域组" class="headerlink" title="域组"></a>域组</h3><p>域组用于将用户账户、计算机账户和其他组收集到可管理的单元中，对组进行管理。</p>
+<h2 id="七、域中的访问控制列表（ACL）"><a href="#七、域中的访问控制列表（ACL）" class="headerlink" title="七、域中的访问控制列表（ACL）"></a>七、域中的访问控制列表（ACL）</h2><p>访问控制列表（ACL）由一系列访问控制条目组成，用于定义安全对象的访问策略。</p>
+<h2 id="八、参考"><a href="#八、参考" class="headerlink" title="八、参考"></a>八、参考</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">书籍《域渗透攻防指南》</span><br></pre></td></tr></table></figure></div>
+
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E6%9C%AC%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.</span> <span class="toc-text">一、基本协议</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Kerberos-%E8%AE%A4%E8%AF%81%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.1.</span> <span class="toc-text">Kerberos 认证协议</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LDAP-%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.2.</span> <span class="toc-text">LDAP 协议</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NTLM-%E8%AE%A4%E8%AF%81%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.3.</span> <span class="toc-text">NTLM 认证协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%9F%9F%E5%88%9D%E8%AF%86"><span class="toc-number">2.</span> <span class="toc-text">二、域初识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AD%EF%BC%88Active-Directory%EF%BC%8C%E6%B4%BB%E5%8A%A8%E7%9B%AE%E5%BD%95%EF%BC%89"><span class="toc-number">2.1.</span> <span class="toc-text">AD（Active Directory，活动目录）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ADDS%EF%BC%88Active-Directory-Domain-Service%EF%BC%8C%E6%B4%BB%E5%8A%A8%E7%9B%AE%E5%BD%95%E5%9F%9F%E6%9C%8D%E5%8A%A1%EF%BC%89"><span class="toc-number">2.2.</span> <span class="toc-text">ADDS（Active Directory Domain Service，活动目录域服务）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DC%EF%BC%88%E5%9F%9F%E6%8E%A7%E5%88%B6%E5%99%A8%EF%BC%8CDomain-Controller%EF%BC%89"><span class="toc-number">2.3.</span> <span class="toc-text">DC（域控制器，Domain Controller）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%B7%A5%E4%BD%9C%E7%BB%84%E5%92%8C%E5%9F%9F"><span class="toc-number">3.</span> <span class="toc-text">三、工作组和域</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E7%BB%84%EF%BC%88work-group%EF%BC%89"><span class="toc-number">3.1.</span> <span class="toc-text">工作组（work group）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%EF%BC%88domain%EF%BC%89"><span class="toc-number">3.2.</span> <span class="toc-text">域（domain）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%9F%9F%E4%BF%A1%E4%BB%BB"><span class="toc-number">4.</span> <span class="toc-text">四、域信任</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%9C%AC%E5%9C%B0%E8%B4%A6%E5%8F%B7%E5%92%8C%E6%B4%BB%E5%8A%A8%E7%9B%AE%E5%BD%95%E8%B4%A6%E5%8F%B7"><span class="toc-number">5.</span> <span class="toc-text">五、本地账号和活动目录账号</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Administrator"><span class="toc-number">5.1.</span> <span class="toc-text">Administrator</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Guest"><span class="toc-number">5.2.</span> <span class="toc-text">Guest</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DefaultAcount"><span class="toc-number">5.3.</span> <span class="toc-text">DefaultAcount</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WDAGUtilityAccount"><span class="toc-number">5.4.</span> <span class="toc-text">WDAGUtilityAccount</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E6%9C%AC%E5%9C%B0%E7%BB%84%E5%92%8C%E5%9F%9F%E7%BB%84"><span class="toc-number">6.</span> <span class="toc-text">六、本地组和域组</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E7%BB%84"><span class="toc-number">6.1.</span> <span class="toc-text">本地组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E7%BB%84"><span class="toc-number">6.2.</span> <span class="toc-text">域组</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%83%E3%80%81%E5%9F%9F%E4%B8%AD%E7%9A%84%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%E5%88%97%E8%A1%A8%EF%BC%88ACL%EF%BC%89"><span class="toc-number">7.</span> <span class="toc-text">七、域中的访问控制列表（ACL）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AB%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">8.</span> <span class="toc-text">八、参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&text=域渗透系列-基础知识篇"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&title=域渗透系列-基础知识篇"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&is_video=false&description=域渗透系列-基础知识篇"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=域渗透系列-基础知识篇&body=Check out this article: http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&title=域渗透系列-基础知识篇"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&title=域渗透系列-基础知识篇"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&title=域渗透系列-基础知识篇"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&title=域渗透系列-基础知识篇"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&name=域渗透系列-基础知识篇&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/&t=域渗透系列-基础知识篇"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="SMB Beacon 简介派生 SMB Beacon，Cobastrike 内网横向渗透扩展功能，Windows 将命名管道通信封装在 SMB 协议中，此流量封装在SMB协议中，所以SMB beacon相对隐蔽，能最大程度规避安全设备及防火墙的发现。SMB Beacon 使用命名管道通过父级 Beacon 进行通讯，当两个Beacons链接后，子Beacon从父Beacon获取到任务并发送。这种对">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cobaltstrike-派生SMB_Beacon">
+<meta property="og:url" content="http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="SMB Beacon 简介派生 SMB Beacon，Cobastrike 内网横向渗透扩展功能，Windows 将命名管道通信封装在 SMB 协议中，此流量封装在SMB协议中，所以SMB beacon相对隐蔽，能最大程度规避安全设备及防火墙的发现。SMB Beacon 使用命名管道通过父级 Beacon 进行通讯，当两个Beacons链接后，子Beacon从父Beacon获取到任务并发送。这种对">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/Beacon/1.png">
+<meta property="og:image" content="http://example.com/images/Beacon/2.png">
+<meta property="og:image" content="http://example.com/images/Beacon/3.png">
+<meta property="og:image" content="http://example.com/images/Beacon/4.png">
+<meta property="og:image" content="http://example.com/images/Beacon/5.png">
+<meta property="og:image" content="http://example.com/images/Beacon/6.png">
+<meta property="og:image" content="http://example.com/images/Beacon/7.png">
+<meta property="article:published_time" content="2022-09-03T06:33:52.000Z">
+<meta property="article:modified_time" content="2022-10-16T14:34:42.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="CobaltStrike">
+<meta property="article:tag" content="工具使用">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/Beacon/1.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>Cobaltstrike-派生SMB_Beacon</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/09/03/%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5%E8%A1%A8--%E9%95%BF%E6%9C%9F%E6%9B%B4%E6%96%B0/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/09/02/Fastjson-1-2-47%E6%BC%8F%E6%B4%9E%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E5%8F%8A%E5%A4%8D%E7%8E%B0/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&text=Cobaltstrike-派生SMB_Beacon"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&title=Cobaltstrike-派生SMB_Beacon"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&is_video=false&description=Cobaltstrike-派生SMB_Beacon"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Cobaltstrike-派生SMB_Beacon&body=Check out this article: http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&title=Cobaltstrike-派生SMB_Beacon"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&title=Cobaltstrike-派生SMB_Beacon"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&title=Cobaltstrike-派生SMB_Beacon"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&title=Cobaltstrike-派生SMB_Beacon"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&name=Cobaltstrike-派生SMB_Beacon&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&t=Cobaltstrike-派生SMB_Beacon"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#SMB-Beacon-%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">SMB Beacon 简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E8%A6%81%E6%B1%82"><span class="toc-number">2.</span> <span class="toc-text">使用要求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B4%BE%E7%94%9F-SMB-Beacon"><span class="toc-number">3.</span> <span class="toc-text">派生 SMB Beacon</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%A2%E4%BC%99%E5%8D%8F%E4%BD%9C-%EF%BC%88%E5%A4%B1%E8%B4%A5%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">团伙协作-（失败）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">5.</span> <span class="toc-text">参考文章</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Cobaltstrike-派生SMB_Beacon
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-09-03T06:33:52.000Z" itemprop="datePublished">2022-09-03</time>
+        
+        (Updated: <time datetime="2022-10-16T14:34:42.000Z" itemprop="dateModified">2022-10-16</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/">工具使用</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/CobaltStrike/" rel="tag">CobaltStrike</a>, <a class="tag-link-link" href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" rel="tag">工具使用</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="SMB-Beacon-简介"><a href="#SMB-Beacon-简介" class="headerlink" title="SMB Beacon 简介"></a>SMB Beacon 简介</h2><p>派生 SMB Beacon，Cobastrike 内网横向渗透扩展功能，Windows 将命名管道通信封装在 SMB 协议中，此流量封装在SMB协议中，所以SMB beacon相对隐蔽，能最大程度规避安全设备及防火墙的发现。SMB Beacon 使用命名管道通过父级 Beacon 进行通讯，当两个Beacons链接后，子Beacon从父Beacon获取到任务并发送。这种对等通信对同一台主机上的 Beacon 和跨网络的 Beacon 都有效，即 SMB Beacon 通过管道（ pipe）进行进程间的数据传递。管道通信的进程可以是本地主机上的两个进程，也可以和远程主机上的进程通过网络进行通信。SMB beacon不能直接生成可用载荷, 只能使用 PsExec 或 Stageless Payload 上线。</p>
+<p><a data-fancybox="gallery" data-src="/../images/Beacon/1.png" data-caption="3.1"><img src="/../images/Beacon/1.png" alt="3.1"></a></p>
+<h2 id="使用要求"><a href="#使用要求" class="headerlink" title="使用要求"></a>使用要求</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">具有SMB Beacon的主机必须接受端口445上的连接。</span><br><span class="line">只能链接由同一Cobalt Strike实例管理的Beacon。</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="派生-SMB-Beacon"><a href="#派生-SMB-Beacon" class="headerlink" title="派生 SMB Beacon"></a>派生 SMB Beacon</h2><p>1、通过前期打点，已上线CS，获取beacon</p>
+<p><a data-fancybox="gallery" data-src="/../images/Beacon/2.png" data-caption="image-20220903110750284"><img src="/../images/Beacon/2.png" alt="image-20220903110750284"></a></p>
+<p>2、派生SMB Beacon</p>
+<p>新建SMB Beacon 监听器</p>
+<p><a data-fancybox="gallery" data-src="/../images/Beacon/3.png" data-caption="image-20220903110819958"><img src="/../images/Beacon/3.png" alt="image-20220903110819958"></a></p>
+<p>派生会话SMB Beacon，个人习惯首先sleep 0，右键选中HTTP监听器上线的主机，interact进入Beacon控制台，输入spawn加SMB Beacon的监听器名称，刚新建名称为SMB，所以执行<code>spawn SMB</code>，运行成功后在external中可以看到IP后有个<code>∞∞</code>字符的派生SMB Beacon。</p>
+<p><a data-fancybox="gallery" data-src="/../images/Beacon/4.png" data-caption="image-20220902223114325"><img src="/../images/Beacon/4.png" alt="image-20220902223114325"></a></p>
+<p>此时派生Beacon可同父Beacon一样执行命令</p>
+<p><a data-fancybox="gallery" data-src="/../images/Beacon/5.png" data-caption="image-20220903112356439"><img src="/../images/Beacon/5.png" alt="image-20220903112356439"></a></p>
+<h2 id="团伙协作-（失败）"><a href="#团伙协作-（失败）" class="headerlink" title="团伙协作-（失败）"></a>团伙协作-（失败）</h2><p>主从服务器 派生 到队伍服务器。SMB Beacon可派生多个Beacon，可独立派生Beacon给团队每一位成员，且Beacon在各自的服务器上，互不影响。即从主从服务器派生到队伍服务器</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">队友服务器 Listen 生成 &gt; 团队服务器 Listen 生成 使用队友IP &gt; Spawn</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/Beacon/6.png" data-caption="image-20220903113550312"><img src="/../images/Beacon/6.png" alt="image-20220903113550312"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Beacon/7.png" data-caption="image-20220903113820361"><img src="/../images/Beacon/7.png" alt="image-20220903113820361"></a></p>
+<p>很遗憾，这一步参考了很多文章都无法实现，后补…..</p>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">https://blog.csdn.net/q20010619/article/details/121755856</span><br><span class="line">http://www.luckyzmj.cn/posts/35eac48c.html</span><br><span class="line">https://www.cnblogs.com/f-carey/p/15844629.html#tid-z8j5nK</span><br><span class="line">http://blog.leanote.com/cate/snowming/Cobalt-Strike</span><br><span class="line">http://blog.leanote.com/post/snowming/2ec80f7823e0</span><br><span class="line">https://github.com/aleenzz/Cobalt_Strike_wiki/blob/master/%E7%AC%AC%E4%B8%89%E8%8A%82%5BSMB%20Beacon%5D.md</span><br><span class="line">https://apt404.github.io/2017/12/29/cobalt-strike-spawn/</span><br><span class="line">http://blog.leanote.com/post/snowming/de88219734d1</span><br></pre></td></tr></table></figure></div>
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#SMB-Beacon-%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">SMB Beacon 简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E8%A6%81%E6%B1%82"><span class="toc-number">2.</span> <span class="toc-text">使用要求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B4%BE%E7%94%9F-SMB-Beacon"><span class="toc-number">3.</span> <span class="toc-text">派生 SMB Beacon</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%A2%E4%BC%99%E5%8D%8F%E4%BD%9C-%EF%BC%88%E5%A4%B1%E8%B4%A5%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">团伙协作-（失败）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">5.</span> <span class="toc-text">参考文章</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&text=Cobaltstrike-派生SMB_Beacon"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&title=Cobaltstrike-派生SMB_Beacon"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&is_video=false&description=Cobaltstrike-派生SMB_Beacon"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Cobaltstrike-派生SMB_Beacon&body=Check out this article: http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&title=Cobaltstrike-派生SMB_Beacon"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&title=Cobaltstrike-派生SMB_Beacon"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&title=Cobaltstrike-派生SMB_Beacon"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&title=Cobaltstrike-派生SMB_Beacon"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&name=Cobaltstrike-派生SMB_Beacon&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/09/03/Cobaltstrike-%E6%B4%BE%E7%94%9FSMB-Beacon/&t=Cobaltstrike-派生SMB_Beacon"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

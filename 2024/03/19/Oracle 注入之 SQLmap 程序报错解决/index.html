@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、前言文章实际价值并不高，测试手法也是经常使用的手法，其主要是为了提醒自己，当在遇到无法解决的问题时，多尝试其它的思路，遇到问题，解决问题，对任何事物保持开阔的思路。 二、问题发现前段时间在测试中发现一个注入点，老选手单引号报错，双单引号闭合。   三、测试过程于是乎 sqlmap 启动，可惜 Sqlmap 普通命令跑无法跑出数据表，得知数据库为 Oracle，报错 unable to retr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle 注入之 SQLmap 程序报错解决">
+<meta property="og:url" content="http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、前言文章实际价值并不高，测试手法也是经常使用的手法，其主要是为了提醒自己，当在遇到无法解决的问题时，多尝试其它的思路，遇到问题，解决问题，对任何事物保持开阔的思路。 二、问题发现前段时间在测试中发现一个注入点，老选手单引号报错，双单引号闭合。   三、测试过程于是乎 sqlmap 启动，可惜 Sqlmap 普通命令跑无法跑出数据表，得知数据库为 Oracle，报错 unable to retr">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/injection/oracle/sql-1.png">
+<meta property="og:image" content="http://example.com/images/injection/oracle/sql-2.png">
+<meta property="og:image" content="http://example.com/images/injection/oracle/sql-3.png">
+<meta property="og:image" content="http://example.com/images/injection/oracle/image-20240319162213334.png">
+<meta property="og:image" content="http://example.com/images/injection/oracle/image-20240319162615060.png">
+<meta property="og:image" content="http://example.com/images/injection/oracle/image-20240319162705626.png">
+<meta property="og:image" content="http://example.com/images/injection/oracle/image-20240319164556948.png">
+<meta property="article:published_time" content="2024-03-19T09:03:32.000Z">
+<meta property="article:modified_time" content="2024-03-19T12:09:12.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="SQLMAP">
+<meta property="article:tag" content="ORACLE">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/injection/oracle/sql-1.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>Oracle 注入之 SQLmap 程序报错解决</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2025/01/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-%E7%BB%95%E8%BF%87%20TracerPID%20%E6%A3%80%E6%B5%8B%20Hook%20%E5%8A%A0%E5%AF%86%E6%95%B0%E6%8D%AE/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/03/19/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-APP%E6%B5%8B%E8%AF%95%E8%BF%87%E7%A8%8B%E6%8A%93%E5%8C%85%E5%B0%8F%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&text=Oracle 注入之 SQLmap 程序报错解决"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&title=Oracle 注入之 SQLmap 程序报错解决"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&is_video=false&description=Oracle 注入之 SQLmap 程序报错解决"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Oracle 注入之 SQLmap 程序报错解决&body=Check out this article: http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&title=Oracle 注入之 SQLmap 程序报错解决"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&title=Oracle 注入之 SQLmap 程序报错解决"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&title=Oracle 注入之 SQLmap 程序报错解决"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&title=Oracle 注入之 SQLmap 程序报错解决"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&name=Oracle 注入之 SQLmap 程序报错解决&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&t=Oracle 注入之 SQLmap 程序报错解决"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%97%AE%E9%A2%98%E5%8F%91%E7%8E%B0"><span class="toc-number">2.</span> <span class="toc-text">二、问题发现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%B5%8B%E8%AF%95%E8%BF%87%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">三、测试过程</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Oracle 注入之 SQLmap 程序报错解决
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-03-19T09:03:32.000Z" itemprop="datePublished">2024-03-19</time>
+        
+        (Updated: <time datetime="2024-03-19T12:09:12.000Z" itemprop="dateModified">2024-03-19</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/SQL%E6%B3%A8%E5%85%A5/">SQL注入</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/ORACLE/" rel="tag">ORACLE</a>, <a class="tag-link-link" href="/tags/SQLMAP/" rel="tag">SQLMAP</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>文章实际价值并不高，测试手法也是经常使用的手法，其主要是为了提醒自己，当在遇到无法解决的问题时，多尝试其它的思路，遇到问题，解决问题，对任何事物保持开阔的思路。</p>
+<h2 id="二、问题发现"><a href="#二、问题发现" class="headerlink" title="二、问题发现"></a>二、问题发现</h2><p>前段时间在测试中发现一个注入点，老选手单引号报错，双单引号闭合。</p>
+<p><a data-fancybox="gallery" data-src="/../images/injection/oracle/sql-1.png" data-caption="sql-1"><img src="/../images/injection/oracle/sql-1.png" alt="sql-1"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/injection/oracle/sql-2.png" data-caption="sql-2"><img src="/../images/injection/oracle/sql-2.png" alt="sql-2"></a></p>
+<h2 id="三、测试过程"><a href="#三、测试过程" class="headerlink" title="三、测试过程"></a>三、测试过程</h2><p>于是乎 sqlmap 启动，可惜 Sqlmap 普通命令跑无法跑出数据表，得知数据库为 Oracle，报错 <code>unable to retrieve the database names</code> ，命令如下</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python sqlmap.py -r 1.txt --tamper space2morecomment, apostrophemask.py --level 5 --risk 3 --random-agent --threads=5 --tables</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/injection/oracle/sql-3.png" data-caption="sql-3"><img src="/../images/injection/oracle/sql-3.png" alt="sql-3"></a></p>
+<p>遇到问题，解决问题，启动 Google 搜索大法 <code>unable to retrieve the database names</code>，经过一番搜寻，多次尝试修改 sqlmap 命令，最终将命令修改为如下，也许有些命令是多余比如 space2morecomment ，因为目标为 oracle，但不影响使用，在实际中亦没有删掉，故这里保留一下。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python sqlmap.py -r 1.txt --tamper space2morecomment, apostrophemask.py,between.py,equaltolike.py --level 5 --risk 3 --random-agent --threads=5 --hex --tables --banner --dbms=oracle</span><br></pre></td></tr></table></figure></div>
+
+<br/>
+
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">--space2morecomment：将空格替换为/**_**/ </span><br><span class="line">--apostrophemask.py：将 &#x27; 替换为其UTF-8全角等价字符 %EF%BC%87</span><br><span class="line">--between.py：将 between替换大于号 &gt;</span><br><span class="line">--equaltolike：将 like 代替等号</span><br><span class="line">--level 5：设置注入测试的级别为5，表示使用最高级别的测试。</span><br><span class="line">--risk 3：设置注入测试的风险为3，表示使用最高风险的测试。</span><br><span class="line">--random-agent：随机选择一个用户代理标头，以模拟不同的浏览器和操作系统。</span><br><span class="line">--threads=5：指定使用5个线程进行注入测试。</span><br><span class="line">--hex：使用十六进制编码注入数据。</span><br><span class="line">--tables：获取数据库中的表信息。</span><br><span class="line">--banner：显示目标数据库的横幅信息。</span><br><span class="line">--dbms=oracle：指定目标数据库管理系统为 Oracle</span><br></pre></td></tr></table></figure></div>
+
+<blockquote>
+<p>apostrophemask.py</p>
+</blockquote>
+<p><a data-fancybox="gallery" data-src="/../images/injection/oracle/image-20240319162213334.png" data-caption="image-20240319162213334"><img src="/../images/injection/oracle/image-20240319162213334.png" alt="image-20240319162213334"></a></p>
+<blockquote>
+<p>between.py</p>
+</blockquote>
+<p><a data-fancybox="gallery" data-src="/../images/injection/oracle/image-20240319162615060.png" data-caption="image-20240319162615060"><img src="/../images/injection/oracle/image-20240319162615060.png" alt="image-20240319162615060"></a></p>
+<blockquote>
+<p>equaltolike.py</p>
+</blockquote>
+<p><a data-fancybox="gallery" data-src="/../images/injection/oracle/image-20240319162705626.png" data-caption="image-20240319162705626"><img src="/../images/injection/oracle/image-20240319162705626.png" alt="image-20240319162705626"></a></p>
+<p>最终跑出数据</p>
+<p><a data-fancybox="gallery" data-src="/../images/injection/oracle/image-20240319164556948.png" data-caption="image-20240319164556948"><img src="/../images/injection/oracle/image-20240319164556948.png" alt="image-20240319164556948"></a></p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%97%AE%E9%A2%98%E5%8F%91%E7%8E%B0"><span class="toc-number">2.</span> <span class="toc-text">二、问题发现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%B5%8B%E8%AF%95%E8%BF%87%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">三、测试过程</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&text=Oracle 注入之 SQLmap 程序报错解决"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&title=Oracle 注入之 SQLmap 程序报错解决"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&is_video=false&description=Oracle 注入之 SQLmap 程序报错解决"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Oracle 注入之 SQLmap 程序报错解决&body=Check out this article: http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&title=Oracle 注入之 SQLmap 程序报错解决"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&title=Oracle 注入之 SQLmap 程序报错解决"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&title=Oracle 注入之 SQLmap 程序报错解决"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&title=Oracle 注入之 SQLmap 程序报错解决"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&name=Oracle 注入之 SQLmap 程序报错解决&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/03/19/Oracle%20%E6%B3%A8%E5%85%A5%E4%B9%8B%20SQLmap%20%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3/&t=Oracle 注入之 SQLmap 程序报错解决"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

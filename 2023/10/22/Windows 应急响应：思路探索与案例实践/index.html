@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、前言应急响应（emergency response）广义上指在出现紧急情况或突发事件时，迅速采取行动以减少损失、保护人员安全和恢复正常运营的过程。相对于网络安全行业来说特指系统或网络遭遇非法入侵、病毒入侵、恶意攻击等非法的安全入侵后而启动的安全排查并恢复正常运行。本文基于Windwos 平台的安全应急响应，结合相关安全案例简单阐述 Windows 网络安全应急响应工作的开展。 二、基础知识对于">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows 应急响应：思路探索与案例实践">
+<meta property="og:url" content="http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、前言应急响应（emergency response）广义上指在出现紧急情况或突发事件时，迅速采取行动以减少损失、保护人员安全和恢复正常运营的过程。相对于网络安全行业来说特指系统或网络遭遇非法入侵、病毒入侵、恶意攻击等非法的安全入侵后而启动的安全排查并恢复正常运行。本文基于Windwos 平台的安全应急响应，结合相关安全案例简单阐述 Windows 网络安全应急响应工作的开展。 二、基础知识对于">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231024205652587.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231020145804377-169833198664826.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231020150309096.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231020150447266-169833205416728.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231020150528616.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231020150345859-169833211539730.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231020150412625.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231024205833532.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231025093811569.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231024210046739.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231024210240754.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231020155248086.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231024211318261.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231024211230840.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231024211545519.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231024212009667.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231025092732078.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231025092957892.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231025093336126.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231025094824878.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231025094612546.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231027094540269.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231025100017942.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231025100525020.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231025140852741.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231025141525824.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231025173133344.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026100728024.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026101103645.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026101149371.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026101544532.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026101812556.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026104201653.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026104223691.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026102932775.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026102444810.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026103107776.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026103228699.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026105038015.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026104714454.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026210234378.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026210841866.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026213145485.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026105914781.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026110133831.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026213742994.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/1-16983297055661.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/2-16983297854053.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/3-16983299211735.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/4-16983299788567.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/5-16983300520589.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026222642682.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/12-169833082231513.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026223658311.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/9-169833063593511.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/10-169833109274215.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/11-169833120954717.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/image-20231026224507781.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/17-169833184589922.png">
+<meta property="og:image" content="http://example.com/images/emergency/windows/18.png">
+<meta property="article:published_time" content="2023-10-22T12:54:30.000Z">
+<meta property="article:modified_time" content="2024-05-12T07:11:06.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="Windows 应急响应">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/emergency/windows/image-20231024205652587.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>Windows 应急响应：思路探索与案例实践</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/22/Linux%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&text=Windows 应急响应：思路探索与案例实践"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=Windows 应急响应：思路探索与案例实践"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&is_video=false&description=Windows 应急响应：思路探索与案例实践"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Windows 应急响应：思路探索与案例实践&body=Check out this article: http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=Windows 应急响应：思路探索与案例实践"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=Windows 应急响应：思路探索与案例实践"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=Windows 应急响应：思路探索与案例实践"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=Windows 应急响应：思路探索与案例实践"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&name=Windows 应急响应：思路探索与案例实践&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&t=Windows 应急响应：思路探索与案例实践"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="toc-number">2.</span> <span class="toc-text">二、基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E7%B3%BB%E7%BB%9F%E6%97%A5%E5%BF%97"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 系统日志</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E8%BF%9B%E7%A8%8B"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 进程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 计划任务</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%85%A5%E4%BE%B5%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF"><span class="toc-number">3.</span> <span class="toc-text">三、入侵排查思路</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E6%A3%80%E6%9F%A5%E7%B3%BB%E7%BB%9F%E8%B4%A6%E5%8F%B7%E5%AE%89%E5%85%A8"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 检查系统账号安全</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E6%A3%80%E6%9F%A5%E5%8F%AF%E7%96%91%E8%BF%9B%E7%A8%8B%E3%80%81%E7%AB%AF%E5%8F%A3"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 检查可疑进程、端口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E6%A3%80%E6%B5%8B%E5%8F%AF%E7%96%91%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 检测可疑计划任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E6%A3%80%E6%9F%A5%E5%8F%AF%E7%96%91%E5%90%AF%E5%8A%A8%E9%A1%B9"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 检查可疑启动项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-%E5%8F%AF%E7%96%91%E6%96%87%E4%BB%B6%E6%8E%92%E6%9F%A5"><span class="toc-number">3.5.</span> <span class="toc-text">3.5 可疑文件排查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90"><span class="toc-number">3.6.</span> <span class="toc-text">3.6 日志分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-7-%E6%9C%A8%E9%A9%AC%E6%9F%A5%E6%9D%80"><span class="toc-number">3.7.</span> <span class="toc-text">3.7 木马查杀</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-8-%E5%AE%89%E5%85%A8%E8%AE%BE%E5%A4%87%E6%8E%92%E6%9F%A5"><span class="toc-number">3.8.</span> <span class="toc-text">3.8 安全设备排查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-9-%E5%B0%8F%E7%BB%93"><span class="toc-number">3.9.</span> <span class="toc-text">3.9 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%A1%88%E4%BE%8B"><span class="toc-number">4.</span> <span class="toc-text">四、案例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%8E%92%E6%9F%A5"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 服务器排查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E5%AE%89%E5%85%A8%E8%AE%BE%E5%A4%87%E6%8E%92%E6%9F%A5"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 安全设备排查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E6%94%BB%E5%87%BB-IP-%E6%BA%AF%E6%BA%90"><span class="toc-number">4.3.</span> <span class="toc-text">4.3 攻击 IP 溯源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E5%B0%8F%E7%BB%93"><span class="toc-number">4.4.</span> <span class="toc-text">4.4 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">五、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">6.</span> <span class="toc-text">六、参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Windows 应急响应：思路探索与案例实践
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-10-22T12:54:30.000Z" itemprop="datePublished">2023-10-22</time>
+        
+        (Updated: <time datetime="2024-05-12T07:11:06.000Z" itemprop="dateModified">2024-05-12</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E7%B3%BB%E5%88%97/">应急响应系列</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Windows-%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/" rel="tag">Windows 应急响应</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>应急响应（emergency response）广义上指在出现紧急情况或突发事件时，迅速采取行动以减少损失、保护人员安全和恢复正常运营的过程。相对于网络安全行业来说特指系统或网络遭遇非法入侵、病毒入侵、恶意攻击等非法的安全入侵后而启动的安全排查并恢复正常运行。本文基于Windwos 平台的安全应急响应，结合相关安全案例简单阐述 Windows 网络安全应急响应工作的开展。</p>
+<h2 id="二、基础知识"><a href="#二、基础知识" class="headerlink" title="二、基础知识"></a>二、基础知识</h2><p>对于 Windows 系统的应急响应，应需了解相应的系统知识，一定知识的积累可以帮助应急人员在应急响应时快速作出判断，便于工作的开展，以下为部分的 Windwos 系统基础知识。</p>
+<h3 id="2-1-系统日志"><a href="#2-1-系统日志" class="headerlink" title="2.1 系统日志"></a>2.1 系统日志</h3><p>在Windows 应急响应中，主要分析的日志日志类型有：<strong>系统日志、安全日志、应用程序日志</strong>，快捷键 <code>Win + R</code>  在运行框输入 <code>eventvwr.msc</code> 即可打开事件查看器，对应绝对路径为 <code>C:\Windows\System32\winevt\Logs</code> 下的 <code>System.evtx</code>、<code>Security.evtx</code>、<code>Application.evtx</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231024205652587.png" data-caption="image-20231024205652587"><img src="/../images/emergency/windows/image-20231024205652587.png" alt="image-20231024205652587"></a></p>
+<blockquote>
+<p>系统日志</p>
+</blockquote>
+<p>系统日志主要记录操作系统组件产生的事件，主要包括驱动程序、系统组件和应用软件的崩溃以及数据丢失错误等。默认位置：<code>%SystemRoot%\System32\Winevt\Logs\System.evtx</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231020145804377-169833198664826.png" data-caption="image-20231020145804377"><img src="/../images/emergency/windows/image-20231020145804377-169833198664826.png" alt="image-20231020145804377"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231020150309096.png" data-caption="image-20231020150309096"><img src="/../images/emergency/windows/image-20231020150309096.png" alt="image-20231020150309096"></a></p>
+<blockquote>
+<p>安全日志</p>
+</blockquote>
+<p>安全日志记录系统的安全审计事件，包含各种类型的登录日志、对象访问日志、进程追踪日志、特权使用、帐号管理、策略变更、系统事件。 安全日志也是调查取证中最常用到的日志。 默认设置下，安全性日志是关闭的，管理员可以使用组策略来启动安全性日志 或者在注册表中设置审核策略，以便当安全性日志满后使系统停止响应。 默认位置：<code>%SystemRoot%\System32\Winevt\Logs\Security.evtx</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231020150447266-169833205416728.png" data-caption="image-20231020150447266"><img src="/../images/emergency/windows/image-20231020150447266-169833205416728.png" alt="image-20231020150447266"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231020150528616.png" data-caption="image-20231020150528616"><img src="/../images/emergency/windows/image-20231020150528616.png" alt="image-20231020150528616"></a></p>
+<blockquote>
+<p>应用程序日志</p>
+</blockquote>
+<p>包含由应用程序或系统程序记录的事件，主要记录程序运行方面的事件 例如数据库程序可以在应用程序日志中记录文件错误，程序开发人员可以自行决定监视哪些事件。 如果某个应用程序出现崩溃情况，那么我们可以从程序事件日志中找到相应的记录，也许会有助于你解决问题。 默认位置：<code>%SystemRoot%\System32\Winevt\Logs\Application.evtx</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231020150345859-169833211539730.png" data-caption="image-20231020150345859"><img src="/../images/emergency/windows/image-20231020150345859-169833211539730.png" alt="image-20231020150345859"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231020150412625.png" data-caption="image-20231020150412625"><img src="/../images/emergency/windows/image-20231020150412625.png" alt="image-20231020150412625"></a></p>
+<blockquote>
+<p>PowerShell日志</p>
+</blockquote>
+<p>用户在执行 PowerShell 命令或脚本时，无论是本地还是通过远程处理，Windows都会将事件写入以下三个日志文件。默认位置</p>
+<p><code>C:\Windows\System32\winevt\Logs</code></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Windows PowerShell.evtx</span><br><span class="line">Microsoft-Windows-PowerShell/Operational.evtx</span><br><span class="line">Microsoft-Windows-PowerShell/Analytic.etl(该分析日志必须开启才能捕获事件)</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="2-2-进程"><a href="#2-2-进程" class="headerlink" title="2.2 进程"></a>2.2 进程</h3><p>Windows 进程是在 Windows 操作系统中运行的程序实例。每个进程都是一个独立的执行环境，拥有自己的内存空间和系统资源。进程之间相互隔离，这样可以确保一个进程的崩溃或错误不会影响其他进程的稳定性。在Windows中，每个进程都有一个唯一的标识符，称为进程ID（Process ID，PID），进程ID用于识别和管理进程。Windows 操作系统使用进程调度算法来决定哪些进程在给定时间运行，以及它们在处理器上分配的时间。底部任务栏右键点击任务管理器即可打开</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231024205833532.png" data-caption="image-20231024205833532"><img src="/../images/emergency/windows/image-20231024205833532.png" alt="image-20231024205833532"></a></p>
+<p>亦可通过 <code>Win + R</code> 输入 <code>msinfo32</code> <strong>系统环境-》正在运行任务</strong> 查看更为详细的进程信息，包括进程路径、进程ID、文件创建日期以及启动时间等。</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231025093811569.png" data-caption="image-20231025093811569"><img src="/../images/emergency/windows/image-20231025093811569.png" alt="image-20231025093811569"></a></p>
+<p>终端命令为：<code>netstat -ano</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231024210046739.png" data-caption="image-20231024210046739"><img src="/../images/emergency/windows/image-20231024210046739.png" alt="image-20231024210046739"></a></p>
+<h3 id="2-3-计划任务"><a href="#2-3-计划任务" class="headerlink" title="2.3 计划任务"></a>2.3 计划任务</h3><p>Windows 计划任务是一种功能，用于在指定的时间或事件发生时自动执行特定的任务或程序。<code>Win + R</code> 输入<code>taskschd.msc</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231024210240754.png" data-caption="image-20231024210240754"><img src="/../images/emergency/windows/image-20231024210240754.png" alt="image-20231024210240754"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231020155248086.png" data-caption="image-20231020155248086"><img src="/../images/emergency/windows/image-20231020155248086.png" alt="image-20231020155248086"></a></p>
+<h2 id="三、入侵排查思路"><a href="#三、入侵排查思路" class="headerlink" title="三、入侵排查思路"></a>三、入侵排查思路</h2><p>当应急人员在接到应急响应任务后，首先需要冷静分析，充分了解事件详情，理清具体应急事件的类型，因为不同的类型所对应的应急方案略有差异；询问现场人员具体事件的发生及研判过程，再者询问是否有安全设备，若有，可通过安全平台针对应急事件类型查看日志获取有用信息，若已捕获相关样本则请求提供开展分析。以下步骤主要为针对服务器主机端的入侵排查操作，顺序不一定按照以下来，根据现场环境和得到的信息进行灵活处理即可。常见攻击或安全事件手段如下：</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">| 类型     | 手段                          |</span><br><span class="line">| -------- | ----------------------------- |</span><br><span class="line">| Web入侵  | 网页挂马、主页篡改、Webshell  |</span><br><span class="line">| 系统入侵 | 病毒木马、勒索软件、远控后门  |</span><br><span class="line">| 网络攻击 | DDOS 攻击、DNS 劫持、ARP 欺骗 |</span><br></pre></td></tr></table></figure></div>
+
+
+<h3 id="3-1-检查系统账号安全"><a href="#3-1-检查系统账号安全" class="headerlink" title="3.1 检查系统账号安全"></a>3.1 检查系统账号安全</h3><p>1、排查是否有异常的系统用户</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lusrmgr.msc</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231024211318261.png" data-caption="image-20231024211318261"><img src="/../images/emergency/windows/image-20231024211318261.png" alt="image-20231024211318261"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231024211230840.png" data-caption="image-20231024211230840"><img src="/../images/emergency/windows/image-20231024211230840.png" alt="image-20231024211230840"></a></p>
+<p>cmd 终端命令亦可进行查询</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net user</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231024211545519.png" data-caption="image-20231024211545519"><img src="/../images/emergency/windows/image-20231024211545519.png" alt="image-20231024211545519"></a></p>
+<p>2、排查账号信息（按照实际情况查询），若发现存在可疑账号可直接询问系统方管理员，咨询其账号归属，以下命令查看处于Administrator 组的用户</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net localgroup Administrators</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231024212009667.png" data-caption="image-20231024212009667"><img src="/../images/emergency/windows/image-20231024212009667.png" alt="image-20231024212009667"></a></p>
+<h3 id="3-2-检查可疑进程、端口"><a href="#3-2-检查可疑进程、端口" class="headerlink" title="3.2 检查可疑进程、端口"></a>3.2 检查可疑进程、端口</h3><p>1、进程，通过命令查看目前的网络连接，定位可疑的 <code>ESTABLISHED</code> ,若主机已断网，则可注意处于 <code>LISTENING</code>，该步骤主要是排查对外 IP 与本机的连接情况。对可疑的 IP 进行安全排查。 </p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -ano</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231025092732078.png" data-caption="image-20231025092732078"><img src="/../images/emergency/windows/image-20231025092732078.png" alt="image-20231025092732078"></a></p>
+<p>定位可疑路径应用,若通过 netstat -ano 发现可疑链接或进程，则可通过定位其 PID 进而定位可疑应用，下列通过定位上图 <code>ESTABLISHED</code> 具体是哪个应用，上图 PID 为 852，由下图可知已经建立连接的应用程序为 chrome.exe </p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tasklist  | findstr &quot;PID&quot;</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231025092957892.png" data-caption="image-20231025092957892"><img src="/../images/emergency/windows/image-20231025092957892.png" alt="image-20231025092957892"></a></p>
+<p>2、当然这里在不知道 PID 的情况下，通过端口获取 PID 进而定位具体应用，最外层的是 PID 号，得知 3306 端口 PID 为 1072 , 443 端口 PID 号为 852</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231025093336126.png" data-caption="image-20231025093336126"><img src="/../images/emergency/windows/image-20231025093336126.png" alt="image-20231025093336126"></a></p>
+<h3 id="3-3-检测可疑计划任务"><a href="#3-3-检测可疑计划任务" class="headerlink" title="3.3 检测可疑计划任务"></a>3.3 检测可疑计划任务</h3><p>1、Win + R 输入命令后查看是否存在可疑的计划任务，若存在则对其开展安全排查</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">taskschd.msc</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231025094824878.png" data-caption="image-20231025094824878"><img src="/../images/emergency/windows/image-20231025094824878.png" alt="image-20231025094824878"></a></p>
+<p>2、通过检查计算机与网络上的其它计算机之间的会话或计划任务排查安全隐患,通过对显示的可疑任务进行审查</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">- 旧系统使用 at</span><br><span class="line">at</span><br><span class="line"></span><br><span class="line">- 较新系统输入</span><br><span class="line">schtasks.exe</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231025094612546.png" data-caption="image-20231025094612546"><img src="/../images/emergency/windows/image-20231025094612546.png" alt="image-20231025094612546"></a></p>
+<h3 id="3-4-检查可疑启动项"><a href="#3-4-检查可疑启动项" class="headerlink" title="3.4 检查可疑启动项"></a>3.4 检查可疑启动项</h3><p>通过查看是否存在命名异常的启动项目，若存在则取消勾选命名异常的启动项目，并找到相关文件路径保存样本后可作删除处理。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msconfig</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231027094540269.png" data-caption="image-20231027094540269"><img src="/../images/emergency/windows/image-20231027094540269.png" alt="image-20231027094540269"></a></p>
+<p>2、检查组策略，查看是否有可疑启动策略</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gpedit.msc</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231025100017942.png" data-caption="image-20231025100017942"><img src="/../images/emergency/windows/image-20231025100017942.png" alt="image-20231025100017942"></a></p>
+<p>3、检查注册表,Win + R 输入 regedit 打开注册表，逐一排查可疑启动</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\run</span><br><span class="line">HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run</span><br><span class="line">HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Runonce</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>1）用户设置的启动项是排查的重点，若右边出现可疑的启动项则可对其排查，该删除后不影响系统运行。</p>
+<p>\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231025100525020.png" data-caption="image-20231025100525020"><img src="/../images/emergency/windows/image-20231025100525020.png" alt="image-20231025100525020"></a></p>
+<p>2）系统设置的启动项，一般是第三方软件的驱动程序，谨慎删除，可能会对系统造成影响。</p>
+<p>HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231025140852741.png" data-caption="image-20231025140852741"><img src="/../images/emergency/windows/image-20231025140852741.png" alt="image-20231025140852741"></a></p>
+<p>3）系统启动项，该键路径用于在系统启动时只运行一次的应用程序或命令。执行完毕后，该键路径下的条目会被自动删除</p>
+<p>HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Runonce</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231025141525824.png" data-caption="image-20231025141525824"><img src="/../images/emergency/windows/image-20231025141525824.png" alt="image-20231025141525824"></a></p>
+<h3 id="3-5-可疑文件排查"><a href="#3-5-可疑文件排查" class="headerlink" title="3.5 可疑文件排查"></a>3.5 可疑文件排查</h3><p>一般手法的 web 端攻击获取 webshell 或进行后渗透时，大多数情况下会生成相关的落地文件，通常情况下我们对相应的时间段内的文件进行排除即可，若已经进行了后渗透隐藏了另说。</p>
+<p>这边使用 everything 进行排除，下载地址：<a target="_blank" rel="noopener" href="https://www.voidtools.com/zh-cn/downloads/%EF%BC%8C%E5%91%BD%E4%BB%A4%E5%A6%82%E4%B8%8B%EF%BC%8C%E6%90%9C%E7%B4%A2%E6%97%B6%E9%97%B4%E4%BB%8E2023%E5%B9%B410%E6%9C%8824%E6%97%A5-2023%E5%B9%B410%E6%9C%8825%E6%97%A5%E5%86%85%E6%96%B0%E5%BB%BA%E7%9A%84">https://www.voidtools.com/zh-cn/downloads/，命令如下，搜索时间从2023年10月24日-2023年10月25日内新建的</a> .exe、.bat、.vbs、.jsp、.jar、.dll 文件，命令根据实际情况调整</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dm:2023/10/24-2023/10/25 *.exe|*.bat|*.vbs|*.jsp</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231025173133344.png" data-caption="image-20231025173133344"><img src="/../images/emergency/windows/image-20231025173133344.png" alt="image-20231025173133344"></a></p>
+<h3 id="3-6-日志分析"><a href="#3-6-日志分析" class="headerlink" title="3.6 日志分析"></a>3.6 日志分析</h3><p>日志分析，主要对服务器主机日志、web 日志、安全设备日志进行排除审计。</p>
+<blockquote>
+<p>服务器主机日志</p>
+</blockquote>
+<p>具体位置上述已有说明，这里不在阐述，这边使用 FullEventLogView 工具，下载地址：<a target="_blank" rel="noopener" href="https://www.nirsoft.net/utils/full_event_log_view.html">https://www.nirsoft.net/utils/full_event_log_view.html</a> 以及 LogParser 工具，下载地址：<a target="_blank" rel="noopener" href="https://www.microsoft.com/en-us/download/details.aspx?id=24659">https://www.microsoft.com/en-us/download/details.aspx?id=24659</a> 进行分析。</p>
+<p>1）full_event_log_view ，使用该工具，只需要将 .evtx 日志放置在某一文件夹内，勾选相关功能即可可视化显示日志信息。</p>
+<p>勾选 Option 中的 Show Event String In Columns 展示更多的事件信息。</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026100728024.png" data-caption="image-20231026100728024"><img src="/../images/emergency/windows/image-20231026100728024.png" alt="image-20231026100728024"></a></p>
+<p>full_event_log_view 默认显示的时间为 7 天，若想要显示其它时间需要，需要在 Option 中的 Advanced Option 中另选择</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026101103645.png" data-caption="image-20231026101103645"><img src="/../images/emergency/windows/image-20231026101103645.png" alt="image-20231026101103645"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026101149371.png" data-caption="image-20231026101149371"><img src="/../images/emergency/windows/image-20231026101149371.png" alt="image-20231026101149371"></a></p>
+<p>然后将需要分析的 .evtx 日志文件放在同一目录下如 System.evtx、Security.evtx、Application.evtx，等待加载完日志，即可可视化查看日志记录</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026101544532.png" data-caption="image-20231026101544532"><img src="/../images/emergency/windows/image-20231026101544532.png" alt="image-20231026101544532"></a></p>
+<p>若想要定点分析，可在 Option 中的 Advance Option 设置查看特定的事件或过滤某关键字</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026101812556.png" data-caption="image-20231026101812556"><img src="/../images/emergency/windows/image-20231026101812556.png" alt="image-20231026101812556"></a></p>
+<p>2）LogParser ，微软官方经典的日志分析工具，比较麻烦就是需要自己输入查询命令，下载安装完后在安装路径下 cmd 打开然后执行命令，即可可视化查看具体的事件<strong>（注意下列的命令中的日志路径需替换为自己需要分析的日志路径）</strong></p>
+<ul>
+<li>直接显示系统日志全部内容，不作筛选</li>
+</ul>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LogParser.exe -i:EVT -o:DATAGRID &quot;SELECT * FROM D:\Software\LogParser\logs\Security.evtx&quot;</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026104201653.png" data-caption="image-20231026104201653"><img src="/../images/emergency/windows/image-20231026104201653.png" alt="image-20231026104201653"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026104223691.png" data-caption="image-20231026104223691"><img src="/../images/emergency/windows/image-20231026104223691.png" alt="image-20231026104223691"></a></p>
+<ul>
+<li>查看登录成功的所有事件，Event ID 为 4624</li>
+</ul>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LogParser.exe -i:EVT -o:DATAGRID  &quot;SELECT *  FROM D:\Software\LogParser\logs\Security.evtx where EventID=4624&quot;</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026102932775.png" data-caption="image-20231026102932775"><img src="/../images/emergency/windows/image-20231026102932775.png" alt="image-20231026102932775"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026102444810.png" data-caption="image-20231026102444810"><img src="/../images/emergency/windows/image-20231026102444810.png" alt="image-20231026102444810"></a></p>
+<ul>
+<li>查看指定登录时间范围的事件, 2023-10-01 23:32:11 - 2023-10-26 23:34:00</li>
+</ul>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LogParser.exe -i:EVT –o:DATAGRID  &quot;SELECT *  FROM D:\Software\LogParser\logs\Security.evtx where TimeGenerated&gt;&#x27;2023-10-01 23:32:11&#x27; and TimeGenerated&lt;&#x27;2023-10-26 23:34:00&#x27; and EventID=4624&quot;</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026103107776.png" data-caption="image-20231026103107776"><img src="/../images/emergency/windows/image-20231026103107776.png" alt="image-20231026103107776"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026103228699.png" data-caption="image-20231026103228699"><img src="/../images/emergency/windows/image-20231026103228699.png" alt="image-20231026103228699"></a></p>
+<ul>
+<li>提取登录成功的用户名和 IP</li>
+</ul>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LogParser.exe -i:EVT  –o:DATAGRID  &quot;SELECT EXTRACT_TOKEN(Message,13,&#x27; &#x27;) as EventType,TimeGenerated as LoginTime,EXTRACT_TOKEN(Strings,5,&#x27;|&#x27;) as Username,EXTRACT_TOKEN(Message,38,&#x27; &#x27;) as Loginip FROM D:\Software\LogParser\logs\Security.evtx where EventID=4624&quot;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li>查看登录失败的所有事件，Event ID 为 4625</li>
+</ul>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LogParser.exe -i:EVT –o:DATAGRID  &quot;SELECT *  FROM D:\Software\LogParser\logs\Security.evtx where EventID=4625&quot;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li>提取登录失败用户名进行聚合统计</li>
+</ul>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LogParser.exe  -i:EVT &quot;SELECT  EXTRACT_TOKEN(Message,13,&#x27; &#x27;)  as EventType,EXTRACT_TOKEN(Message,19,&#x27; &#x27;) as user,count(EXTRACT_TOKEN(Message,19,&#x27; &#x27;)) as Times,EXTRACT_TOKEN(Message,39,&#x27; &#x27;) as Loginip FROM D:\Software\LogParser\logs\Security.evtx where EventID=4625 GROUP BY Message&quot;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li>系统历史开关机记录</li>
+</ul>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LogParser.exe -i:EVT –o:DATAGRID  &quot;SELECT TimeGenerated,EventID,Message FROM D:\Software\LogParser\logs\Security.evtx where EventID=6005 or EventID=6006&quot;</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>3）安全开源小工具 “windows日志一键分析小工具” , Github 地址 ：<a target="_blank" rel="noopener" href="https://github.com/dogadmin/windodws-logs-analysis#windows%EF%BC%8C%E8%AF%A5%E5%B7%A5%E5%85%B7%E4%BC%9A%E8%B0%83%E7%94%A8%E7%B3%BB%E7%BB%9F%E8%BF%9B%E7%A8%8B%EF%BC%8C%E5%BB%BA%E8%AE%AE%E4%BD%BF%E7%94%A8">https://github.com/dogadmin/windodws-logs-analysis#windows，该工具会调用系统进程，建议使用</a> windowslog-local.exe 在虚拟机使用，即将服务器日志拷贝在 c 盘在新建 log 文件夹，然后点击需要分析的功能即可。</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026105038015.png" data-caption="image-20231026105038015"><img src="/../images/emergency/windows/image-20231026105038015.png" alt="image-20231026105038015"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026104714454.png" data-caption="image-20231026104714454"><img src="/../images/emergency/windows/image-20231026104714454.png" alt="image-20231026104714454"></a></p>
+<blockquote>
+<p>中间件WEB日志</p>
+</blockquote>
+<p>在服务器端，相应的中间件若开启并设置相关的日志记录，则会对记录系统相应的请求信息或运行报错。</p>
+<p>1、Apache Tomcat 日志，一般存放在 tomcat 目录下的 logs 文件夹中。</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026210234378.png" data-caption="image-20231026210234378"><img src="/../images/emergency/windows/image-20231026210234378.png" alt="image-20231026210234378"></a></p>
+<p>2、Nginx 日志，一般亦会存放在 nginx 目录下的 logs 文件夹中，主要查看 access.log 访问日志文件，记录所有的HTTP请求信息。</p>
+<p>和 error.log 错误日志文件，记录Nginx服务器的错误和警告信息。</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026210841866.png" data-caption="image-20231026210841866"><img src="/../images/emergency/windows/image-20231026210841866.png" alt="image-20231026210841866"></a></p>
+<p>3、IIS 日志，一般存放在 %SystemDrive%\inetpub\logs\LogFiles，其中，<code>%SystemDrive%</code> 表示系统安装的驱动器（通常是 C:\）在 <code>LogFiles</code> 目录下，你会找到多个子目录，每个子目录对应一个网站或应用程序的日志文件。</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026213145485.png" data-caption="image-20231026213145485"><img src="/../images/emergency/windows/image-20231026213145485.png" alt="image-20231026213145485"></a></p>
+<h3 id="3-7-木马查杀"><a href="#3-7-木马查杀" class="headerlink" title="3.7 木马查杀"></a>3.7 木马查杀</h3><p>1）webshell 查杀，在 Windows 下的应急查杀中，在服务器端没有其它的 edr 时候，针对 Webshell 的查杀，老朋友 “D盾” 依然是个不错的选择,下载地址：<a target="_blank" rel="noopener" href="https://www.d99net.net/">https://www.d99net.net/</a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026105914781.png" data-caption="image-20231026105914781"><img src="/../images/emergency/windows/image-20231026105914781.png" alt="image-20231026105914781"></a></p>
+<p>该工具的好处就是除了针对 webshell 的查杀，还有相关的辅助功能协助应急人员进行排查。</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026110133831.png" data-caption="image-20231026110133831"><img src="/../images/emergency/windows/image-20231026110133831.png" alt="image-20231026110133831"></a></p>
+<h3 id="3-8-安全设备排查"><a href="#3-8-安全设备排查" class="headerlink" title="3.8 安全设备排查"></a>3.8 安全设备排查</h3><p>由于不同的单位购买的安全设备不一，有些单位只有单一的防火墙作为安全防护，所以此步骤应充分了解客户现场的安全设备情况，若有相应的态势、全流量、EDR 等安全设备可通过这些设备进行辅助排查，尽可能的获取更多的信息。</p>
+<h3 id="3-9-小结"><a href="#3-9-小结" class="headerlink" title="3.9 小结"></a>3.9 小结</h3><p>以上就是针对 windwos 服务器端的基本入侵排查手法，当然上面端口、进程、启动项等的排查亦可通过 <strong>火绒剑</strong> 去进行辅助排查，使用优秀的工具可最大程度减轻应急人员的工作及负担。火绒剑独立版下载地址：<a target="_blank" rel="noopener" href="https://www.52pojie.cn/thread-1358296-1-1.html">https://www.52pojie.cn/thread-1358296-1-1.html</a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026213742994.png" data-caption="image-20231026213742994"><img src="/../images/emergency/windows/image-20231026213742994.png" alt="image-20231026213742994"></a></p>
+<h2 id="四、案例"><a href="#四、案例" class="headerlink" title="四、案例"></a>四、案例</h2><p>某次演练期间某单位接到上级通报，该单位被攻击队获取相应权限，需在规定时间内对单位涉事主机进行排查，并上交相关报告。任务转辗至此，接到应急任务后，在到达现场前已经大概了解事情的经过，被入侵网站为某外网单位部门网站, 攻击者利用漏洞上传后门木马。于是到达现场后便开展相关的入侵排查。</p>
+<h3 id="4-1-服务器排查"><a href="#4-1-服务器排查" class="headerlink" title="4.1 服务器排查"></a>4.1 服务器排查</h3><blockquote>
+<p> 检查系统用户情况</p>
+</blockquote>
+<p>通过排查发现服务器存在隐藏账号 <code>aaa$</code>，即当存在 $ 结尾的用户名时在 CMD 终端使用命令 <code>net user</code> 无法显示该用户，若只通过终端命令排查，而没有进一步排查则会错失重要信息，创建时间为5月25日10:40:35。</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/1-16983297055661.png" data-caption="1"><img src="/../images/emergency/windows/1-16983297055661.png" alt="1"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/2-16983297854053.png" data-caption="2"><img src="/../images/emergency/windows/2-16983297854053.png" alt="2"></a></p>
+<blockquote>
+<p> 排查异常文件</p>
+</blockquote>
+<p>通过排查，发现5月23日，系统存在黑客入侵痕迹，期间黑客不断进行文件上传操作，并成功上传多个后门木马文件。</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/3-16983299211735.png" data-caption="3"><img src="/../images/emergency/windows/3-16983299211735.png" alt="3"></a></p>
+<p>对木马目录跟进排查，发现在相近时间内攻击者进行了大量的尝试攻击。</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/4-16983299788567.png" data-caption="4"><img src="/../images/emergency/windows/4-16983299788567.png" alt="4"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/5-16983300520589.png" data-caption="5"><img src="/../images/emergency/windows/5-16983300520589.png" alt="5"></a></p>
+<p>跟进部分木马样本，打开查看，已相当清晰明了</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026222642682.png" data-caption="image-20231026222642682"><img src="/../images/emergency/windows/image-20231026222642682.png" alt="image-20231026222642682"></a></p>
+<blockquote>
+<p>端口、进程排查</p>
+</blockquote>
+<p>通过查看进程，发现系统存在 frpc.exe进程，攻击者通过该软件对内网资源进行漏洞探测，实现横向渗透操作。</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/12-169833082231513.png" data-caption="12"><img src="/../images/emergency/windows/12-169833082231513.png" alt="12"></a></p>
+<p>定位文件路径为 <code>D:\Product\Home\UploadFile\2022\frpc.exe</code>，通过攻击者上传的frp软件，查看其配置文件定位到攻击者服务器 IP</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026223658311.png" data-caption="image-20231026223658311"><img src="/../images/emergency/windows/image-20231026223658311.png" alt="image-20231026223658311"></a></p>
+<h3 id="4-2-安全设备排查"><a href="#4-2-安全设备排查" class="headerlink" title="4.2 安全设备排查"></a>4.2 安全设备排查</h3><p>由于已知道已被上传木马，现场有相应的安全设备，通过安全设备进行日志排查。安全设备上检测到5月25日带有攻击记录，通过此前上传的文件 t.5.aspx 请求内网资源。</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/9-169833063593511.png" data-caption="9"><img src="/../images/emergency/windows/9-169833063593511.png" alt="9"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/10-169833109274215.png" data-caption="10"><img src="/../images/emergency/windows/10-169833109274215.png" alt="10"></a></p>
+<p>后续使用 CobaltStrike 进行后渗透操作。</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/11-169833120954717.png" data-caption="11"><img src="/../images/emergency/windows/11-169833120954717.png" alt="11"></a></p>
+<h3 id="4-3-攻击-IP-溯源"><a href="#4-3-攻击-IP-溯源" class="headerlink" title="4.3 攻击 IP 溯源"></a>4.3 攻击 IP 溯源</h3><p>通过整合前面的信息，对 frp 服务端 IP 以及 CobaltStrike IP 进行简单信息获取。</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/image-20231026224507781.png" data-caption="image-20231026224507781"><img src="/../images/emergency/windows/image-20231026224507781.png" alt="image-20231026224507781"></a></p>
+<p>CobaltStrike 攻击者IP</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/17-169833184589922.png" data-caption="17"><img src="/../images/emergency/windows/17-169833184589922.png" alt="17"></a></p>
+<p>出口 IP 企业相关信息。</p>
+<p><a data-fancybox="gallery" data-src="/../images/emergency/windows/18.png" data-caption="18"><img src="/../images/emergency/windows/18.png" alt="18"></a></p>
+<h3 id="4-4-小结"><a href="#4-4-小结" class="headerlink" title="4.4 小结"></a>4.4 小结</h3><p>以上案例只是通过对应入侵排查思路小节进行相应的步骤展示，通过结合所学实际运用在真实环境中。</p>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>本篇幅通过了解 Windows 服务器的入侵手法进行简单的阐述，在实际的应急响应中，应急人员应该要有一个意识就是 <strong>“对一切事物保持一定的合理怀疑”</strong> 因为对于业务方来说，他们不一定知道哪一个信息会对应急排查起相关的作用，有些他们认为不重要的信息也许对于排查人员来说是一个关键的信息，又或许他们遗漏了某些信息，通过我们的询问会将某些信息带出来，增加排查思路。</p>
+<h2 id="六、参考"><a href="#六、参考" class="headerlink" title="六、参考"></a>六、参考</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">https://cloud.tencent.com/developer/article/2342371</span><br><span class="line">https://wiki.wgpsec.org/knowledge/hw/windows-emergency-response.html</span><br><span class="line">https://blog.csdn.net/wangyuxiang946/article/details/130076229</span><br><span class="line">https://www.cnblogs.com/starrys/p/17129993.html</span><br></pre></td></tr></table></figure></div>
+
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="toc-number">2.</span> <span class="toc-text">二、基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E7%B3%BB%E7%BB%9F%E6%97%A5%E5%BF%97"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 系统日志</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E8%BF%9B%E7%A8%8B"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 进程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 计划任务</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%85%A5%E4%BE%B5%E6%8E%92%E6%9F%A5%E6%80%9D%E8%B7%AF"><span class="toc-number">3.</span> <span class="toc-text">三、入侵排查思路</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E6%A3%80%E6%9F%A5%E7%B3%BB%E7%BB%9F%E8%B4%A6%E5%8F%B7%E5%AE%89%E5%85%A8"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 检查系统账号安全</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E6%A3%80%E6%9F%A5%E5%8F%AF%E7%96%91%E8%BF%9B%E7%A8%8B%E3%80%81%E7%AB%AF%E5%8F%A3"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 检查可疑进程、端口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E6%A3%80%E6%B5%8B%E5%8F%AF%E7%96%91%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 检测可疑计划任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E6%A3%80%E6%9F%A5%E5%8F%AF%E7%96%91%E5%90%AF%E5%8A%A8%E9%A1%B9"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 检查可疑启动项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-%E5%8F%AF%E7%96%91%E6%96%87%E4%BB%B6%E6%8E%92%E6%9F%A5"><span class="toc-number">3.5.</span> <span class="toc-text">3.5 可疑文件排查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90"><span class="toc-number">3.6.</span> <span class="toc-text">3.6 日志分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-7-%E6%9C%A8%E9%A9%AC%E6%9F%A5%E6%9D%80"><span class="toc-number">3.7.</span> <span class="toc-text">3.7 木马查杀</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-8-%E5%AE%89%E5%85%A8%E8%AE%BE%E5%A4%87%E6%8E%92%E6%9F%A5"><span class="toc-number">3.8.</span> <span class="toc-text">3.8 安全设备排查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-9-%E5%B0%8F%E7%BB%93"><span class="toc-number">3.9.</span> <span class="toc-text">3.9 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%A1%88%E4%BE%8B"><span class="toc-number">4.</span> <span class="toc-text">四、案例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%8E%92%E6%9F%A5"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 服务器排查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E5%AE%89%E5%85%A8%E8%AE%BE%E5%A4%87%E6%8E%92%E6%9F%A5"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 安全设备排查</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E6%94%BB%E5%87%BB-IP-%E6%BA%AF%E6%BA%90"><span class="toc-number">4.3.</span> <span class="toc-text">4.3 攻击 IP 溯源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E5%B0%8F%E7%BB%93"><span class="toc-number">4.4.</span> <span class="toc-text">4.4 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">五、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">6.</span> <span class="toc-text">六、参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&text=Windows 应急响应：思路探索与案例实践"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=Windows 应急响应：思路探索与案例实践"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&is_video=false&description=Windows 应急响应：思路探索与案例实践"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Windows 应急响应：思路探索与案例实践&body=Check out this article: http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=Windows 应急响应：思路探索与案例实践"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=Windows 应急响应：思路探索与案例实践"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=Windows 应急响应：思路探索与案例实践"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=Windows 应急响应：思路探索与案例实践"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&name=Windows 应急响应：思路探索与案例实践&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&t=Windows 应急响应：思路探索与案例实践"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

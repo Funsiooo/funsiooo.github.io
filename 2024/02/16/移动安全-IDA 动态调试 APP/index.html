@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、前言IDA 动态调试 APP 操作流程记录。本文主要内容分为两部分，设备 root 后刷入 Magisk 插件配置调试所有 APP 权限以及 IDA 动态调试APP 操作步骤。 二、配置调试权限首先需要一台 root 的安卓手机，设置里打开 开发者选项，勾选USB调试。其次需检查手机设备是否具备调试所有 APP 的权限，具体检查方法 adb shell 后输入 getprop ro.debug">
+<meta property="og:type" content="article">
+<meta property="og:title" content="移动安全-IDA 动态调试 APP">
+<meta property="og:url" content="http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、前言IDA 动态调试 APP 操作流程记录。本文主要内容分为两部分，设备 root 后刷入 Magisk 插件配置调试所有 APP 权限以及 IDA 动态调试APP 操作步骤。 二、配置调试权限首先需要一台 root 的安卓手机，设置里打开 开发者选项，勾选USB调试。其次需检查手机设备是否具备调试所有 APP 的权限，具体检查方法 adb shell 后输入 getprop ro.debug">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/mobile/ida/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240213140854.jpg">
+<meta property="og:image" content="http://example.com/images/mobile/ida/image-20240204110219811.png">
+<meta property="og:image" content="http://example.com/images/mobile/ida/image-20240204110336419.png">
+<meta property="og:image" content="http://example.com/images/mobile/ida/image-20240204110526798.png">
+<meta property="og:image" content="http://example.com/images/mobile/ida/image-20240204110542131.png">
+<meta property="og:image" content="http://example.com/images/mobile/ida/image-20240204110743170.png">
+<meta property="og:image" content="http://example.com/images/mobile/ida/image-20240204095233694.png">
+<meta property="og:image" content="http://example.com/images/mobile/ida/image-20240204101243016.png">
+<meta property="og:image" content="http://example.com/images/mobile/ida/image-20240204101558154.png">
+<meta property="og:image" content="http://example.com/images/mobile/ida/image-20240204111907048.png">
+<meta property="og:image" content="http://example.com/images/mobile/ida/image-20240204111450366.png">
+<meta property="og:image" content="http://example.com/images/mobile/ida/image-20240204111616630.png">
+<meta property="og:image" content="http://example.com/images/mobile/ida/image-20240204112126337.png">
+<meta property="og:image" content="http://example.com/images/mobile/ida/image-20240204112401666.png">
+<meta property="og:image" content="http://example.com/images/mobile/ida/image-20240204112813449.png">
+<meta property="article:published_time" content="2024-02-16T09:07:58.000Z">
+<meta property="article:modified_time" content="2024-02-16T15:28:58.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="工具使用">
+<meta property="article:tag" content="IDA">
+<meta property="article:tag" content="动态调试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/mobile/ida/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240213140854.jpg">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>移动安全-IDA 动态调试 APP</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2024/02/16/%E5%B0%8F%E7%AB%99%E6%9D%82%E8%B4%A7%E5%BA%97-%E8%B7%AF%E4%B8%8A%E7%9A%84%E9%A3%8E%E6%99%AF%EF%BC%8C%E9%9C%80%E8%A6%81%E6%80%9D%E8%80%83%E3%80%81%E6%84%9F%E5%8F%97/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Ojection%20%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&text=移动安全-IDA 动态调试 APP"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&title=移动安全-IDA 动态调试 APP"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&is_video=false&description=移动安全-IDA 动态调试 APP"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=移动安全-IDA 动态调试 APP&body=Check out this article: http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&title=移动安全-IDA 动态调试 APP"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&title=移动安全-IDA 动态调试 APP"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&title=移动安全-IDA 动态调试 APP"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&title=移动安全-IDA 动态调试 APP"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&name=移动安全-IDA 动态调试 APP&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&t=移动安全-IDA 动态调试 APP"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%85%8D%E7%BD%AE%E8%B0%83%E8%AF%95%E6%9D%83%E9%99%90"><span class="toc-number">2.</span> <span class="toc-text">二、配置调试权限</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81IDA-%E8%B0%83%E8%AF%95-APP"><span class="toc-number">3.</span> <span class="toc-text">三、IDA 调试 APP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">4.</span> <span class="toc-text">四、参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        移动安全-IDA 动态调试 APP
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-02-16T09:07:58.000Z" itemprop="datePublished">2024-02-16</time>
+        
+        (Updated: <time datetime="2024-02-16T15:28:58.000Z" itemprop="dateModified">2024-02-16</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97/">APP测试系列</a> › <a class="category-link" href="/categories/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8/">移动安全</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/IDA/" rel="tag">IDA</a>, <a class="tag-link-link" href="/tags/%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95/" rel="tag">动态调试</a>, <a class="tag-link-link" href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" rel="tag">工具使用</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>IDA 动态调试 APP 操作流程记录。本文主要内容分为两部分，设备 root 后刷入 Magisk 插件配置调试所有 APP 权限以及 IDA 动态调试APP 操作步骤。</p>
+<h2 id="二、配置调试权限"><a href="#二、配置调试权限" class="headerlink" title="二、配置调试权限"></a>二、配置调试权限</h2><p>首先需要一台 root 的安卓手机，设置里打开 开发者选项，勾选USB调试。其次需检查手机设备是否具备调试所有 APP 的权限，具体检查方法 adb shell 后输入 getprop ro.debuggable ，若输出为 1 则为成功开启了调试权限，若为0则未开启。开启方法如下：</p>
+<p>1、使用 MagiskHidePropsConf 修改 getprop ro.debuggable&#x3D;1，目的是设置所有 app 可调试，该方法即 root 后利用 Magisk 插件 MagiskHidePropsConf 开启权限。面具安装方法不再这里阐述。插件下载地址：<a target="_blank" rel="noopener" href="https://github.com/Magisk-Modules-Repo/MagiskHidePropsConf">https://github.com/Magisk-Modules-Repo/MagiskHidePropsConf</a> 然后在面具 app 中-》模块-》从本地安装-》选择下载的 MagiskHidePropsConf 然后重启手机。</p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/ida/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240213140854.jpg" data-caption="微信图片_20240213140854"><img src="/../images/mobile/ida/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240213140854.jpg" alt="微信图片_20240213140854"></a></p>
+<p>2、重启手机后进行 adb shell，执行 props 进入插件配置开启权限，具体操作截图如下：</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">adb shell</span><br><span class="line">props</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/ida/image-20240204110219811.png" data-caption="image-20240204110219811"><img src="/../images/mobile/ida/image-20240204110219811.png" alt="image-20240204110219811"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/ida/image-20240204110336419.png" data-caption="image-20240204110336419"><img src="/../images/mobile/ida/image-20240204110336419.png" alt="image-20240204110336419"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/ida/image-20240204110526798.png" data-caption="image-20240204110526798"><img src="/../images/mobile/ida/image-20240204110526798.png" alt="image-20240204110526798"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/ida/image-20240204110542131.png" data-caption="image-20240204110542131"><img src="/../images/mobile/ida/image-20240204110542131.png" alt="image-20240204110542131"></a></p>
+<p>重启后进入 adb 输入 getprop ro.debuggable ，若输出为 1 则为成功开启了调试权限</p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/ida/image-20240204110743170.png" data-caption="image-20240204110743170"><img src="/../images/mobile/ida/image-20240204110743170.png" alt="image-20240204110743170"></a></p>
+<h2 id="三、IDA-调试-APP"><a href="#三、IDA-调试-APP" class="headerlink" title="三、IDA 调试 APP"></a>三、IDA 调试 APP</h2><p>1、在 ida 安装目录 &#x2F;dbgsrv找到对应的 android_server ，32 位 arm 就是 android_server </p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/ida/image-20240204095233694.png" data-caption="image-20240204095233694"><img src="/../images/mobile/ida/image-20240204095233694.png" alt="image-20240204095233694"></a></p>
+<p>2、然后利用 adb 上传至手机上的 &#x2F;data&#x2F;local&#x2F;tmp 目录下</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb.exe push C:\Users\Boom\Desktop\app\IDA_Pro_8.3\dbgsrv\android_server64 /data/local/tmp</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/ida/image-20240204101243016.png" data-caption="image-20240204101243016"><img src="/../images/mobile/ida/image-20240204101243016.png" alt="image-20240204101243016"></a></p>
+<p>3、adb shell 进入 Android 设备，给予 android_server64 权限，并启动服务端</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">adb shell</span><br><span class="line">su</span><br><span class="line">cd /data/local/tmp</span><br><span class="line">chmod +x 777 android_server64</span><br><span class="line">./android_server64</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/ida/image-20240204101558154.png" data-caption="image-20240204101558154"><img src="/../images/mobile/ida/image-20240204101558154.png" alt="image-20240204101558154"></a></p>
+<p>4、IDA 调试，adb 转发本机端口到安卓 android_server 监听的端口，然后打开 IDA 选择 Go Work on your own</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb forward tcp:23946 tcp:23946</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/ida/image-20240204111907048.png" data-caption="image-20240204111907048"><img src="/../images/mobile/ida/image-20240204111907048.png" alt="image-20240204111907048"></a></p>
+<p>5、进入到 IDA 界面，选择远程调试</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Debugger-&gt;Attach-&gt;Remote ARMLinux/Android debugger</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/ida/image-20240204111450366.png" data-caption="image-20240204111450366"><img src="/../images/mobile/ida/image-20240204111450366.png" alt="image-20240204111450366"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/ida/image-20240204111616630.png" data-caption="image-20240204111616630"><img src="/../images/mobile/ida/image-20240204111616630.png" alt="image-20240204111616630"></a></p>
+<p>6、找到需要调试的 APP PID号</p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/ida/image-20240204112126337.png" data-caption="image-20240204112126337"><img src="/../images/mobile/ida/image-20240204112126337.png" alt="image-20240204112126337"></a></p>
+<p>选择需要调试的 PID 进行调试即可</p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/ida/image-20240204112401666.png" data-caption="image-20240204112401666"><img src="/../images/mobile/ida/image-20240204112401666.png" alt="image-20240204112401666"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/ida/image-20240204112813449.png" data-caption="image-20240204112813449"><img src="/../images/mobile/ida/image-20240204112813449.png" alt="image-20240204112813449"></a></p>
+<h2 id="四、参考"><a href="#四、参考" class="headerlink" title="四、参考"></a>四、参考</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">https://www.cnblogs.com/GH-123/p/13413063.html</span><br><span class="line">https://zhuanlan.zhihu.com/p/660604996</span><br></pre></td></tr></table></figure></div>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%85%8D%E7%BD%AE%E8%B0%83%E8%AF%95%E6%9D%83%E9%99%90"><span class="toc-number">2.</span> <span class="toc-text">二、配置调试权限</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81IDA-%E8%B0%83%E8%AF%95-APP"><span class="toc-number">3.</span> <span class="toc-text">三、IDA 调试 APP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">4.</span> <span class="toc-text">四、参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&text=移动安全-IDA 动态调试 APP"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&title=移动安全-IDA 动态调试 APP"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&is_video=false&description=移动安全-IDA 动态调试 APP"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=移动安全-IDA 动态调试 APP&body=Check out this article: http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&title=移动安全-IDA 动态调试 APP"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&title=移动安全-IDA 动态调试 APP"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&title=移动安全-IDA 动态调试 APP"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&title=移动安全-IDA 动态调试 APP"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&name=移动安全-IDA 动态调试 APP&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-IDA%20%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95%20APP/&t=移动安全-IDA 动态调试 APP"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

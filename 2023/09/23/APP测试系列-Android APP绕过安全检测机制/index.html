@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、前言前段时间遇到一个 APP 无法通过 正常手段 进行 HTTPS 流量的抓取， 且带有 Root 检测，Root 过的手机无法正常打开 APP，于是对该 APP 开展了简单的学习分析。  问题场景：Android APP 、某厂商加壳、代理检测+root检测，无法通过正常手段抓取 HTTPS 流量。  二、绕过 ROOT 检测Magisk 在 v24 版本之后取消了 Magisk hide">
+<meta property="og:type" content="article">
+<meta property="og:title" content="APP测试系列-Android APP绕过安全检测机制">
+<meta property="og:url" content="http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、前言前段时间遇到一个 APP 无法通过 正常手段 进行 HTTPS 流量的抓取， 且带有 Root 检测，Root 过的手机无法正常打开 APP，于是对该 APP 开展了简单的学习分析。  问题场景：Android APP 、某厂商加壳、代理检测+root检测，无法通过正常手段抓取 HTTPS 流量。  二、绕过 ROOT 检测Magisk 在 v24 版本之后取消了 Magisk hide">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/app/bypass/Root.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/%E7%BB%95%E8%BF%87Root-1.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/%E7%BB%95%E8%BF%87Root-2.jpg">
+<meta property="og:image" content="http://example.com/images/app/bypass/%E7%BB%95%E8%BF%87Root-3.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/adb-1.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/adb-2.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/adb-3.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/adb-4.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/objection_install.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/frida.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/adb-5.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/adb-6.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/apk_info.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/frida-2.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/objection-2.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/objection_3.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/fiddler-1.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/fiddler-2.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/fiddler-3.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/fiddler-4.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/fiddler-5.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/fiddler-7.png">
+<meta property="og:image" content="http://example.com/images/app/bypass/fiddler-6.png">
+<meta property="article:published_time" content="2023-09-23T09:39:39.000Z">
+<meta property="article:modified_time" content="2023-09-23T10:16:42.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="Root">
+<meta property="article:tag" content="SSL Pinning">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/app/bypass/Root.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>APP测试系列-Android APP绕过安全检测机制</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/10/22/Windows%20%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%EF%BC%9A%E6%80%9D%E8%B7%AF%E6%8E%A2%E7%B4%A2%E4%B8%8E%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&text=APP测试系列-Android APP绕过安全检测机制"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&title=APP测试系列-Android APP绕过安全检测机制"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&is_video=false&description=APP测试系列-Android APP绕过安全检测机制"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=APP测试系列-Android APP绕过安全检测机制&body=Check out this article: http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&title=APP测试系列-Android APP绕过安全检测机制"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&title=APP测试系列-Android APP绕过安全检测机制"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&title=APP测试系列-Android APP绕过安全检测机制"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&title=APP测试系列-Android APP绕过安全检测机制"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&name=APP测试系列-Android APP绕过安全检测机制&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&t=APP测试系列-Android APP绕过安全检测机制"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%BB%95%E8%BF%87-ROOT-%E6%A3%80%E6%B5%8B"><span class="toc-number">2.</span> <span class="toc-text">二、绕过 ROOT 检测</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9A%E4%BD%BF%E7%94%A8%E9%AB%98%E7%89%88%E6%9C%AC-Magisk-%E7%BB%95%E8%BF%87"><span class="toc-number">2.1.</span> <span class="toc-text">方法一：使用高版本 Magisk 绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%9A%E4%BD%BF%E7%94%A8-Shamiko-%E6%8F%92%E4%BB%B6%E7%BB%95%E8%BF%87"><span class="toc-number">2.2.</span> <span class="toc-text">方法二：使用 Shamiko 插件绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E5%B7%AE%E5%BC%82"><span class="toc-number">2.3.</span> <span class="toc-text">方法差异</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E7%BB%95%E8%BF%87-SSL-Pinning"><span class="toc-number">3.</span> <span class="toc-text">三、绕过 SSL Pinning</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Android-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="toc-number">3.1.</span> <span class="toc-text">Android 相关知识点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTPS-%E5%8A%A0%E5%AF%86%E6%9C%BA%E5%88%B6"><span class="toc-number">3.2.</span> <span class="toc-text">HTTPS 加密机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Frida-Objection-%E7%BB%95%E8%BF%87-SSL-Pinning"><span class="toc-number">3.3.</span> <span class="toc-text">Frida + Objection 绕过 SSL Pinning</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">四、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">5.</span> <span class="toc-text">五、参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        APP测试系列-Android APP绕过安全检测机制
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-09-23T09:39:39.000Z" itemprop="datePublished">2023-09-23</time>
+        
+        (Updated: <time datetime="2023-09-23T10:16:42.000Z" itemprop="dateModified">2023-09-23</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97/">APP测试系列</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Root/" rel="tag">Root</a>, <a class="tag-link-link" href="/tags/SSL-Pinning/" rel="tag">SSL Pinning</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>前段时间遇到一个 APP 无法通过 <a target="_blank" rel="noopener" href="https://funsiooo.github.io/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/">正常手段</a> 进行 HTTPS 流量的抓取， 且带有 Root 检测，Root 过的手机无法正常打开 APP，于是对该 APP 开展了简单的学习分析。</p>
+<blockquote>
+<p>问题场景：Android APP 、某厂商加壳、代理检测+root检测，无法通过正常手段抓取 HTTPS 流量。</p>
+</blockquote>
+<h2 id="二、绕过-ROOT-检测"><a href="#二、绕过-ROOT-检测" class="headerlink" title="二、绕过 ROOT 检测"></a>二、绕过 ROOT 检测</h2><p>Magisk 在 v24 版本之后取消了 Magisk hide 和在线仓库，现可直接通过 Zygisk（Magisk v24之后的版本自带）来实现对指定的 APP 进行 Root 隐藏。新版本 Magisk 下载地址：<a target="_blank" rel="noopener" href="https://github.com/topjohnwu/Magisk/releases">https://github.com/topjohnwu/Magisk/releases</a> ，笔者使用版本为 Magisk 26.1，下载安装完成 Magisk 后重启手机（注意这属于 Root 部分，该文章不会详细阐述，请根据自己的手机上网搜索相关的文章进行安装）。</p>
+<p>具体 APP 使用了 Root 检测导致 APP 无法正常使用情况，如：界面提示 Root 机器无法运行、 APP 软件闪退、软件卡在某一页面，等等情况。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/Root.png" data-caption="Root"><img src="/../images/app/bypass/Root.png" alt="Root"></a></p>
+<blockquote>
+<p>注意：手机刷入 Magisk 实现 Root 的手机环境需要自己提前准备，这边不作展示，因为每台机子有些许差异，笔者使用的是 Mi 8 刷 Pixel experience 环境，具体文章可参考：<a target="_blank" rel="noopener" href="https://funsiooo.github.io/2023/04/04/Experience">APP测试系列-小米8 线刷 Pixel Experience</a></p>
+</blockquote>
+<h3 id="方法一：使用高版本-Magisk-绕过"><a href="#方法一：使用高版本-Magisk-绕过" class="headerlink" title="方法一：使用高版本 Magisk 绕过"></a>方法一：使用高版本 Magisk 绕过</h3><p>在 Magisk v24 之后 Zygisk 自带 “遵守排除列表” 功能，可通过该功能对指定的 APP 进行 Root 隐藏 ，即手机实际已经 Root 但手机可单独告诉指定的 APP： “我是 Android，我没 Root，开门让我进去”。具体操作： <code>打开 Magisk APP -》点击右上角设置-》点击开启 Zygisk-》重启手机-》再次打开 Magisk 进入设置打开遵守排除列表-》 点击配置排除列表-》 勾选需要隐藏 Root 的 App 程序</code> ，然后再次打开测试 APP 查看是否已经绕过了 Root 检测。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/%E7%BB%95%E8%BF%87Root-1.png" data-caption="绕过Root-1"><img src="/../images/app/bypass/%E7%BB%95%E8%BF%87Root-1.png" alt="绕过Root-1"></a></p>
+<h3 id="方法二：使用-Shamiko-插件绕过"><a href="#方法二：使用-Shamiko-插件绕过" class="headerlink" title="方法二：使用 Shamiko 插件绕过"></a>方法二：使用 Shamiko 插件绕过</h3><p>当然除了自带的 Root 隐藏，也可以通过 Shamiko 插件模块进行 Root 隐藏，若第一种方法不行，可尝试这一种，这里提供多一个思路。具体插件安装步骤： <code>打开 Magisk APP -》点击右下角模块-》点击从本地安装找到提前下载的 Shamiko 插件安装包-》 点击重启,重启手机后查看模块出现 Shamiko 即安装完成</code> ，Shamiko 插件地址：<a target="_blank" rel="noopener" href="https://github.com/LSPosed/LSPosed.github.io/releases">https://github.com/LSPosed/LSPosed.github.io/releases</a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/%E7%BB%95%E8%BF%87Root-2.jpg" data-caption="绕过Root-2"><img src="/../images/app/bypass/%E7%BB%95%E8%BF%87Root-2.jpg" alt="绕过Root-2"></a></p>
+<p>安装完插件后就可以配置需要隐藏的 APP 列表绕过 Root 检测，具体操作： <code>打开 Magisk APP -》点击右上角设置-》关闭&quot;开启的遵守排除列&quot;-》重启手机-》重新打开 Magisk APP 右上角设置-》配置排除列表-》点击勾选需要绕过的 App</code> ，然后打开 APP 查看是否绕过了 Root 检测。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/%E7%BB%95%E8%BF%87Root-3.png" data-caption="绕过Root-3"><img src="/../images/app/bypass/%E7%BB%95%E8%BF%87Root-3.png" alt="绕过Root-3"></a></p>
+<h3 id="方法差异"><a href="#方法差异" class="headerlink" title="方法差异"></a>方法差异</h3><p><strong>Shamiko 与 zygisk magisk自带的遵守排除列表的区别：</strong>若使用 zygisk magisk(即高版本 Magisk v24+) 自带的排除列表功绕过 Root 检测，这样排除列表中的应用则无法使用 magisk 和 xposed 模块，当想对某个排除列表中的应用使用虚拟框架和模块，就需要使用到 Shamiko 模块，这边只了解两种方法差异，不作详细探究。</p>
+<h2 id="三、绕过-SSL-Pinning"><a href="#三、绕过-SSL-Pinning" class="headerlink" title="三、绕过 SSL Pinning"></a>三、绕过 SSL Pinning</h2><h3 id="Android-相关知识点"><a href="#Android-相关知识点" class="headerlink" title="Android 相关知识点"></a>Android 相关知识点</h3><blockquote>
+<p>Hook 技术</p>
+</blockquote>
+<p><strong>Hook</strong> 通常被称为 <strong>钩子</strong>，指 Android 应用程序在运行中通过修改或扩展现有代码的行为来实现某种特定功能或实现定制化需求的技术。换个思路理解就类似于我们日常 Burp 抓包修改，当 Android 应用在运行过程中，我们通过 Hook 技术（钩子）插入或修改应用程序的代码使其执行我们想要效果。</p>
+<p>其中主要 Hook 实现技术又分为：</p>
+<ul>
+<li><strong>动态代理：</strong>通过创建一个代理对象来拦截目标对象的方法调用，并在调用前后执行自定义代码。在 Android 中，可以使用 Java 的动态代理机制或者第三方库（如 Xposed、Frida 框架）来实现动态代理。</li>
+<li><strong>字节码注入：</strong>通过修改应用程序的字节码来插入自定义的代码。这可以通过使用字节码操作库（如 ASM、DexPatcher）或者 Xposed 框架来实现。字节码注入可以在应用程序运行时修改代码逻辑，甚至可以替换整个方法的实现。</li>
+</ul>
+<blockquote>
+<p>Hook 框架</p>
+</blockquote>
+<p><strong>Frida</strong></p>
+<p>动态插桩工具包，Frida 允许开发者使用 JavaScript 编写自定义脚本与目标应用程序进行交互并修改其行为，Frida 还提供 了 API，可以进行动态代码注入、函数挂钩、内存操作、脱壳等。</p>
+<p><strong>Xposed</strong></p>
+<p>基于 Root 权限的框架，用于在 Android 设备上修改应用程序的行为。Xposed 的核心概念是 “挂钩”（hooking）即通过在应用程序的运行时环境中插入代码来拦截和修改方法调用，开发者可以在不修改应用程序源代码的情况下，对应用程序的行为进行修改和扩展。Xposed 模块通常使用 Java 或 Kotlin 编写，并且可以通过 Xposed 框架提供的 API 来与目标应用程序进行交互。</p>
+<h3 id="HTTPS-加密机制"><a href="#HTTPS-加密机制" class="headerlink" title="HTTPS 加密机制"></a>HTTPS 加密机制</h3><p>通常对于 Android APP HTTPS 流量的抓取，笔者一般情况下习惯使用 Friddle + Burp 的组合进行流量的抓取，具体文章可参考：<a target="_blank" rel="noopener" href="https://funsiooo.github.io/2022/11/21/APP%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B5%81%E9%87%8F%E6%8A%93%E5%8C%85-Android%E7%AB%AF/">APP测试系列-Android客户端流量抓包</a>，但当 APP 使用了其它的机制或加密方式则可能导致无法抓取该 APP HTTPS 的流量，这时候就需要分析一下 HTTPS 的加密机制了。</p>
+<blockquote>
+<p>SSL&#x2F;TLS 加密协议</p>
+</blockquote>
+<p>HTTPS 在 HTTP 基础上添加了 SSL&#x2F;TLS 加密层的协议，其中一用途就是为了防止 <strong>MITM中间人攻击</strong> 。日常我们使用 Burp 抓包也知道，想要获取 HTTPS 网站的明文数据包我们需要安装 Burp CA 证书才能拦截和解密通信数据，有时候我们在抓取 HTTPS 流量时，例如抓取安全设备网站页面通常数据包都是加密的，这是因为网站使用了较新的 TLS 版本和加密套件或者使用了特定的客户端证书，此时 Burp CA 证书的解密方式就失效了，所以就只能抓取到一窜加密的数据。</p>
+<blockquote>
+<p>SSL PINNING</p>
+</blockquote>
+<p>SSL pinning（SSL证书锁定）是一种用于增强应用程序安全性的技术，主要用在防止中间人攻击和证书欺骗。主要验证机制如下：</p>
+<ul>
+<li><strong>应用程序内置公钥：</strong>应用程序开发者将服务器的公钥或证书指纹嵌入到应用程序代码中，通常是在应用程序的配置文件或代码的特定位置。</li>
+<li><strong>运行时验证：</strong>当应用程序建立与服务器的连接时，它会验证服务器的公钥或证书指纹是否与预置的值匹配。如果匹配成功，则建立安全连接；如果不匹配，则认为连接不安全，可能存在中间人攻击。</li>
+</ul>
+<p>通过 SSL Pinning，应用程序可以确保与服务器建立安全连接的过程中不被中间人攻击所破坏。即使攻击者使用伪造的证书，由于与预置的公钥或证书指纹不匹配，验证过程将失败，普通的 Burp CA 也就自然无法抓取该程序的 HTTPS 流量。</p>
+<p><strong>如何判断应用程序使用了 SSL pinning ？</strong></p>
+<p>在日常测试中，经过多次的前车之鉴，当常规方法不能抓取 HTTPS 流量时，自然而然就想到程序是否使用了 SSL Pinning ，当然我们也可以对程序的分析来进行判断。例如将该程序 apk 进行逆向分析，全局搜索其代码有没有使用如：<strong>HttpURLConnection、HttpClient、OkHttp、Volley</strong> 等库，并分析其逻辑，显然这种方式对于测试者来说过于复杂。所以我们直接跳过分析尝试绕过 SSL Pinning 若能抓到即为使用了 SSL Pinning 降低测试成本 。</p>
+<h3 id="Frida-Objection-绕过-SSL-Pinning"><a href="#Frida-Objection-绕过-SSL-Pinning" class="headerlink" title="Frida + Objection 绕过 SSL Pinning"></a>Frida + Objection 绕过 SSL Pinning</h3><p>Frida 我们在前面已经简单的介绍过了，这边再引入一个开源工具：Objection ， Objection 是基于 Frida 框架开发的一个工具，它提供了一组便捷的功能和脚本，以简化在移动应用程序中使用 Frida 进行动态分析和漏洞利用的过程。其中 Objection 内置了 SSL Pinning 绕过脚本，所以我们可以尝试使用 Frida + Objection 去绕过 Android 应用的 SSL Pinning，具体步骤如下：</p>
+<p>1、下载 adb 用于电脑与手机的连接，下载地址：<a target="_blank" rel="noopener" href="https://developer.android.google.cn/studio/releases/platform-tools?hl=zh-cn">https://developer.android.google.cn/studio/releases/platform-tools?hl=zh-cn</a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/adb-1.png" data-caption="adb-1"><img src="/../images/app/bypass/adb-1.png" alt="adb-1"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/adb-2.png" data-caption="adb-2"><img src="/../images/app/bypass/adb-2.png" alt="adb-2"></a></p>
+<p>2、使用具备数据传输的 usb 数据线，然后电脑与手机连接，需要开启手机的 <strong>开发者模式</strong> ，usb 使用文件传输模式，然后就可以使用 adb 连接手机 。 adb 目录下终端执行 <code>adb.exe devices</code> ，然后点击手机弹出的允许 USB 调试</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/adb-3.png" data-caption="adb-3"><img src="/../images/app/bypass/adb-3.png" alt="adb-3"></a></p>
+<p>然后 终端执行 <code>adb shell</code> 即可进入 Android adb shell ，默认为普通权限，<code>su</code> 后为 <code>root</code> 权限</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/adb-4.png" data-caption="adb-4"><img src="/../images/app/bypass/adb-4.png" alt="adb-4"></a></p>
+<p>3、电脑安装 Objection</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install objection</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/objection_install.png" data-caption="objection_install"><img src="/../images/app/bypass/objection_install.png" alt="objection_install"></a></p>
+<p>因为 Objection 是依赖于 frida 框架的，所以再安装完 Objection，frida 也同步安装了，这时候需要查看电脑安装 frida 的版本，因为下一步<strong>手机上的 frida-server 版本必须要和电脑上的 frida 版本一致，不然会报错</strong>，此次 frida 版本为 16.1.4</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frida --version</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/frida.png" data-caption="frida"><img src="/../images/app/bypass/frida.png" alt="frida"></a></p>
+<p>4、手机上通过 adb 上传 frida-server 版本为 16.1.4，frida-server 下载地址: <a target="_blank" rel="noopener" href="https://github.com/frida/frida/releases">https://github.com/frida/frida/releases</a></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 默认开启进入 adb shell 为 root 权限，因为上传需要 root 权限</span><br><span class="line">adb root</span><br><span class="line"></span><br><span class="line"># 上传 frida-server, data/app_tes 为目录路径可自定义</span><br><span class="line">adb push frida-server-16.1.4-android-arm64 data/app_test</span><br><span class="line"></span><br><span class="line"># 查看是否上传成功</span><br><span class="line">ls /data/app_test</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/adb-5.png" data-caption="adb-5"><img src="/../images/app/bypass/adb-5.png" alt="adb-5"></a></p>
+<p>进入 <code>/data/app_test</code> 给予 <code>frida-server-16.1.4-android-arm64</code> 777 权限（运行需要）</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 进入 frida-server-16.1.4-android-arm64 所在的目录，这边为 /data/app_test</span><br><span class="line">cd data/app_test</span><br><span class="line"></span><br><span class="line"># 给与 777 权限</span><br><span class="line">chmod 777 frida-server-16.1.4-android-arm64</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/adb-6.png" data-caption="adb-6"><img src="/../images/app/bypass/adb-6.png" alt="adb-6"></a></p>
+<p>5、准备利用 Objection 绕过 SSL Pinning，首先查找 app 的包名是什么，个人习惯使用 <a target="_blank" rel="noopener" href="https://codeload.github.com/bihe0832/Android-GetAPKInfo/zip/refs/tags/V2.0.2">GetAPKInfo</a> 工具来获取 APP 包名，例如下面的例子</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar GetAPKInfo.jar apk包路径</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/apk_info.png" data-caption="apk_info"><img src="/../images/app/bypass/apk_info.png" alt="apk_info"></a></p>
+<p>6、返回 adb 启动 frida-server</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./frida-server-16.1.2-android-arm64 (若 + &amp; 则在 Android 后台运行)</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/frida-2.png" data-caption="frida-2"><img src="/../images/app/bypass/frida-2.png" alt="frida-2"></a></p>
+<p>7、启动 Objection ，通过进入 Objection 关掉 Root 和 SSL Pinning</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objection -g 刚才通过GetAPKInfo获取待测app的包名 explore</span><br></pre></td></tr></table></figure></div>
+
+<p>当使用上述命令后即对指定包的 APP 启动了 Objection 工具 ,然后手机上会调用启动 APP ，此时手机会自动弹出 APP 界面并运行</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/objection-2.png" data-caption="objection-2"><img src="/../images/app/bypass/objection-2.png" alt="objection-2"></a></p>
+<p>此时就可以在 Objection 上禁用该 APP 的 Root 和 SSL Pinning</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">android root disable</span><br><span class="line">android sslpinning disable</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/objection_3.png" data-caption="objection_3"><img src="/../images/app/bypass/objection_3.png" alt="objection_3"></a></p>
+<p>8、此时可利用常规手段 Fiddler + Burp 进行 HTTPS 流量抓包，即可绕过 SSL Pinning 机制获取 HTTPS 流量包，Fiddler 下载链接：<a target="_blank" rel="noopener" href="https://telerik-fiddler.s3.amazonaws.com/fiddler/FiddlerSetup.exe">https://telerik-fiddler.s3.amazonaws.com/fiddler/FiddlerSetup.exe</a></p>
+<p>1）配置抓取 HTTPS 流量，<code>Tools-》Options-》HTTPS</code></p>
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/fiddler-1.png" data-caption="fiddler-1"><img src="/../images/app/bypass/fiddler-1.png" alt="fiddler-1"></a></p>
+<p>勾选 <code>HTTPS </code>勾选后会弹出安装证书的提示，根据提示一直点击 是 安装即可。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/fiddler-2.png" data-caption="fiddler-2"><img src="/../images/app/bypass/fiddler-2.png" alt="fiddler-2"></a></p>
+<p>2）配置代理端口 <code>Tools — Options — Connections</code>，端口选择 9000（可随意更改），勾选 Allow remote computers to connect ，点击 OK，重启 Fiddle 使配置生效</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/fiddler-3.png" data-caption="fiddler-3"><img src="/../images/app/bypass/fiddler-3.png" alt="fiddler-3"></a></p>
+<p>3）配置手机端代理与 Fiddler 设置的端口一致，让 APP 流量走 Fiddler 这里手机也是同一 WIFI 下的本机 IP。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/fiddler-4.png" data-caption="fiddler-4"><img src="/../images/app/bypass/fiddler-4.png" alt="fiddler-4"></a></p>
+<p>配置后，在手机浏览器访问上面设置的 IP 地址和端口号，我这里是 192.168.1.102:9000（这里要根据实际情况），然后 FiddlerRoot certificate 进行下载证书，并自行安装配置</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/fiddler-5.png" data-caption="fiddler-5"><img src="/../images/app/bypass/fiddler-5.png" alt="fiddler-5"></a></p>
+<p>5）Fiddler 配置，<code>Tools-》Options-》Gateway-》Manual Proxy Configuration</code> 填写 127.0.0.1:8080 使与 Burp 的监听地址一致。</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/fiddler-7.png" data-caption="fiddler-7"><img src="/../images/app/bypass/fiddler-7.png" alt="fiddler-7"></a></p>
+<p>6）<code>Burp</code> 开启监听，等待 <code>Fiddler</code> 流量转发过来</p>
+<p><a data-fancybox="gallery" data-src="/../images/app/bypass/fiddler-6.png" data-caption="fiddler-6"><img src="/../images/app/bypass/fiddler-6.png" alt="fiddler-6"></a></p>
+<p>7）最后返回待测 APP 上点击功能点，流量从 Fiddler 转发到了 Burp，这里就不用展示了，在遇到需要测试的 APP 存在 SSL Pinning 自己可去实践一下即可。</p>
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>本文实践起来不算复杂，但需要理解 adb、手机 Root 、hook、抓包 等技术的基础原理，通过串联几种基础的技术进而加深了解 Android 测试过程中遇到问题以及解决方法。</p>
+<h2 id="五、参考"><a href="#五、参考" class="headerlink" title="五、参考"></a>五、参考</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">https://saucer-man.com/information_security/930.html#cl-1</span><br><span class="line">https://www.hackingarticles.in/android-hooking-and-sslpinning-using-objection-framework/</span><br><span class="line">https://zhuanlan.zhihu.com/p/127847550</span><br></pre></td></tr></table></figure></div>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E7%BB%95%E8%BF%87-ROOT-%E6%A3%80%E6%B5%8B"><span class="toc-number">2.</span> <span class="toc-text">二、绕过 ROOT 检测</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9A%E4%BD%BF%E7%94%A8%E9%AB%98%E7%89%88%E6%9C%AC-Magisk-%E7%BB%95%E8%BF%87"><span class="toc-number">2.1.</span> <span class="toc-text">方法一：使用高版本 Magisk 绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%9A%E4%BD%BF%E7%94%A8-Shamiko-%E6%8F%92%E4%BB%B6%E7%BB%95%E8%BF%87"><span class="toc-number">2.2.</span> <span class="toc-text">方法二：使用 Shamiko 插件绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E5%B7%AE%E5%BC%82"><span class="toc-number">2.3.</span> <span class="toc-text">方法差异</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E7%BB%95%E8%BF%87-SSL-Pinning"><span class="toc-number">3.</span> <span class="toc-text">三、绕过 SSL Pinning</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Android-%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="toc-number">3.1.</span> <span class="toc-text">Android 相关知识点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTPS-%E5%8A%A0%E5%AF%86%E6%9C%BA%E5%88%B6"><span class="toc-number">3.2.</span> <span class="toc-text">HTTPS 加密机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Frida-Objection-%E7%BB%95%E8%BF%87-SSL-Pinning"><span class="toc-number">3.3.</span> <span class="toc-text">Frida + Objection 绕过 SSL Pinning</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">四、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">5.</span> <span class="toc-text">五、参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&text=APP测试系列-Android APP绕过安全检测机制"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&title=APP测试系列-Android APP绕过安全检测机制"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&is_video=false&description=APP测试系列-Android APP绕过安全检测机制"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=APP测试系列-Android APP绕过安全检测机制&body=Check out this article: http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&title=APP测试系列-Android APP绕过安全检测机制"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&title=APP测试系列-Android APP绕过安全检测机制"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&title=APP测试系列-Android APP绕过安全检测机制"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&title=APP测试系列-Android APP绕过安全检测机制"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&name=APP测试系列-Android APP绕过安全检测机制&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/&t=APP测试系列-Android APP绕过安全检测机制"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

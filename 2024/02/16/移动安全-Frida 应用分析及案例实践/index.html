@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、Frida 简介Frida 是核心引擎使用 C 写的一款动态分析工具，通过 Frida 我们可以把一段 JavaScript、Python 等代码注入到一个正在运行中的应用程序进程中去。 HookFrida 注入代码的过程通常被称为 Hook（钩子）。在运行中的应用程序拦截和修改函数或方法的执行流程称为 Hooking 。通过 Hook，我们可以在目标应用程序的指定函数执行前或执行后插入自定义">
+<meta property="og:type" content="article">
+<meta property="og:title" content="移动安全-Frida 应用分析及案例实践">
+<meta property="og:url" content="http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、Frida 简介Frida 是核心引擎使用 C 写的一款动态分析工具，通过 Frida 我们可以把一段 JavaScript、Python 等代码注入到一个正在运行中的应用程序进程中去。 HookFrida 注入代码的过程通常被称为 Hook（钩子）。在运行中的应用程序拦截和修改函数或方法的执行流程称为 Hooking 。通过 Hook，我们可以在目标应用程序的指定函数执行前或执行后插入自定义">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231125132155193.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231125131931077.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231125134232951.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231125134927921.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231125134816019.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231125135652353.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231125135907946.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231125140543748.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231125212854538.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231125213212970.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231125213641791.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231125213758207.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231125213957887.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231128201936123.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231127205755131.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240216164737.jpg">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231128202355240-17077199387342.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231128202609642-17077200954044.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231209122317290.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231209122204941.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231209123411245-17077210950026.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231209130052729-17077213012428.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231204204118906-170772140865410.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231204203656939.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231204204558680.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231204205154000-170772151925312.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231204210236674.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231204210507093-170772168463414.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231204210719257-170772176827616.png">
+<meta property="og:image" content="http://example.com/images/mobile/frida/1/image-20231204210740033.png">
+<meta property="article:published_time" content="2024-02-16T08:44:07.000Z">
+<meta property="article:modified_time" content="2024-02-16T15:44:00.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="工具使用">
+<meta property="article:tag" content="Frida">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/mobile/frida/1/image-20231125132155193.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>移动安全-Frida 应用分析及案例实践</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-FridaUiTools%20%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-FART%20%E8%84%B1%E5%A3%B3%E6%9C%BA%E5%88%B6%E4%BD%9C/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&text=移动安全-Frida 应用分析及案例实践"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=移动安全-Frida 应用分析及案例实践"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&is_video=false&description=移动安全-Frida 应用分析及案例实践"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=移动安全-Frida 应用分析及案例实践&body=Check out this article: http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=移动安全-Frida 应用分析及案例实践"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=移动安全-Frida 应用分析及案例实践"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=移动安全-Frida 应用分析及案例实践"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=移动安全-Frida 应用分析及案例实践"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&name=移动安全-Frida 应用分析及案例实践&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&t=移动安全-Frida 应用分析及案例实践"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Frida-%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">一、Frida 简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Hook"><span class="toc-number">1.1.</span> <span class="toc-text">Hook</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B8%E5%BA%94%E5%8A%9F%E8%83%BD"><span class="toc-number">1.2.</span> <span class="toc-text">相应功能</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85"><span class="toc-number">2.</span> <span class="toc-text">二、工具安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%AE%9E%E8%B7%B5%E6%A1%88%E4%BE%8B"><span class="toc-number">3.</span> <span class="toc-text">三、实践案例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%BD%E8%B8%AA%E7%A8%8B%E5%BA%8F%E5%87%BD%E6%95%B0"><span class="toc-number">3.1.</span> <span class="toc-text">追踪程序函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bypass-SSL-Pinning-amp-ROOT"><span class="toc-number">3.2.</span> <span class="toc-text">Bypass SSL Pinning &amp; ROOT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%BD%E8%B8%AA%E5%8A%A0%E5%AF%86%E5%87%BD%E6%95%B0"><span class="toc-number">3.3.</span> <span class="toc-text">追踪加密函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%84%B1%E5%A3%B3"><span class="toc-number">3.4.</span> <span class="toc-text">脱壳</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#frida-dexdump"><span class="toc-number">3.4.1.</span> <span class="toc-text">frida-dexdump</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">4.</span> <span class="toc-text">六、参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        移动安全-Frida 应用分析及案例实践
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2024-02-16T08:44:07.000Z" itemprop="datePublished">2024-02-16</time>
+        
+        (Updated: <time datetime="2024-02-16T15:44:00.000Z" itemprop="dateModified">2024-02-16</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97/">APP测试系列</a> › <a class="category-link" href="/categories/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8/">移动安全</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Frida/" rel="tag">Frida</a>, <a class="tag-link-link" href="/tags/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" rel="tag">工具使用</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、Frida-简介"><a href="#一、Frida-简介" class="headerlink" title="一、Frida 简介"></a>一、Frida 简介</h2><p>Frida 是核心引擎使用 C 写的一款动态分析工具，通过 Frida 我们可以把一段 JavaScript、Python 等代码注入到一个正在运行中的应用程序进程中去。</p>
+<h3 id="Hook"><a href="#Hook" class="headerlink" title="Hook"></a>Hook</h3><p>Frida 注入代码的过程通常被称为 Hook（钩子）。在运行中的应用程序拦截和修改函数或方法的执行流程称为 Hooking 。通过 Hook，我们可以在目标应用程序的指定函数执行前或执行后插入自定义的代码，从而改变函数的行为或捕获关键信息。换个思路理解就类似于我们日常 Burp 抓包修改，但 Hook 需要定位到相应的函数，然后通过编写 Hook 脚本修改其函数的行为或者达到其它目的，通常基本的脚本编写使用 Javascript 或者 Python，但 Frida 还提供了 Node.js、 Swift、.net、Qml 等语言的接口封装，根据个人选择。</p>
+<p>Frida 注入代码的过程通常被称为 Hook（钩子）。在运行中的应用程序拦截和修改函数或方法的执行流程称为 Hooking 。通过 Hook，我们可以在目标应用程序的指定函数执行前或执行后插入自定义的代码，从而改变函数的行为或捕获关键信息。换个思路理解就类似于我们日常 Burp 抓包修改，但 Hook 需要定位到相应的函数，然后通过编写 Hook 脚本修改其函数的行为或者达到其它目的，通常基本的编写使用 Javascript 或者 Python，但Frida 还提供了 Node.js、 Swift、.net、Qml 等语言的接口封装，根据个人选择。</p>
+<h3 id="相应功能"><a href="#相应功能" class="headerlink" title="相应功能"></a>相应功能</h3><p>在实际测试中，Frida 主要有以下几种功能可辅助安全测试人员进行测试。</p>
+<ul>
+<li>监视加密API</li>
+<li>修改函数的输出</li>
+<li>绕过 AES 加密</li>
+<li>绕过 SSL Pinning、ROOT 检测</li>
+<li>追踪应用代码</li>
+<li>脱壳</li>
+<li>……</li>
+</ul>
+<h2 id="二、工具安装"><a href="#二、工具安装" class="headerlink" title="二、工具安装"></a>二、工具安装</h2><p>frida 分为客户端和服务端，服务端一般在目标设备上运行的，客户端则在开发机上运行，如对 Android APP 的调试，服务端放在 Android 设备上，而客户端则在我们自己的电脑上安装即可。<strong>（注意：服务端与客户端的 frida 版本需要一致，否则可能会出现报错）</strong></p>
+<p>1、服务端，下载地址：<a target="_blank" rel="noopener" href="https://github.com/frida/frida%EF%BC%8C%E9%80%89%E6%8B%A9">https://github.com/frida/frida，选择</a> android-arm64.xz 版本</p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231125132155193.png" data-caption="image-20231125132155193"><img src="/../images/mobile/frida/1/image-20231125132155193.png" alt="image-20231125132155193"></a></p>
+<p>使用 adb 上传至手机中，adb 下载地址：<a target="_blank" rel="noopener" href="https://developer.android.google.cn/studio/releases/platform-tools?hl=zh-cn%EF%BC%88%E5%9C%A8%E8%BF%9B%E8%A1%8C">https://developer.android.google.cn/studio/releases/platform-tools?hl=zh-cn（在进行</a> Android  APP 调试，测试机记得 ROOT，这边不赘述）, 以下执行可知，adb shell 进入后为 $ ,即默认权限为普通权限。</p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231125131931077.png" data-caption="image-20231125131931077"><img src="/../images/mobile/frida/1/image-20231125131931077.png" alt="image-20231125131931077"></a></p>
+<p>本人上传的为 data 目录，需要 root 权限，所以在执行上传文件前，先执行 adb root ，然后手机上点击允许调试。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb root</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231125134232951.png" data-caption="image-20231125134232951"><img src="/../images/mobile/frida/1/image-20231125134232951.png" alt="image-20231125134232951"></a></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">adb push D:\app\test\frida-server-16.1.6-android-arm64 /data/app_test</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231125134927921.png" data-caption="image-20231125134927921"><img src="/../images/mobile/frida/1/image-20231125134927921.png" alt="image-20231125134927921"></a></p>
+<p>进入 adb shell 将上传的 frida 给予运行权限</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">adb shell</span><br><span class="line">cd /data/app_test</span><br><span class="line">chmod 777 frida-server-16.1.6-android-arm64</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231125134816019.png" data-caption="image-20231125134816019"><img src="/../images/mobile/frida/1/image-20231125134816019.png" alt="image-20231125134816019"></a></p>
+<p>2、客户端，客户端 frida 安装较为简单，直接使用 pip3 进行安装即可，但需要 python3.x 环境，这边使用 python 3.9 进行安装。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pip3 install frida	// 安装 frida</span><br><span class="line">pip3 install frida==16.1.6 //指定版本安装</span><br><span class="line">pip3 install frida-tools // 安装 frida cli 工具，可运行 frida 某些命令</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231125135652353.png" data-caption="image-20231125135652353"><img src="/../images/mobile/frida/1/image-20231125135652353.png" alt="image-20231125135652353"></a></p>
+<p>3、验证，先在 Android 设备进入 frida-server 所在目录运行 frida-server 启动服务端<strong>（服务端最好修改一下名称，部分安全加固会将frida 字段进行安全检测）</strong></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./frida-server-16.1.6-android-arm64</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231125135907946.png" data-caption="image-20231125135907946"><img src="/../images/mobile/frida/1/image-20231125135907946.png" alt="image-20231125135907946"></a></p>
+<p>在电脑上使用 frida-tools 自带命令，查看是否已经和手机连接了，下图使用 frida-ps -Uia 命令查看手机上正在运行的程序，证明服务端与客户端通讯正常</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frida-ps -Uia</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231125140543748.png" data-caption="image-20231125140543748"><img src="/../images/mobile/frida/1/image-20231125140543748.png" alt="image-20231125140543748"></a></p>
+<h2 id="三、实践案例"><a href="#三、实践案例" class="headerlink" title="三、实践案例"></a>三、实践案例</h2><h3 id="追踪程序函数"><a href="#追踪程序函数" class="headerlink" title="追踪程序函数"></a>追踪程序函数</h3><p>这边追踪某 APP  open()函数，查看其输出情况如何。</p>
+<p>1、启动服务端（即手机上运行 frida-server）</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./frida-server-16.1.6-android-arm64</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231125212854538.png" data-caption="image-20231125212854538"><img src="/../images/mobile/frida/1/image-20231125212854538.png" alt="image-20231125212854538"></a></p>
+<p>2、客户端（电脑上）进行追踪 open() 函数，首先查看正在运行的程序获取包名</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frida-ps -Uia</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231125213212970.png" data-caption="image-20231125213212970"><img src="/../images/mobile/frida/1/image-20231125213212970.png" alt="image-20231125213212970"></a></p>
+<p>选择其中一个带有 open() 函数的程序进行追踪。</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frida-trace -U -i open com.tencent.android.qqdownloader</span><br></pre></td></tr></table></figure></div>
+
+<p>等待一段时间后，frida 开始 trace 到后台正在运行程序的 open() </p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231125213641791.png" data-caption="image-20231125213641791"><img src="/../images/mobile/frida/1/image-20231125213641791.png" alt="image-20231125213641791"></a></p>
+<p>打开 APP 程序会发现 frida trace 到大量调用 open() 函数</p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231125213758207.png" data-caption="image-20231125213758207"><img src="/../images/mobile/frida/1/image-20231125213758207.png" alt="image-20231125213758207"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231125213957887.png" data-caption="image-20231125213957887"><img src="/../images/mobile/frida/1/image-20231125213957887.png" alt="image-20231125213957887"></a></p>
+<h3 id="Bypass-SSL-Pinning-amp-ROOT"><a href="#Bypass-SSL-Pinning-amp-ROOT" class="headerlink" title="Bypass SSL Pinning &amp; ROOT"></a>Bypass SSL Pinning &amp; ROOT</h3><p>网上 search 的 bypass 脚本，具体地址遗忘了</p>
+<div class="highlight-wrap" data-rel="Js"><figure class="iseeu highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">	<span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27; &#x27;</span>)</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;***********************************&#x27;</span>)</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;* Start Bypass SSL Pinning Nowing *&#x27;</span>)</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;***********************************&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> X509TrustManager = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;javax.net.ssl.X509TrustManager&#x27;</span>);</span><br><span class="line">    <span class="keyword">var</span> <span class="title class_">SSLContext</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;javax.net.ssl.SSLContext&#x27;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> <span class="title class_">TrustManager</span> = <span class="title class_">Java</span>.<span class="title function_">registerClass</span>(&#123;</span><br><span class="line">        <span class="attr">name</span>: <span class="string">&#x27;com.test.TrustManager&#x27;</span>,</span><br><span class="line">        <span class="attr">implements</span>: [X509TrustManager],</span><br><span class="line">        <span class="attr">methods</span>: &#123;</span><br><span class="line">            <span class="attr">checkClientTrusted</span>: <span class="keyword">function</span> (<span class="params">chain, authType</span>) &#123;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">checkServerTrusted</span>: <span class="keyword">function</span> (<span class="params">chain, authType</span>) &#123;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">getAcceptedIssuers</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> [];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> <span class="title class_">TrustManagers</span> = [<span class="title class_">TrustManager</span>.$new()];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> <span class="title class_">SSLContext</span>_init = <span class="title class_">SSLContext</span>.<span class="property">init</span>.<span class="title function_">overload</span>(</span><br><span class="line">        <span class="string">&#x27;[Ljavax.net.ssl.KeyManager;&#x27;</span>, <span class="string">&#x27;[Ljavax.net.ssl.TrustManager;&#x27;</span>, <span class="string">&#x27;java.security.SecureRandom&#x27;</span></span><br><span class="line">    );</span><br><span class="line">    <span class="title class_">SSLContext</span>_init.<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">keyManager, trustManager, secureRandom</span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;! Intercepted trustmanager request&#x27;</span>);</span><br><span class="line">        <span class="title class_">SSLContext</span>_init.<span class="title function_">call</span>(<span class="variable language_">this</span>, keyManager, <span class="title class_">TrustManagers</span>, secureRandom);</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;* Setup custom trust manager&#x27;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> <span class="title class_">CertificatePinner</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;okhttp3.CertificatePinner&#x27;</span>);</span><br><span class="line">        <span class="title class_">CertificatePinner</span>.<span class="property">check</span>.<span class="title function_">overload</span>(<span class="string">&#x27;java.lang.String&#x27;</span>, <span class="string">&#x27;java.util.List&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">str</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;! Intercepted okhttp3: &#x27;</span> + str);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;* Setup okhttp3 pinning&#x27;</span>)</span><br><span class="line">    &#125; <span class="keyword">catch</span>(err) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;* Unable to hook into okhttp3 pinner&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> <span class="title class_">Activity</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.datatheorem.android.trustkit.pinning.OkHostnameVerifier&quot;</span>);</span><br><span class="line">        <span class="title class_">Activity</span>.<span class="property">verify</span>.<span class="title function_">overload</span>(<span class="string">&#x27;java.lang.String&#x27;</span>, <span class="string">&#x27;javax.net.ssl.SSLSession&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">str</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;! Intercepted trustkit&#123;1&#125;: &#x27;</span> + str);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="title class_">Activity</span>.<span class="property">verify</span>.<span class="title function_">overload</span>(<span class="string">&#x27;java.lang.String&#x27;</span>, <span class="string">&#x27;java.security.cert.X509Certificate&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">str</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;! Intercepted trustkit&#123;2&#125;: &#x27;</span> + str);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;* Setup trustkit pinning&#x27;</span>)</span><br><span class="line">    &#125; <span class="keyword">catch</span>(err) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;* Unable to hook into trustkit pinner&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> <span class="title class_">TrustManagerImpl</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;com.android.org.conscrypt.TrustManagerImpl&#x27;</span>);</span><br><span class="line">        <span class="title class_">TrustManagerImpl</span>.<span class="property">verifyChain</span>.<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">untrustedChain, trustAnchorChain, host, clientAuth, ocspData, tlsSctData</span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;! Intercepted TrustManagerImp: &#x27;</span> + host);</span><br><span class="line">            <span class="keyword">return</span> untrustedChain;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;* Setup TrustManagerImpl pinning&#x27;</span>)</span><br><span class="line">    &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;* Unable to hook into TrustManagerImpl&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> <span class="title class_">PinningTrustManager</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&#x27;appcelerator.https.PinningTrustManager&#x27;</span>);</span><br><span class="line">        <span class="title class_">PinningTrustManager</span>.<span class="property">checkServerTrusted</span>.<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;! Intercepted Appcelerator&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;* Setup Appcelerator pinning&#x27;</span>)</span><br><span class="line">    &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;* Unable to hook into Appcelerator pinning&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>在 APP 启用了 SSL Pinning 时，无法通过 Burp 或 Fiddle 等抓包工具进行直接抓取 Https 的流量包的。</p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231128201936123.png" data-caption="image-20231128201936123"><img src="/../images/mobile/frida/1/image-20231128201936123.png" alt="image-20231128201936123"></a></p>
+<p>1、启动服务端</p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231127205755131.png" data-caption="image-20231127205755131"><img src="/../images/mobile/frida/1/image-20231127205755131.png" alt="image-20231127205755131"></a></p>
+<p>编写 frida 脚本，绕过 SSL Pinning。在电脑上启动 frida 客户端，对该 app 注入 SSL Pinning 脚本，绕过其限制。在启动前先执行 frida-ps -Uia 查找正在运行的 APP 找到我们需要绕过的 APP 的包名</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frida-ps -Uia</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240216164737.jpg" data-caption="微信图片_20240216164737"><img src="/../images/mobile/frida/1/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240216164737.jpg" alt="微信图片_20240216164737"></a></p>
+<p>脚本代码上文已列出，暂命名为 Bypass.js，启动脚本后手机自动启动 APP，然后再运行中注入绕过代码</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frida -U -f com.app包名.xxxx -l Bypass.js</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231128202355240-17077199387342.png" data-caption="image-20231128202355240"><img src="/../images/mobile/frida/1/image-20231128202355240-17077199387342.png" alt="image-20231128202355240"></a></p>
+<p>成功抓取到 Https 流量</p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231128202609642-17077200954044.png" data-caption="image-20231128202609642"><img src="/../images/mobile/frida/1/image-20231128202609642-17077200954044.png" alt="image-20231128202609642"></a></p>
+<h3 id="追踪加密函数"><a href="#追踪加密函数" class="headerlink" title="追踪加密函数"></a>追踪加密函数</h3><p>对某一 APP 加密函数进行追踪，代码如下</p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231209122317290.png" data-caption="image-20231209122317290"><img src="/../images/mobile/frida/1/image-20231209122317290.png" alt="image-20231209122317290"></a></p>
+<p>直接右键复制为 frida 代码</p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231209122204941.png" data-caption="image-20231209122204941"><img src="/../images/mobile/frida/1/image-20231209122204941.png" alt="image-20231209122204941"></a></p>
+<p>自动复制的 frida 脚本代码为，注意 m12903a 方法名在程序运行编译时被重载为 a ，由上图 renamed from：a* 可中，所以 frida脚本在编写时，m12903a 需要替换为 a</p>
+<div class="highlight-wrap" data-rel="Javascript"><figure class="iseeu highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="title class_">LoginActivity</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.方法名.LoginActivity&quot;</span>);</span><br><span class="line"><span class="title class_">LoginActivity</span>[<span class="string">&quot;a&quot;</span>].<span class="title function_">overload</span>(<span class="string">&#x27;java.lang.String&#x27;</span>, <span class="string">&#x27;java.lang.String&#x27;</span>, <span class="string">&#x27;java.lang.String&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">str, str2, str3</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`LoginActivity.m12903a is called: str=<span class="subst">$&#123;str&#125;</span>, str2=<span class="subst">$&#123;str2&#125;</span>, str3=<span class="subst">$&#123;str3&#125;</span>`</span>);</span><br><span class="line">    <span class="variable language_">this</span>[<span class="string">&quot;a&quot;</span>](str, str2, str3);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></div>
+
+<p>修改完善代码</p>
+<div class="highlight-wrap" data-rel="Javascript"><figure class="iseeu highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Script Start Nowing&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> <span class="title class_">LoginActivity</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.方法名.LoginActivity&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title class_">LoginActivity</span>.<span class="property">a</span>.<span class="title function_">overload</span>(<span class="string">&#x27;java.lang.String&#x27;</span>, <span class="string">&#x27;java.lang.String&#x27;</span>, <span class="string">&#x27;java.lang.String&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">str, str2, str3</span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;LoginActivity.m12903a results are as follows&quot;</span>);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;str: &quot;</span> + str);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;str2: &quot;</span> + str2);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;str3: &quot;</span> + str3);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;---------------------------------&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 调用原始方法</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">a</span>(str, str2, str3);</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></div>
+
+<p>使用脚本进行 Hook,成功输出 m12903a 方法的结果</p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231209123411245-17077210950026.png" data-caption="image-20231209123411245"><img src="/../images/mobile/frida/1/image-20231209123411245-17077210950026.png" alt="image-20231209123411245"></a></p>
+<p>现已知函数能被正常 Hook，继续进一步追踪程序在调用 m12903a 方法时的调用栈情况</p>
+<div class="highlight-wrap" data-rel="Javascript"><figure class="iseeu highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Java</span>.<span class="title function_">perform</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Script Start Nowing&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> <span class="title class_">Exception</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;java.lang.Exception&quot;</span>);</span><br><span class="line">    <span class="keyword">var</span> <span class="title class_">LoginActivity</span> = <span class="title class_">Java</span>.<span class="title function_">use</span>(<span class="string">&quot;com.方法名.LoginActivity&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title class_">LoginActivity</span>.<span class="property">a</span>.<span class="title function_">overload</span>(<span class="string">&#x27;java.lang.String&#x27;</span>, <span class="string">&#x27;java.lang.String&#x27;</span>, <span class="string">&#x27;java.lang.String&#x27;</span>).<span class="property">implementation</span> = <span class="keyword">function</span> (<span class="params">str, str2, str3</span>) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;------------------------------------------------------------------------------------------------------------&quot;</span>);        </span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;LoginActivity.m12903a results are as follows&quot;</span>);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;------------------------------------------------------------------------------------------------------------&quot;</span>);        </span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;str: &quot;</span> + str);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;str2: &quot;</span> + str2);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;str3: &quot;</span> + str3);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot; &quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 调用原始方法</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">a</span>(str, str2, str3);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 打印调用栈</span></span><br><span class="line">            <span class="keyword">var</span> stackTrace = <span class="title class_">Exception</span>.$new().<span class="title function_">getStackTrace</span>();</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;------------------------------------------------------------------------------------------------------------&quot;</span>);        </span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;LoginActivity.m12903a call stack results:&quot;</span>);</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;------------------------------------------------------------------------------------------------------------&quot;</span>);        </span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; stackTrace.<span class="property">length</span>; i++) &#123;</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(stackTrace[i].<span class="title function_">toString</span>());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Error occurred while printing call stack: &quot;</span> + e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231209130052729-17077213012428.png" data-caption="image-20231209130052729"><img src="/../images/mobile/frida/1/image-20231209130052729-17077213012428.png" alt="image-20231209130052729"></a></p>
+<h3 id="脱壳"><a href="#脱壳" class="headerlink" title="脱壳"></a>脱壳</h3><h4 id="frida-dexdump"><a href="#frida-dexdump" class="headerlink" title="frida-dexdump"></a>frida-dexdump</h4><p>frida-dexdump 是一个基于 Frida 的安全工具，可通过查找并转储内存中的dex文件以实现脱壳。测试目标使用 360 加固，尝试利用 frida-dexdump 进行脱壳。项目地址：<a target="_blank" rel="noopener" href="https://github.com/hluwa/frida-dexdump">https://github.com/hluwa/frida-dexdump</a></p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231204204118906-170772140865410.png" data-caption="image-20231204204118906"><img src="/../images/mobile/frida/1/image-20231204204118906-170772140865410.png" alt="image-20231204204118906"></a></p>
+<p>1、在安装完 frida 环境的基础上(这一部分就是上面 “工具安装” 章节)，然后直接利用 pip 可一键安装 frida-dexdump</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install frida-dexdump</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231204203656939.png" data-caption="image-20231204203656939"><img src="/../images/mobile/frida/1/image-20231204203656939.png" alt="image-20231204203656939"></a></p>
+<p>2、利用 adb 连接 Android ，然后再启动 frida-server</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">adb root</span><br><span class="line">adb shell</span><br><span class="line">cd data/app_test</span><br><span class="line">./frida-server-16.1.6-android-arm64</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231204204558680.png" data-caption="image-20231204204558680"><img src="/../images/mobile/frida/1/image-20231204204558680.png" alt="image-20231204204558680"></a></p>
+<p>3、Android 手机上运行需要测试的 APP，然后利用 frida-tools 查看该程序运行的 PID 号，已知 PID 号为 11256</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frida-ps -Uia</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231204205154000-170772151925312.png" data-caption="image-20231204205154000"><img src="/../images/mobile/frida/1/image-20231204205154000-170772151925312.png" alt="image-20231204205154000"></a></p>
+<p>4、利用 <code>frida-dexdump</code> 进行脱壳处理,命令如下，这里选择 <code>frida-dexdump -U -p 11265</code> </p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frida-dexdump -U -p PID</span><br></pre></td></tr></table></figure></div>
+
+<p>由于 APP 存在 SSL Pinning 检测，导致脱壳失败，这边需要先进行Bypass SSL Pinning 然后再运行 frida-dexdump 进行脱壳处理</p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231204210236674.png" data-caption="image-20231204210236674"><img src="/../images/mobile/frida/1/image-20231204210236674.png" alt="image-20231204210236674"></a></p>
+<p>Bypass SSL Pinning ，这边直接使用脚本 Hook ，也可以直接利用 Objection 进行 Hook</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">frida -U -f cn.xx.xxx -l Bypass.js</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231204210507093-170772168463414.png" data-caption="image-20231204210507093"><img src="/../images/mobile/frida/1/image-20231204210507093-170772168463414.png" alt="image-20231204210507093"></a></p>
+<p>再次运行 frida-dexdump 进行 dump dex</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">frida-ps -Uia</span><br><span class="line">frida-dexdump -U -p PID</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231204210719257-170772176827616.png" data-caption="image-20231204210719257"><img src="/../images/mobile/frida/1/image-20231204210719257-170772176827616.png" alt="image-20231204210719257"></a></p>
+<p>最后利用 jadx 进行反编译查看 dex 代码，具体脱壳效果如何，只能祈求上天的恩赐了。</p>
+<p><a data-fancybox="gallery" data-src="/../images/mobile/frida/1/image-20231204210740033.png" data-caption="image-20231204210740033"><img src="/../images/mobile/frida/1/image-20231204210740033.png" alt="image-20231204210740033"></a></p>
+<h2 id="六、参考"><a href="#六、参考" class="headerlink" title="六、参考"></a>六、参考</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">https://www.hackingarticles.in/android-penetration-testing-frida/</span><br><span class="line">https://frida.re/docs/home/</span><br><span class="line">https://github.com/frida/frida</span><br><span class="line">https://codeshare.frida.re/browse</span><br><span class="line">https://github.com/kaungkhantpy</span><br></pre></td></tr></table></figure></div>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81Frida-%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">一、Frida 简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Hook"><span class="toc-number">1.1.</span> <span class="toc-text">Hook</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B8%E5%BA%94%E5%8A%9F%E8%83%BD"><span class="toc-number">1.2.</span> <span class="toc-text">相应功能</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85"><span class="toc-number">2.</span> <span class="toc-text">二、工具安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E5%AE%9E%E8%B7%B5%E6%A1%88%E4%BE%8B"><span class="toc-number">3.</span> <span class="toc-text">三、实践案例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%BD%E8%B8%AA%E7%A8%8B%E5%BA%8F%E5%87%BD%E6%95%B0"><span class="toc-number">3.1.</span> <span class="toc-text">追踪程序函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bypass-SSL-Pinning-amp-ROOT"><span class="toc-number">3.2.</span> <span class="toc-text">Bypass SSL Pinning &amp; ROOT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%BD%E8%B8%AA%E5%8A%A0%E5%AF%86%E5%87%BD%E6%95%B0"><span class="toc-number">3.3.</span> <span class="toc-text">追踪加密函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%84%B1%E5%A3%B3"><span class="toc-number">3.4.</span> <span class="toc-text">脱壳</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#frida-dexdump"><span class="toc-number">3.4.1.</span> <span class="toc-text">frida-dexdump</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%AD%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">4.</span> <span class="toc-text">六、参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&text=移动安全-Frida 应用分析及案例实践"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=移动安全-Frida 应用分析及案例实践"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&is_video=false&description=移动安全-Frida 应用分析及案例实践"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=移动安全-Frida 应用分析及案例实践&body=Check out this article: http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=移动安全-Frida 应用分析及案例实践"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=移动安全-Frida 应用分析及案例实践"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=移动安全-Frida 应用分析及案例实践"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&title=移动安全-Frida 应用分析及案例实践"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&name=移动安全-Frida 应用分析及案例实践&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2024/02/16/%E7%A7%BB%E5%8A%A8%E5%AE%89%E5%85%A8-Frida%20%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90%E5%8F%8A%E6%A1%88%E4%BE%8B%E5%AE%9E%E8%B7%B5/&t=移动安全-Frida 应用分析及案例实践"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

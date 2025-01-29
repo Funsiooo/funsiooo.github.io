@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="📖 简介Chunsou（春蒐），Python3编写的多线程Web指纹识别工具，适用于安全测试人员前期的资产识别、风险收敛以及企业互联网资产摸查。目前主要功能为针对Web资产进行指纹识别，目前指纹规则条数约 10000+，辅助功能包括子域名爆破和FOFA、Hunter资产收集。工具开发初衷为辅助网络安全人员开展测试工作，提高资产识别和管理的效率。 [English Readme] 🥏 选项Chu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chunsou（春蒐）多线程Web指纹识别工具（项目发布）">
+<meta property="og:url" content="http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="📖 简介Chunsou（春蒐），Python3编写的多线程Web指纹识别工具，适用于安全测试人员前期的资产识别、风险收敛以及企业互联网资产摸查。目前主要功能为针对Web资产进行指纹识别，目前指纹规则条数约 10000+，辅助功能包括子域名爆破和FOFA、Hunter资产收集。工具开发初衷为辅助网络安全人员开展测试工作，提高资产识别和管理的效率。 [English Readme] 🥏 选项Chu">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/chunsou/1-17080738131781.png">
+<meta property="og:image" content="https://api.star-history.com/svg?repos=Funsiooo/chunsou&type=Date">
+<meta property="article:published_time" content="2023-07-04T13:48:34.000Z">
+<meta property="article:modified_time" content="2024-02-16T09:00:30.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="指纹识别">
+<meta property="article:tag" content="Python">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/chunsou/1-17080738131781.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>Chunsou（春蒐）多线程Web指纹识别工具（项目发布）</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/09/23/APP%E6%B5%8B%E8%AF%95%E7%B3%BB%E5%88%97-Android%20APP%E7%BB%95%E8%BF%87%E5%AE%89%E5%85%A8%E6%A3%80%E6%B5%8B%E6%9C%BA%E5%88%B6/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/05/22/Python%20Poc%E7%BC%96%E5%86%99%E5%AE%9E%E4%BE%8B%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E5%AE%9E%E8%B7%B5/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&text=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&title=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&is_video=false&description=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）&body=Check out this article: http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&title=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&title=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&title=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&title=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&name=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&t=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%96-%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">📖 简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%A5%8F-%E9%80%89%E9%A1%B9"><span class="toc-number">2.</span> <span class="toc-text">🥏 选项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%AB-%E4%BD%BF%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">🛫 使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%B4%E6%98%8E"><span class="toc-number">3.1.</span> <span class="toc-text">说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96"><span class="toc-number">3.2.</span> <span class="toc-text">安装依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E4%BD%BF%E7%94%A8%E6%8C%87%E4%BB%A4"><span class="toc-number">3.3.</span> <span class="toc-text">具体使用指令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%90-%E6%8C%87%E7%BA%B9"><span class="toc-number">4.</span> <span class="toc-text">🪐 指纹</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%8E%EF%B8%8F-FQA"><span class="toc-number">5.</span> <span class="toc-text">🛎️ FQA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%AD%90-Star-History"><span class="toc-number">6.</span> <span class="toc-text">⭐ Star History</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        Chunsou（春蒐）多线程Web指纹识别工具（项目发布）
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-07-04T13:48:34.000Z" itemprop="datePublished">2023-07-04</time>
+        
+        (Updated: <time datetime="2024-02-16T09:00:30.000Z" itemprop="dateModified">2024-02-16</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%AE%89%E5%85%A8%E5%BC%80%E5%8F%91/">安全开发</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/Python/" rel="tag">Python</a>, <a class="tag-link-link" href="/tags/%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB/" rel="tag">指纹识别</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="📖-简介"><a href="#📖-简介" class="headerlink" title="📖 简介"></a>📖 简介</h2><p>Chunsou（春蒐），Python3编写的多线程Web指纹识别工具，适用于安全测试人员前期的资产识别、风险收敛以及企业互联网资产摸查。目前主要功能为针对Web资产进行指纹识别，目前指纹规则条数约 10000+，辅助功能包括子域名爆破和FOFA、Hunter资产收集。工具开发初衷为辅助网络安全人员开展测试工作，提高资产识别和管理的效率。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/Funsiooo/chunsou/tree/main/doc/Readme.md">[English Readme]</a></p>
+<h2 id="🥏-选项"><a href="#🥏-选项" class="headerlink" title="🥏 选项"></a>🥏 选项</h2><p>Chunsou（春蒐）支持多线程扫描，默认线程为50，可根据需求指定线程数；可联动oneforall进行子域名爆破；支持调用 fofa api 进行资产收集；自定义流量代理；指定输出结果路径</p>
+<p><a data-fancybox="gallery" data-src="/../images/chunsou/1-17080738131781.png" data-caption="command_image"><img src="/../images/chunsou/1-17080738131781.png" alt="command_image"></a></p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">usage: python3 chunsou.py [options]</span><br><span class="line"></span><br><span class="line">target:</span><br><span class="line">  -u , --url            scan for a single url</span><br><span class="line">  -f , --file           specify a file for multi scanning</span><br><span class="line"></span><br><span class="line">subdomain:</span><br><span class="line">  -du , --domain        subdomain blasting of a single domain name</span><br><span class="line">  -df , --domains       subburst the domain name in the specified file</span><br><span class="line"></span><br><span class="line">api:</span><br><span class="line">  -fo , --fofa          call the fofa api for asset collection</span><br><span class="line">  -hu , --hunter        call the hunter api for asset collection</span><br><span class="line">  -tip                  spatial mapping search syntax reference</span><br><span class="line"></span><br><span class="line">others:</span><br><span class="line">  -p , --proxy          proxy scan traffic</span><br><span class="line">  -t , --threads        specify the number of scanning threads, default 50</span><br><span class="line">  -h, --help            show this help message and exit</span><br><span class="line">  -o , --output         specified output file</span><br><span class="line"></span><br><span class="line">example:</span><br><span class="line">  -u , --url            python3 chunsou.py -u http://example.com</span><br><span class="line">  -f , --file           python3 chunsou.py -f urls.txt</span><br><span class="line">  -p  , --proxy         python3 chunsou.py -u http://example.com -p http://127.0.0.1</span><br><span class="line">  -t  , --threads       python3 chunsou.py -f urls.txt -t 100</span><br><span class="line">  -o  , --output        python3 chunsou.py -f -o results.xlsx</span><br><span class="line">  -du , --domain        python3 chunsou.py -du example.com</span><br><span class="line">  -df , --domains       python3 chunsou.py -df domains.txt</span><br><span class="line">  -fo , --fofa          python3 chunsou.py -fo domain=&quot;example.com&quot;</span><br><span class="line">  -hu , --hunter        python3 chunsou.py -hu domain=&quot;example.com&quot;</span><br><span class="line">  -tip,                 python3 chunsou.py -tip</span><br><span class="line">  -e  ,                 python3 chunsou.py -f urls.txt -e</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="🛫-使用"><a href="#🛫-使用" class="headerlink" title="🛫 使用"></a>🛫 使用</h2><h3 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h3><p>目前输出文件默认保存在 <code>results</code> 目录下，现支持<code>txt</code>、<code>xlsx</code> 格式，指纹识别输出信息显示顺序 <code>| 已匹配到的指纹 | 网站标题 | 网站所用的技术栈</code></p>
+<h3 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install -r requirements.txt</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h3 id="具体使用指令"><a href="#具体使用指令" class="headerlink" title="具体使用指令"></a>具体使用指令</h3><div class="highlight-wrap" data-rel="Python"><figure class="iseeu highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 单目标指纹识别</span></span><br><span class="line">python3 chunsou.py -u http://example.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 多目标指纹识别（默认只输出成功请求的结果，报错url不显示，若需要显示报错信息加上 -e ）</span></span><br><span class="line">python3 chunsou.py -f urls.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 单目标子域名爆破(目前调用 oneforall 进行子域名爆破)</span></span><br><span class="line">python3 chunsou.py -du example.com</span><br><span class="line"></span><br><span class="line"><span class="comment"># 多目标子域名爆破</span></span><br><span class="line">python3 chunsou.py -df domains.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调用 fofa api 进行资产收集,需要在 /modules/config/config.ini 进行 fofa api key 配置</span></span><br><span class="line">python3 chunsou.py -fo domain=<span class="string">&quot;example.com&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 调用 hunter api 进行资产收集,需要在 /modules/config/config.ini 进行 hunter api key 配置</span></span><br><span class="line">python3 chunsou.py -hunter domain=<span class="string">&quot;example.com&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出显示 fofa hunter 基本搜索语法</span></span><br><span class="line">python3 chunsou.py -tip</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定线程（默认50）</span></span><br><span class="line">python3 chunsou.py -u http://example.com -t <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定输出结果格式（txt、xlsx）</span></span><br><span class="line">python3 chunsou.py -f urls.txt -o result.xlsx</span><br><span class="line"></span><br><span class="line"><span class="comment"># 代理流量（http、https、socks5）</span></span><br><span class="line">python3 chunsou.py -f urls.txt -p http://<span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">7890</span></span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="🪐-指纹"><a href="#🪐-指纹" class="headerlink" title="🪐 指纹"></a>🪐 指纹</h2><p>部分指纹来源于优秀开源项目 <a target="_blank" rel="noopener" href="https://github.com/EdgeSecurityTeam/EHole">Ehole</a> 、 <a target="_blank" rel="noopener" href="https://github.com/zhzyker/dismap">dismap</a>、 以及部分自收集，目前指纹规则条数约 10000+ (指纹条数，非程序个数)</p>
+<p>指纹规则，目前支持<code>网站关键字</code>、<code>网站 title</code>、<code>网站 header</code>、<code>网站 ico hash</code> 四种指纹匹配方式，相应规则如下：</p>
+<div class="highlight-wrap" data-rel="Json"><figure class="iseeu highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;cms&quot;</span><span class="punctuation">:</span> <span class="string">&quot;亿赛通电子文档安全管理系统&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;method&quot;</span><span class="punctuation">:</span> <span class="string">&quot;keyword&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;location&quot;</span><span class="punctuation">:</span> <span class="string">&quot;body&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;keyword&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;电子文档安全管理系统&quot;</span><span class="punctuation">,</span> <span class="string">&quot;CDGServer3&quot;</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;cms&quot;</span><span class="punctuation">:</span> <span class="string">&quot;禅道&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;method&quot;</span><span class="punctuation">:</span> <span class="string">&quot;icon_hash&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;location&quot;</span><span class="punctuation">:</span> <span class="string">&quot;body&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;keyword&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;3514039281&quot;</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;cms&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ecology&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;method&quot;</span><span class="punctuation">:</span> <span class="string">&quot;keyword&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;location&quot;</span><span class="punctuation">:</span> <span class="string">&quot;header&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;keyword&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;ecology_JSessionid&quot;</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;cms&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Nacos&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;method&quot;</span><span class="punctuation">:</span> <span class="string">&quot;keyword&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;location&quot;</span><span class="punctuation">:</span> <span class="string">&quot;title&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;keyword&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;Nacos&quot;</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="🛎️-FQA"><a href="#🛎️-FQA" class="headerlink" title="🛎️ FQA"></a>🛎️ FQA</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1、后续加强对现有指纹的适配以及不定期更新自收集的指纹</span><br><span class="line">2、bug反馈：https://github.com/Funsiooo/chunsou/issues</span><br><span class="line">3、使用时注意网络问题，由于部分网站防火墙或其他策略原因使用科学网络或网络不稳定会导致部分扫描报错异常</span><br><span class="line">4、工具更新详情可查看log.md</span><br><span class="line">5、指纹不定期更新，最新指纹请下载 modules/config/finger.json 文件自行替换</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h2 id="⭐-Star-History"><a href="#⭐-Star-History" class="headerlink" title="⭐ Star History"></a>⭐ Star History</h2><p><a target="_blank" rel="noopener" href="https://star-history.com/#Funsiooo/chunsou&Date"><a data-fancybox="gallery" data-src="https://api.star-history.com/svg?repos=Funsiooo/chunsou&type=Date" data-caption="Star History Chart"><img src="https://api.star-history.com/svg?repos=Funsiooo/chunsou&type=Date" alt="Star History Chart"></a></a></p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%96-%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">📖 简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%A5%8F-%E9%80%89%E9%A1%B9"><span class="toc-number">2.</span> <span class="toc-text">🥏 选项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%AB-%E4%BD%BF%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">🛫 使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%B4%E6%98%8E"><span class="toc-number">3.1.</span> <span class="toc-text">说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96"><span class="toc-number">3.2.</span> <span class="toc-text">安装依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E4%BD%93%E4%BD%BF%E7%94%A8%E6%8C%87%E4%BB%A4"><span class="toc-number">3.3.</span> <span class="toc-text">具体使用指令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%AA%90-%E6%8C%87%E7%BA%B9"><span class="toc-number">4.</span> <span class="toc-text">🪐 指纹</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%9B%8E%EF%B8%8F-FQA"><span class="toc-number">5.</span> <span class="toc-text">🛎️ FQA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E2%AD%90-Star-History"><span class="toc-number">6.</span> <span class="toc-text">⭐ Star History</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&text=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&title=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&is_video=false&description=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）&body=Check out this article: http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&title=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&title=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&title=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&title=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&name=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/07/04/Chunsou%EF%BC%88%E6%98%A5%E8%92%90%EF%BC%89%E5%A4%9A%E7%BA%BF%E7%A8%8BWeb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB%E5%B7%A5%E5%85%B7%EF%BC%88%E9%A1%B9%E7%9B%AE%E5%8F%91%E5%B8%83%EF%BC%89/&t=Chunsou（春蒐）多线程Web指纹识别工具（项目发布）"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>

