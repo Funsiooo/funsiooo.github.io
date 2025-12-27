@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="一、简介CodeQL 是一种基于语义的静态代码分析工具，用于自动化检测代码中的安全漏洞，核心原理是通过将代码转换为可查询的数据库，并基于自定义规则（QL 查询）进行模式匹配和数据流分析。 二、运行逻辑简单理解就是 CodeQL 通过将源代码转换为其分析引擎可理解的数据库形式，然后应用预定义或自定义的查询规则，来检测代码中可能存在的漏洞，逻辑如下：  首先CodeQL读取源代码并使用 Extract">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CodeQL 实用指南：从原理到漏洞检测全流程">
+<meta property="og:url" content="http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/index.html">
+<meta property="og:site_name" content="Funsiooo&#39;s Blog">
+<meta property="og:description" content="一、简介CodeQL 是一种基于语义的静态代码分析工具，用于自动化检测代码中的安全漏洞，核心原理是通过将代码转换为可查询的数据库，并基于自定义规则（QL 查询）进行模式匹配和数据流分析。 二、运行逻辑简单理解就是 CodeQL 通过将源代码转换为其分析引擎可理解的数据库形式，然后应用预定义或自定义的查询规则，来检测代码中可能存在的漏洞，逻辑如下：  首先CodeQL读取源代码并使用 Extract">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/images/Java/codeql/1.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/2.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/3.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/4.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/5.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/6.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/7.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/8.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/9.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/10.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/11.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/12.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/13.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/14.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/15.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/16.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/17.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/18.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/19.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/20.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/21.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/22.png">
+<meta property="og:image" content="http://example.com/images/Java/codeql/23.png">
+<meta property="article:published_time" content="2025-07-01T14:34:23.000Z">
+<meta property="article:modified_time" content="2025-07-01T03:42:27.794Z">
+<meta property="article:author" content="Funsiooo">
+<meta property="article:tag" content="codeql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/Java/codeql/1.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/logo-1.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/logo-1.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-1.png">
+        
+      
+    
+    <!-- title -->
+    <title>CodeQL 实用指南：从原理到漏洞检测全流程</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({
+			tex2jax: {
+			  skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+			  inlineMath: [['$','$']]
+			}
+		  });
+		</script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+	
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.css" />
+
+<meta name="generator" content="Hexo 5.4.2"><link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+<body class="max-width mx-auto px3 ">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     --><!--
+       --><li><a href="/tags/">标签</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2025/12/16/Suricata%20%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95%EF%BC%9A%E9%83%A8%E7%BD%B2%E4%B8%8E%E8%A7%84%E5%88%99%E5%AE%9E%E8%B7%B5/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2025/01/29/%E5%B0%8F%E7%AB%99%E6%9D%82%E8%B4%A7%E5%BA%97-%E9%9A%8F%E5%BF%83%E8%80%8C%E8%A1%8C%E3%80%81%E7%A8%B3%E4%B8%AD%E6%B1%82%E8%BF%9B%E3%80%81%E6%8A%97%E4%BA%89%E4%B8%AD%E6%8E%A5%E5%8F%97/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&text=CodeQL 实用指南：从原理到漏洞检测全流程"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&title=CodeQL 实用指南：从原理到漏洞检测全流程"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&is_video=false&description=CodeQL 实用指南：从原理到漏洞检测全流程"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=CodeQL 实用指南：从原理到漏洞检测全流程&body=Check out this article: http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&title=CodeQL 实用指南：从原理到漏洞检测全流程"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&title=CodeQL 实用指南：从原理到漏洞检测全流程"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&title=CodeQL 实用指南：从原理到漏洞检测全流程"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&title=CodeQL 实用指南：从原理到漏洞检测全流程"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&name=CodeQL 实用指南：从原理到漏洞检测全流程&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&t=CodeQL 实用指南：从原理到漏洞检测全流程"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">一、简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E8%BF%90%E8%A1%8C%E9%80%BB%E8%BE%91"><span class="toc-number">2.</span> <span class="toc-text">二、运行逻辑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81CodeQL-%E5%AE%89%E8%A3%85%EF%BC%88%E6%9C%AC%E6%96%87%E4%BD%BF%E7%94%A8-mac-m4-%E8%AE%BE%E5%A4%87%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">三、CodeQL 安装（本文使用 mac m4 设备）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%AE%89%E8%A3%85-Xcode%E5%92%8CRosetta"><span class="toc-number">3.1.</span> <span class="toc-text">1、安装 Xcode和Rosetta</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E4%B8%8B%E8%BD%BD-CodeQL-%E5%88%86%E6%9E%90%E5%BC%95%E6%93%8E%E5%92%8C%E8%A7%84%E5%88%99%E5%BA%93"><span class="toc-number">3.2.</span> <span class="toc-text">2、下载 CodeQL 分析引擎和规则库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E5%88%9B%E5%BB%BA-CodeQL-%E6%96%87%E4%BB%B6%E5%A4%B9"><span class="toc-number">3.3.</span> <span class="toc-text">3、创建 CodeQL 文件夹</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E9%85%8D%E7%BD%AE-CodeQL-%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F"><span class="toc-number">3.4.</span> <span class="toc-text">4、配置 CodeQL 全局变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5%E3%80%81%E5%90%AF%E5%8A%A8%E6%89%AB%E6%8F%8F"><span class="toc-number">3.5.</span> <span class="toc-text">5、启动扫描</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E6%89%AB%E6%8F%8F"><span class="toc-number">3.5.1.</span> <span class="toc-text">本地扫描</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#vscode-%E6%89%AB%E6%8F%8F"><span class="toc-number">3.5.2.</span> <span class="toc-text">vscode 扫描</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Github-%E6%89%AB%E6%8F%8F"><span class="toc-number">3.5.3.</span> <span class="toc-text">Github 扫描</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">四、总结</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        CodeQL 实用指南：从原理到漏洞检测全流程
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">Funsiooo</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-07-01T14:34:23.000Z" itemprop="datePublished">2025-07-01</time>
+        
+        (Updated: <time datetime="2025-07-01T03:42:27.794Z" itemprop="dateModified">2025-07-01</time>)
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/">代码审计</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/codeql/" rel="tag">codeql</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><p>CodeQL 是一种基于语义的静态代码分析工具，用于自动化检测代码中的安全漏洞，<strong>核心原理是通过将代码转换为可查询的数据库，并基于自定义规则（QL 查询）进行模式匹配和数据流分析</strong>。</p>
+<h2 id="二、运行逻辑"><a href="#二、运行逻辑" class="headerlink" title="二、运行逻辑"></a>二、运行逻辑</h2><p>简单理解就是 CodeQL 通过将源代码转换为其分析引擎可理解的数据库形式，然后应用预定义或自定义的查询规则，来检测代码中可能存在的漏洞，逻辑如下：</p>
+<ul>
+<li><p>首先CodeQL读取源代码并使用 Extractor 模块进行解析，生成抽象语法树（AST）、控制流图（CFG）和数据流图（DFG）等结构。</p>
+</li>
+<li><p>然后，将这些结构存储在本地的 CodeQL 数据库中。</p>
+</li>
+<li><p>接着，用户根据需要选择自定义或官方的规则，编写或使用 QL 查询规则。</p>
+</li>
+<li><p>最后，在 CodeQL 数据库上执行这些查询，进行漏洞特征匹配或数据流分析，生成漏洞检测报告。</p>
+</li>
+</ul>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/1.png" data-caption="image-20250209140153064"><img src="/../images/Java/codeql/1.png" alt="image-20250209140153064"></a></p>
+<h2 id="三、CodeQL-安装（本文使用-mac-m4-设备）"><a href="#三、CodeQL-安装（本文使用-mac-m4-设备）" class="headerlink" title="三、CodeQL 安装（本文使用 mac m4 设备）"></a>三、CodeQL 安装（本文使用 mac m4 设备）</h2><h3 id="1、安装-Xcode和Rosetta"><a href="#1、安装-Xcode和Rosetta" class="headerlink" title="1、安装 Xcode和Rosetta"></a>1、安装 Xcode和Rosetta</h3><p>M 芯片在安装 CodeQL 前需要安装 Xcode和Rosetta，终端上运行以下命令，</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">softwareupdate –-install-rosetta</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/2.png" data-caption="image-20250209143911600"><img src="/../images/Java/codeql/2.png" alt="image-20250209143911600"></a></p>
+<h3 id="2、下载-CodeQL-分析引擎和规则库"><a href="#2、下载-CodeQL-分析引擎和规则库" class="headerlink" title="2、下载 CodeQL 分析引擎和规则库"></a>2、下载 CodeQL 分析引擎和规则库</h3><ul>
+<li><p>分析引擎</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/github/codeql-cli-binaries/releases">https://github.com/github/codeql-cli-binaries/releases</a></p>
+</li>
+<li><p>规则库</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/github/codeql">https://github.com/github/codeql</a></p>
+</li>
+</ul>
+<h3 id="3、创建-CodeQL-文件夹"><a href="#3、创建-CodeQL-文件夹" class="headerlink" title="3、创建 CodeQL 文件夹"></a>3、创建 CodeQL 文件夹</h3><p>新建一个 CodeQL 文件夹，用来存放上面下载的分析引擎和规则库，文件夹（名字自定义）内容如下：</p>
+<ul>
+<li>codeql：存放 <a target="_blank" rel="noopener" href="https://github.com/github/codeql-cli-binaries/releases">https://github.com/github/codeql-cli-binaries/releases</a> codeql-osx64.zip 解压文件</li>
+<li>ql：存放 <a target="_blank" rel="noopener" href="https://github.com/github/codeql">https://github.com/github/codeql</a> 解压文件</li>
+<li>databases：空文件夹，存放后续 codeql 生成的数据库文件</li>
+</ul>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/3.png" data-caption="image-20250209142022722"><img src="/../images/Java/codeql/3.png" alt="image-20250209142022722"></a></p>
+<h3 id="4、配置-CodeQL-全局变量"><a href="#4、配置-CodeQL-全局变量" class="headerlink" title="4、配置 CodeQL 全局变量"></a>4、配置 CodeQL 全局变量</h3><p>编辑 ~&#x2F;.zshrc 文件，指定 codeql 路径 CodeQL&#x2F;codeql</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">vim ~/.zshrc</span><br><span class="line">export PATH=&quot;/Users/用户名/Files/CodeQL/codeql:$PATH&quot;</span><br><span class="line"></span><br><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure></div>
+
+
+
+<p>验证是否安装成功，输入 codeql</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/4.png" data-caption="image-20250209143958898"><img src="/../images/Java/codeql/4.png" alt="image-20250209143958898"></a></p>
+<h3 id="5、启动扫描"><a href="#5、启动扫描" class="headerlink" title="5、启动扫描"></a>5、启动扫描</h3><h4 id="本地扫描"><a href="#本地扫描" class="headerlink" title="本地扫描"></a>本地扫描</h4><p>1）生成数据库，由于项目的不同，命令存在差异，命令不对或项目存在问题时容易出现报错，例如项目中没有 pom.xml 文件，使用了 command&#x3D;”mvn -fn clean install –file pom.xml -Dmaven.test.skip&#x3D;true” ，可直接使用以下命令，注意：在项目路径下执行命令可不指定源代码路径，非项目路径下执行需要添加–source-root</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">codeql database create &lt;数据库存放的路径及名称&gt; --language=代码类型</span><br><span class="line">codeql database create &lt;数据库存放的路径及名称&gt; --language=代码类型 --source-root=&lt;源代码位置&gt;</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/5.png" data-caption="image-20250209152717681"><img src="/../images/Java/codeql/5.png" alt="image-20250209152717681"></a></p>
+<p>2）漏洞扫描</p>
+<ul>
+<li>使用 CodeQL 官方规则库，输出格式为 csv</li>
+</ul>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">codeql database analyze /java-sec-code --format=csv --output=results.csv</span><br></pre></td></tr></table></figure></div>
+
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/6.png" data-caption="image-20250209153216747"><img src="/../images/Java/codeql/6.png" alt="image-20250209153216747"></a></p>
+<p>3、查看扫描结果，结果在项目源码处</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/7.png" data-caption="image-20250209153956718"><img src="/../images/Java/codeql/7.png" alt="image-20250209153956718"></a></p>
+<p>自定义扫描规则命令</p>
+<div class="highlight-wrap" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">codeql database analyze &lt;数据库存放的路径及名称&gt; &lt;自定义规则.qls&gt; --format=csv --output=results.csv</span><br></pre></td></tr></table></figure></div>
+
+
+
+<h4 id="vscode-扫描"><a href="#vscode-扫描" class="headerlink" title="vscode 扫描"></a>vscode 扫描</h4><p>1、插件市场搜索 codeql</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/8.png" data-caption="image-20250208162914471"><img src="/../images/Java/codeql/8.png" alt="image-20250208162914471"></a></p>
+<p>安装完成后，点击设置 codeql 路径</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/9.png" data-caption="image-20250208164319712"><img src="/../images/Java/codeql/9.png" alt="image-20250208164319712"></a></p>
+<p>3、打开项目源码文件夹</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/10.png" data-caption="image-20250209161126120"><img src="/../images/Java/codeql/10.png" alt="image-20250209161126120"></a></p>
+<p>4、点击 QL 插件-》点击Form a folder -》选择生成的项目数据库-》点击 create one to get started 选择项目语言</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/11.png" data-caption="image-20250209161444949"><img src="/../images/Java/codeql/11.png" alt="image-20250209161444949"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/12.png" data-caption="image-20250209161534302"><img src="/../images/Java/codeql/12.png" alt="image-20250209161534302"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/13.png" data-caption=""><img src="/../images/Java/codeql/13.png"></a></p>
+<p>替换 example.ql 规则即可针对生成的数据库进行扫描，并定位漏洞代码，以下使用官方的 xxe ql 规则，点击左侧边栏中的 example.ql 运行按钮进行扫描 ，最右侧为扫描结果</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/14.png" data-caption="image-20250209160034994"><img src="/../images/Java/codeql/14.png" alt="image-20250209160034994"></a></p>
+<h4 id="Github-扫描"><a href="#Github-扫描" class="headerlink" title="Github 扫描"></a>Github 扫描</h4><p><a data-fancybox="gallery" data-src="/../images/Java/codeql/15.png" data-caption="image-20250209203905290"><img src="/../images/Java/codeql/15.png" alt="image-20250209203905290"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/16.png" data-caption="image-20250209204000830"><img src="/../images/Java/codeql/16.png" alt="image-20250209204000830"></a></p>
+<p>点击action 后输入 codeql ，点击 configure 进行配置</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/17.png" data-caption="image-20250209204126841"><img src="/../images/Java/codeql/17.png" alt="image-20250209204126841"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/18.png" data-caption="image-20250209204348252"><img src="/../images/Java/codeql/18.png" alt="image-20250209204348252"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/19.png" data-caption="image-20250209204419849"><img src="/../images/Java/codeql/19.png" alt="image-20250209204419849"></a></p>
+<p>然后点击 action 等待一段时间后可查看扫描结果</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/20.png" data-caption="image-20250209204740874"><img src="/../images/Java/codeql/20.png" alt="image-20250209204740874"></a></p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/21.png" data-caption="image-20250209204806635"><img src="/../images/Java/codeql/21.png" alt="image-20250209204806635"></a></p>
+<p>点击 Security 可查看扫描结果</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/22.png" data-caption=""><img src="/../images/Java/codeql/22.png"></a></p>
+<p>点击可查看具体的漏洞位置	</p>
+<p><a data-fancybox="gallery" data-src="/../images/Java/codeql/23.png" data-caption="image-20250209205955184"><img src="/../images/Java/codeql/23.png" alt="image-20250209205955184"></a></p>
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>本文基于 mac Codeql 的使用。</p>
+
+  </div>
+</article>
+
+    <div class="blog-post-comments">
+        <div id="disqus_thread">
+            <noscript>加载评论需要在浏览器启用 JavaScript 脚本支持。</noscript>
+        </div>
+    </div>
+
+
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+         
+          <li><a href="/tags/">标签</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">一、简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E8%BF%90%E8%A1%8C%E9%80%BB%E8%BE%91"><span class="toc-number">2.</span> <span class="toc-text">二、运行逻辑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81CodeQL-%E5%AE%89%E8%A3%85%EF%BC%88%E6%9C%AC%E6%96%87%E4%BD%BF%E7%94%A8-mac-m4-%E8%AE%BE%E5%A4%87%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">三、CodeQL 安装（本文使用 mac m4 设备）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%AE%89%E8%A3%85-Xcode%E5%92%8CRosetta"><span class="toc-number">3.1.</span> <span class="toc-text">1、安装 Xcode和Rosetta</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E4%B8%8B%E8%BD%BD-CodeQL-%E5%88%86%E6%9E%90%E5%BC%95%E6%93%8E%E5%92%8C%E8%A7%84%E5%88%99%E5%BA%93"><span class="toc-number">3.2.</span> <span class="toc-text">2、下载 CodeQL 分析引擎和规则库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E5%88%9B%E5%BB%BA-CodeQL-%E6%96%87%E4%BB%B6%E5%A4%B9"><span class="toc-number">3.3.</span> <span class="toc-text">3、创建 CodeQL 文件夹</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E9%85%8D%E7%BD%AE-CodeQL-%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F"><span class="toc-number">3.4.</span> <span class="toc-text">4、配置 CodeQL 全局变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5%E3%80%81%E5%90%AF%E5%8A%A8%E6%89%AB%E6%8F%8F"><span class="toc-number">3.5.</span> <span class="toc-text">5、启动扫描</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E6%89%AB%E6%8F%8F"><span class="toc-number">3.5.1.</span> <span class="toc-text">本地扫描</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#vscode-%E6%89%AB%E6%8F%8F"><span class="toc-number">3.5.2.</span> <span class="toc-text">vscode 扫描</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Github-%E6%89%AB%E6%8F%8F"><span class="toc-number">3.5.3.</span> <span class="toc-text">Github 扫描</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">4.</span> <span class="toc-text">四、总结</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&text=CodeQL 实用指南：从原理到漏洞检测全流程"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&title=CodeQL 实用指南：从原理到漏洞检测全流程"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&is_video=false&description=CodeQL 实用指南：从原理到漏洞检测全流程"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=CodeQL 实用指南：从原理到漏洞检测全流程&body=Check out this article: http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&title=CodeQL 实用指南：从原理到漏洞检测全流程"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&title=CodeQL 实用指南：从原理到漏洞检测全流程"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&title=CodeQL 实用指南：从原理到漏洞检测全流程"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&title=CodeQL 实用指南：从原理到漏洞检测全流程"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&name=CodeQL 实用指南：从原理到漏洞检测全流程&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/07/01/CodeQL%20%E5%AE%9E%E7%94%A8%E6%8C%87%E5%8D%97%EF%BC%9A%E4%BB%8E%E5%8E%9F%E7%90%86%E5%88%B0%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B%E5%85%A8%E6%B5%81%E7%A8%8B/&t=CodeQL 实用指南：从原理到漏洞检测全流程"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+      <div class="footer-left">
+        Copyright &copy;
+        
+        
+        2022-2025
+        Funsiooo
+      </div>
+      <div class="footer-right">
+        <nav>
+          <ul>
+            <!--
+          --><li><a href="/">首页</a></li><!--
+        --><!--
+          --><li><a href="/archives/">归档</a></li><!--
+        --><!--
+          --><li><a href="/search/">搜索</a></li><!--
+        --><!--
+          --><li><a href="/tags/">标签</a></li><!--
+        --><!--
+          --><li><a href="/about/">关于</a></li><!--
+        -->
+          </ul>
+        </nav>        
+      </div>
+
+      <div class="footer-midle">
+        <nav>
+          <ul>
+            
+              <!-- 不蒜子统计 -->
+              <span id="busuanzi_container_site_pv">
+                  本站总访问量<span id="busuanzi_value_site_pv"></span>次
+              </span>
+              <span class="post-meta-divider">|</span>
+              <span id="busuanzi_container_site_uv" style='display:none'>
+                      本站访客数<span id="busuanzi_value_site_uv"></span>人
+              </span>
+              <span id="busuanzi_container_page_pv">
+			  本文总阅读量<span id="busuanzi_value_page_pv"></span>次
+	      </span>
+            <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            
+          </ul>
+        </nav>
+      </div>
+</footer>
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+  <script type="text/javascript">
+        var _hmt = _hmt || [];
+        (function() {
+          var hm = document.createElement("script");
+          hm.src = "https://hm.baidu.com/hm.js?47a5bc2b41144f91553c5eefd4999c0d";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(hm, s);
+        })();
+        </script>
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+    <script type="text/javascript">
+        var disqus_shortname = 'boom';
+
+        (function(){
+            var dsq = document.createElement('script');
+            dsq.type = 'text/javascript';
+            dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        }());
+    </script>
+
+<!-- utterances Comments -->
+
+<!-- FancyBox -->
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+
+
+</body>
+</html>
